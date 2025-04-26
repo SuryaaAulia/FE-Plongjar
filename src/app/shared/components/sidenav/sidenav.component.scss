@@ -8,6 +8,7 @@
     height: 100vh;
     overflow-x: hidden;
     overflow-y: auto;
+    padding-top: 60px;
 }
 
 .sidenav-collapsed {
@@ -127,28 +128,6 @@
     
     .submenu-trigger:hover {
         background-color: var(--secondary-blue);
-    }
-}
-
-.toggle-btn {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: absolute;
-    bottom: 1rem;
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--secondary-blue);
-    color: var(--primary-white);
-    border: none;
-    border-radius: 50%;
-    width: 2.5rem;
-    height: 2.5rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    
-    &:hover {
-        background: var(--secondary-blue);
     }
 }
 

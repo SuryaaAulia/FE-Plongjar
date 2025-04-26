@@ -13,23 +13,15 @@ import { NavItem, SideNavToggle } from '../../../core/models/nav-item.model';
 export class SidenavComponent implements OnInit {
   @Output() onToggleSideNav = new EventEmitter<SideNavToggle>();
   @Input() menuItems: NavItem[] | null = [];
+  @Input() collapsed = false;
   
   screenWidth = 0;
-  collapsed = false;
   hovering = false;
   
   expandedItems: Record<string, boolean> = {};
 
   ngOnInit(): void {
     this.screenWidth = window.innerWidth;
-  }
-
-  toggleCollapse(): void {
-    this.collapsed = !this.collapsed;
-    this.onToggleSideNav.emit({
-      collapsed: this.collapsed,
-      screenWidth: this.screenWidth
-    });
   }
 
   onMouseEnter(): void {

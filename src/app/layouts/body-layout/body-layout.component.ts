@@ -1,10 +1,11 @@
 import { Component, Input } from '@angular/core';
 import { NgClass } from '@angular/common';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-body-layout',
   standalone: true,
-  imports: [NgClass],
+  imports: [NgClass, RouterOutlet],
   templateUrl: './body-layout.component.html',
   styleUrl: './body-layout.component.scss'
 })

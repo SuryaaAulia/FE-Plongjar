@@ -4,17 +4,21 @@ import { AuthService } from '../../core/services/auth.service';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { SidenavComponent } from '../../shared/components/sidenav/sidenav.component';
+import { NavbarComponent } from '../../shared/components/navbar/navbar.component';
 import { NavItem, SideNavToggle } from '../../core/models/nav-item.model';
-import { Observable, switchMap } from 'rxjs';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, SidenavComponent],
-  templateUrl: './main-layout.component.html'
+  imports: [CommonModule, RouterOutlet, SidenavComponent, NavbarComponent],
+  templateUrl: './main-layout.component.html',
+  styleUrls: ['./main-layout.component.scss']
 })
 export class MainLayoutComponent implements OnInit {
   menuItems$!: Observable<NavItem[]>;
+  screenWidth = 0;
+  collapsed = false;
   
   constructor(
     private nav: NavService,
@@ -22,16 +26,21 @@ export class MainLayoutComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.screenWidth = window.innerWidth;
     this.menuItems$ = this.nav.getMenu('admin');
-    
-    /* Role-based menu approach - uncomment to enable
-    this.menuItems$ = this.auth.currentUser$.pipe(
-      switchMap(user => this.nav.getMenu(user.role as keyof typeof this.nav.menuConfig))
-    );
-    */
   }
 
-  handleSideNavToggle(event: SideNavToggle) {
-    console.log('Collapsed:', event.collapsed);
+  toggleSidenav(): void {
+    this.collapsed = !this.collapsed;
+    this.emitSideNavInfo();
+  }
+
+  handleSideNavToggle(event: SideNavToggle): void {
+    this.screenWidth = event.screenWidth;
+    this.collapsed = event.collapsed;
+  }
+
+  private emitSideNavInfo(): void {
+    
   }
 }

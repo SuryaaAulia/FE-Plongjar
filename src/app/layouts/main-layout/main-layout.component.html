@@ -1,7 +1,11 @@
+<app-navbar [collapsed]="collapsed" (toggleSidenav)="toggleSidenav()"></app-navbar>
+
 <app-sidenav 
-[menuItems]="menuItems$ | async"
-(onToggleSideNav)="handleSideNavToggle($event)">
+  [menuItems]="menuItems$ | async"
+  [collapsed]="collapsed"
+  (onToggleSideNav)="handleSideNavToggle($event)">
 </app-sidenav>
-<div class="main-content" [ngClass]="{'content-expanded': true}">
-<router-outlet></router-outlet>
+
+<div class="main-content" [ngClass]="{'content-expanded': !collapsed, 'content-collapsed': collapsed}">
+  <router-outlet></router-outlet>
 </div>
