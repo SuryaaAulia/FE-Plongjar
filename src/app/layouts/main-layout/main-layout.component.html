@@ -1,0 +1,7 @@
+<app-sidenav 
+[menuItems]="menuItems$ | async"
+(onToggleSideNav)="handleSideNavToggle($event)">
+</app-sidenav>
+<div class="main-content" [ngClass]="{'content-expanded': true}">
+<router-outlet></router-outlet>
+</div>

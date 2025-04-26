@@ -1,1 +1,25 @@
 /* You can add global styles to this file, and also import other style files */
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body{
+    font-family: 'Inter', sans-serif;
+    position: relative;
+}
+
+:root {
+
+    --primary-white: #FFFFFF;
+    --primary-blue: #1F2937;
+
+    --secondary-blue: #374151;
+
+    --black: #000000;
+    --green: #5FDF1F;
+    --red: #DF1F22;
+    --blue: #4680FE;
+}
