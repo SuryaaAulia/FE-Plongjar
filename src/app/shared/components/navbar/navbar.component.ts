@@ -10,8 +10,9 @@ import { RouterModule } from '@angular/router';
   styleUrls: ['./navbar.component.scss']
 })
 export class NavbarComponent {
-  @Input() collapsed = false;
   @Output() toggleSidenav = new EventEmitter<void>();
+  @Input() collapsed = false;
+  @Input() hovering = false;
   
   constructor() {}
   

@@ -12,6 +12,7 @@ import { NavItem, SideNavToggle } from '../../../core/models/nav-item.model';
 })
 export class SidenavComponent implements OnInit {
   @Output() onToggleSideNav = new EventEmitter<SideNavToggle>();
+  @Output() onHover = new EventEmitter<boolean>();
   @Input() menuItems: NavItem[] | null = [];
   @Input() collapsed = false;
   
@@ -27,11 +28,13 @@ export class SidenavComponent implements OnInit {
   onMouseEnter(): void {
     if (this.collapsed) {
       this.hovering = true;
+      this.onHover.emit(true);
     }
   }
-
+  
   onMouseLeave(): void {
     this.hovering = false;
+    this.onHover.emit(false);
   }
 
   toggleSubmenu(label: string): void {

@@ -1,12 +1,17 @@
 .main-content {
-    padding-top: 60px;
+  padding-top: 7.25rem;
+  margin-left: 18.25rem;
+  transition: all 0.3s ease;
+  width: calc(100% - 16.2rem);
+  min-height: 100vh;
+  
+  &.content-collapsed {
+    margin-left: 5rem;
+    width: calc(100% - 5rem);
+  }
+  
+  &.content-hover-expanded {
     margin-left: 16.2rem;
-    transition: all 0.3s ease;
     width: calc(100% - 16.2rem);
-    min-height: 100vh;
-    
-    &.content-collapsed {
-      margin-left: 5rem;
-      width: calc(100% - 5rem);
-    }
+  }
 }

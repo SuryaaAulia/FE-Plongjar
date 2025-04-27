@@ -19,6 +19,7 @@ export class MainLayoutComponent implements OnInit {
   menuItems$!: Observable<NavItem[]>;
   screenWidth = 0;
   collapsed = false;
+  hovering = false;
   
   constructor(
     private nav: NavService,
@@ -40,7 +41,11 @@ export class MainLayoutComponent implements OnInit {
     this.collapsed = event.collapsed;
   }
 
+  handleSidenavHover(isHovering: boolean): void {
+    this.hovering = isHovering;
+  }
+
   private emitSideNavInfo(): void {
-    
+    // Implementation if needed
   }
 }

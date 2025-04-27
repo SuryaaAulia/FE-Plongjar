@@ -1,5 +1,5 @@
 .navbar {
-    height: 60px;
+    height: 68px;
     background-color: var(--primary-white);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     position: fixed;
@@ -57,8 +57,9 @@
   }
   
   .breadcrumb {
-    font-size: 0.9rem;
-    color: var(--primary-blue);
+    font-size: 1.125rem;
+    color: var(--secondary-blue);
+    font-weight: 600;
   }
   
   .navbar-right {
@@ -69,8 +70,11 @@
   .user-profile {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 0.9rem;
+    gap: 1rem;
+    padding-right: 1rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--secondary-blue);
     
     .avatar {
       width: 32px;

@@ -1,4 +1,6 @@
-<nav class="navbar" [ngClass]="{'navbar-expanded': !collapsed, 'navbar-collapsed': collapsed}">
+<nav class="navbar" [ngClass]="{
+    'navbar-expanded': !collapsed || (collapsed && hovering),
+    'navbar-collapsed': collapsed && !hovering}">
         <div class="navbar-container">
             <div class="navbar-left">
                 <button class="toggle-btn" (click)="onToggleSidenav()">
@@ -10,10 +12,10 @@
             </div>
         <div class="navbar-right">
             <div class="user-profile">
-                <span>Ketua KK 123</span>
                 <div class="avatar">
                     <img src="/api/placeholder/32/32" alt="User Avatar" />
                 </div>
+                <span>Ketua KK 123</span>
             </div>
         </div>
         </div>
