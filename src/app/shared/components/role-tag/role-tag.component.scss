@@ -1,0 +1,18 @@
+.role-tag {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: #f1f5f9;
+    border-radius: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+  
+    i {
+      cursor: pointer;
+      color: #64748b;
+  
+      &:hover {
+        color: var(--red);
+      }
+    }
+  }
