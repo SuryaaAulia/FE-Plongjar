@@ -1,1 +1,30 @@
-<p>assign-role works!</p>
+<div class="assign-role-container">
+  <!-- Search Header Component -->
+  <app-search-header
+    [title]="'Assign Role'"
+    [itemsPerPage]="itemsPerPage"
+    (search)="onSearch($event)"
+    (itemsPerPageChange)="onItemsPerPageChange($event)"
+  >
+  </app-search-header>
+
+  <!-- User Cards Grid -->
+  <div class="card-grid">
+    <app-user-card
+      *ngFor="let user of paginatedUsers"
+      [user]="user"
+      (addRole)="addRole(user)"
+      (removeRole)="removeRole(user, $event)"
+    >
+    </app-user-card>
+  </div>
+
+  <!-- Pagination Component -->
+  <app-pagination
+    [currentPage]="currentPage"
+    [itemsPerPage]="itemsPerPage"
+    [totalItems]="filteredUsers.length"
+    (pageChange)="goToPage($event)"
+  >
+  </app-pagination>
+</div>

@@ -1,0 +1,11 @@
+.assign-role-container {
+  padding: 1.5rem;
+  background-color: var(--primary-white);
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+}
