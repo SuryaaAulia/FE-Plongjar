@@ -1,7 +1,6 @@
 <div class="pagination">
   <div class="pagination-info">
-    Menampilkan {{ showingFrom }} sampai {{ showingTo }} dari
-    {{ totalItems }} entri
+    Showing page {{ currentPage }} of {{ totalPages }}
   </div>
   <div class="pagination-controls">
     <button
@@ -11,14 +10,7 @@
     >
       <i class="fa fa-chevron-left"></i>
     </button>
-    <button
-      *ngFor="let page of getPageNumbers()"
-      class="pagination-btn"
-      [class.active]="page === currentPage"
-      (click)="goToPage(page)"
-    >
-      {{ page }}
-    </button>
+    <button class="pagination-btn active">{{ currentPage }}</button>
     <button
       class="pagination-btn"
       [disabled]="currentPage === totalPages"

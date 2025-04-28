@@ -13,18 +13,15 @@ import { Observable } from 'rxjs';
   standalone: true,
   imports: [CommonModule, RouterOutlet, SidenavComponent, NavbarComponent],
   templateUrl: './main-layout.component.html',
-  styleUrls: ['./main-layout.component.scss']
+  styleUrls: ['./main-layout.component.scss'],
 })
 export class MainLayoutComponent implements OnInit {
   menuItems$!: Observable<NavItem[]>;
   screenWidth = 0;
   collapsed = false;
   hovering = false;
-  
-  constructor(
-    private nav: NavService,
-    private auth: AuthService
-  ) {}
+
+  constructor(private nav: NavService, private auth: AuthService) {}
 
   ngOnInit(): void {
     this.screenWidth = window.innerWidth;

@@ -1,30 +1,41 @@
 <div class="assign-role-container">
-  <!-- Search Header Component -->
-  <app-search-header
-    [title]="'Assign Role'"
-    [itemsPerPage]="itemsPerPage"
-    (search)="onSearch($event)"
-    (itemsPerPageChange)="onItemsPerPageChange($event)"
-  >
-  </app-search-header>
-
-  <!-- User Cards Grid -->
-  <div class="card-grid">
-    <app-user-card
-      *ngFor="let user of paginatedUsers"
-      [user]="user"
-      (addRole)="addRole(user)"
-      (removeRole)="removeRole(user, $event)"
+  <div class="assign-role-header">
+    <app-search-header
+      (itemsPerPageChange)="onItemsPerPageChange($event)"
+      (search)="onSearch($event)"
     >
-    </app-user-card>
+    </app-search-header>
   </div>
 
-  <!-- Pagination Component -->
+  <div class="divider"></div>
+
+  @if (isLoading) {
+  <div class="loading-spinner">
+    <i class="fas fa-spinner fa-spin"></i> Loading users...
+  </div>
+  } @else { @if (filteredUsers.length === 0) {
+  <div class="no-results">
+    <i class="fas fa-user-slash"></i>
+    <p>No users found matching your search</p>
+  </div>
+  } @else {
+  <div class="user-grid">
+    @for (user of paginatedUsers; track user.id) {
+    <app-user-card
+      [user]="user"
+      (addRole)="onAddRole(user)"
+      (removeRole)="onRemoveRole(user, $event)"
+    >
+    </app-user-card>
+    }
+  </div>
+
   <app-pagination
     [currentPage]="currentPage"
     [itemsPerPage]="itemsPerPage"
     [totalItems]="filteredUsers.length"
-    (pageChange)="goToPage($event)"
+    (pageChange)="onPageChange($event)"
   >
   </app-pagination>
+  } }
 </div>

@@ -1,0 +1,21 @@
+<div class="app-add-role-modal">
+  <div class="modal-header">
+    <input
+      type="text"
+      placeholder="Search Role"
+      [(ngModel)]="searchText"
+      class="search-input"
+    />
+    <i class="fa fa-search search-icon"></i>
+    <i class="fa fa-times close-icon" (click)="closeModal()"></i>
+  </div>
+
+  <div class="role-list">
+    <app-role-tag
+      *ngFor="let role of filteredRoles()"
+      [roleName]="role"
+      (click)="selectRole(role)"
+    >
+    </app-role-tag>
+  </div>
+</div>

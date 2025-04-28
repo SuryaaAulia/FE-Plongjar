@@ -8,17 +8,22 @@
     gap: 0.5rem;
   
     .user-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
       .user-name {
-        font-weight: 600;
-        color: var(--secondary-blue);
-        font-size: 0.875rem;
-        margin-bottom: 0.25rem;
+        font-weight: var(--font-medium);
+        color: var(--black);
+        font-size: var(--text-sm);
+        margin-bottom: 0;
       }
   
       .user-department,
       .user-id {
-        color: #64748b;
-        font-size: 0.75rem;
+        font-weight: var(--font-light);
+        color: var(--black);
+        font-size: var(--text-xs);
+        margin: 0;
       }
     }
   
@@ -33,17 +38,21 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background-color: white;
-        border: 1px solid #e2e8f0;
+        background-color: var(--secondary-blue);
+        border: 1px solid var(--secondary-blue);
         border-radius: 0.25rem;
         width: 1.5rem;
         height: 1.5rem;
-        font-size: 0.75rem;
+        font-size: var(--text-xs);
         cursor: pointer;
         margin-left: auto;
+
+        i{
+          color: var(--primary-white);
+        }
   
         &:hover {
-          background-color: #f1f5f9;
+          background-color: var(--secondary-white);
         }
       }
     }

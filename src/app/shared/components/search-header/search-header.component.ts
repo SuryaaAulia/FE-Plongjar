@@ -7,16 +7,16 @@ import { FormsModule } from '@angular/forms';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './search-header.component.html',
-  styleUrls: ['./search-header.component.scss']
+  styleUrls: ['./search-header.component.scss'],
 })
 export class SearchHeaderComponent {
-  @Input() title: string = '';
+  @Input() placeholder: string = 'Search...';
   @Input() itemsPerPage: number = 9;
-  @Output() search = new EventEmitter<{ name: string, code: string }>();
+  @Output() search = new EventEmitter<{ nama: string; kode: string }>();
   @Output() itemsPerPageChange = new EventEmitter<number>();
 
-  searchName: string = '';
-  searchCode: string = '';
+  searchQueryNama: string = '';
+  searchQueryKode: string = '';
   showDropdown: boolean = false;
   pageSizeOptions: number[] = [5, 9, 15, 30, 50];
 
@@ -24,11 +24,17 @@ export class SearchHeaderComponent {
     this.showDropdown = !this.showDropdown;
   }
 
-  onSearchClick(): void {
+  onSearch(): void {
     this.search.emit({
-      name: this.searchName,
-      code: this.searchCode
+      nama: this.searchQueryNama,
+      kode: this.searchQueryKode,
     });
+  }
+
+  clearSearch(): void {
+    this.searchQueryNama = '';
+    this.searchQueryKode = '';
+    this.search.emit({ nama: '', kode: '' });
   }
 
   changeItemsPerPage(size: number): void {
