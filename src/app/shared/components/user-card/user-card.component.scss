@@ -53,6 +53,9 @@
   
         &:hover {
           background-color: var(--secondary-white);
+          i{
+            color: var(--secondary-blue);
+          }
         }
       }
     }

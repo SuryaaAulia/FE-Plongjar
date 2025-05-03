@@ -8,22 +8,26 @@ import { RoleTagComponent } from '../role-tag/role-tag.component';
   standalone: true,
   imports: [CommonModule, RoleTagComponent],
   templateUrl: './user-card.component.html',
-  styleUrls: ['./user-card.component.scss']
+  styleUrls: ['./user-card.component.scss'],
 })
 export class UserCardComponent {
   @Input() user!: User;
   @Output() removeRole = new EventEmitter<string>();
-  @Output() addRole = new EventEmitter<void>();
+  @Output() addRole = new EventEmitter<MouseEvent>();
 
   onRemoveRole(role: string): void {
     this.removeRole.emit(role);
   }
 
-  onAddRole(): void {
-    this.addRole.emit();
+  onAddRole(event: MouseEvent): void {
+    this.addRole.emit(event);
   }
 
   getInitials(name: string): string {
-    return name.split(' ').map(n => n[0]).join('').toUpperCase();
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase();
   }
 }

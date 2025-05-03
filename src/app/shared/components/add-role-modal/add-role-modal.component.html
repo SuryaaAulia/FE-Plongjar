@@ -1,21 +1,29 @@
-<div class="app-add-role-modal">
-  <div class="modal-header">
-    <input
-      type="text"
-      placeholder="Search Role"
-      [(ngModel)]="searchText"
-      class="search-input"
-    />
-    <i class="fa fa-search search-icon"></i>
-    <i class="fa fa-times close-icon" (click)="closeModal()"></i>
-  </div>
-
-  <div class="role-list">
-    <app-role-tag
-      *ngFor="let role of filteredRoles()"
-      [roleName]="role"
-      (click)="selectRole(role)"
-    >
-    </app-role-tag>
+<div class="modal-wrapper" *ngIf="show">
+  <div
+    class="modal-container"
+    [style.top.px]="position.top"
+    [style.left.px]="position.left"
+  >
+    <div class="modal-header">
+      <button class="close-btn" (click)="onClose()">
+        <i class="fa fa-times"></i>
+      </button>
+    </div>
+    <div class="search-input">
+      <input type="text" placeholder="Search Role" />
+      <button class="search-btn">
+        <i class="fa fa-search"></i>
+      </button>
+    </div>
+    <div class="roles-list">
+      <div
+        *ngFor="let role of availableRoles"
+        class="role-item"
+        (click)="onSelectRole(role)"
+      >
+        <div class="role-color" [ngClass]="roleColors[role]"></div>
+        <div class="role-name">{{ role }}</div>
+      </div>
+    </div>
   </div>
 </div>

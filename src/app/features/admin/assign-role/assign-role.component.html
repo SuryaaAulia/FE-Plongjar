@@ -23,7 +23,7 @@
     @for (user of paginatedUsers; track user.id) {
     <app-user-card
       [user]="user"
-      (addRole)="onAddRole(user)"
+      (addRole)="onAddRole(user, $event)"
       (removeRole)="onRemoveRole(user, $event)"
     >
     </app-user-card>
@@ -38,4 +38,12 @@
   >
   </app-pagination>
   } }
+  <app-add-role-modal
+    [show]="showAddRoleModal"
+    [availableRoles]="availableRoles"
+    [position]="modalPosition"
+    (close)="closeModal()"
+    (selectRole)="onSelectRole($event)"
+  >
+  </app-add-role-modal>
 </div>

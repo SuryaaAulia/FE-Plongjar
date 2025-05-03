@@ -1,36 +1,39 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  ElementRef,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RoleTagComponent } from '../role-tag/role-tag.component';
-import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-add-role-modal',
   standalone: true,
-  imports: [CommonModule, RoleTagComponent, FormsModule],
+  imports: [CommonModule],
   templateUrl: './add-role-modal.component.html',
   styleUrls: ['./add-role-modal.component.scss'],
 })
 export class AddRoleModalComponent {
-  @Output() roleSelected = new EventEmitter<string>();
+  @Input() show = false;
+  @Input() availableRoles: string[] = [];
+  @Input() position: { top: number; left: number } = { top: 0, left: 0 };
   @Output() close = new EventEmitter<void>();
+  @Output() selectRole = new EventEmitter<string>();
 
-  searchText: string = '';
-  roles: string[] = ['Kaur Lab', 'Ket. KK', 'Kaprodi', 'LAA', 'Admin'];
+  roleColors: { [key: string]: string } = {
+    'Kaur Lab': 'red',
+    'Ket. KK': 'blue',
+    Kaprodi: 'green',
+    LAA: 'yellow',
+    Admin: 'pink',
+  };
 
-  filteredRoles(): string[] {
-    if (!this.searchText) {
-      return this.roles;
-    }
-    return this.roles.filter((role) =>
-      role.toLowerCase().includes(this.searchText.toLowerCase())
-    );
-  }
-
-  selectRole(role: string) {
-    this.roleSelected.emit(role);
-  }
-
-  closeModal() {
+  onClose(): void {
     this.close.emit();
+  }
+
+  onSelectRole(role: string): void {
+    this.selectRole.emit(role);
   }
 }

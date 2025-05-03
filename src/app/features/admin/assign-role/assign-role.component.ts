@@ -33,6 +33,7 @@ export class AssignRoleComponent implements OnInit {
 
   showAddRoleModal = false;
   selectedUser: User | null = null;
+  modalPosition = { top: 0, left: 0 };
 
   ngOnInit(): void {
     this.loadUsers();
@@ -47,50 +48,58 @@ export class AssignRoleComponent implements OnInit {
   }
 
   private generateMockUsers(): User[] {
-    const departments = ['BPS', 'TI', 'SI', 'DKV'];
+    const lecturerCode = ['BPS', 'TI', 'SI', 'DKV'];
     return Array.from({ length: 50 }, (_, i) => ({
       id: `6538${7547 + i}`,
       name: this.generateRandomName(),
-      department: departments[Math.floor(Math.random() * departments.length)],
-      kodeDosen: `D${7547 + i}`,
+      lecturerCode: lecturerCode[i % lecturerCode.length],
+      jabatanFunctionalAkademik: [],
       email: `user${i + 1}@university.edu`,
-      roles: this.generateRandomRoles(),
-      avatar: `https://i.pravatar.cc/150?img=${i + 1}`,
     }));
   }
 
   private generateRandomName(): string {
-    const firstNames = ['Bambang', 'Siti', 'Ahmad', 'Dewi', 'Rudi'];
-    const lastNames = ['Pamungkas', 'Wahyuni', 'Santoso', 'Kurniawan'];
+    const firstNames = ['Surya', 'Suep', 'Ohayoyo', 'Keegan', 'Andi'];
+    const lastNames = ['Aulia', '1170', 'Junaidi', 'Ijat'];
     const degrees = ['S.T., M.T.', 'S.Kom., M.Kom.', 'S.Si., M.Si.'];
     return `${firstNames[Math.floor(Math.random() * firstNames.length)]} ${
       lastNames[Math.floor(Math.random() * lastNames.length)]
     }, ${degrees[Math.floor(Math.random() * degrees.length)]}`;
   }
 
-  private generateRandomRoles(): string[] {
-    if (Math.random() > 0.7) {
-      return [
-        this.availableRoles[
-          Math.floor(Math.random() * this.availableRoles.length)
-        ],
-      ];
-    }
-    return [];
-  }
+  onAddRole(user: User, event: MouseEvent): void {
+    const target = event.currentTarget as HTMLElement;
+    const rect = target.getBoundingClientRect();
 
-  onAddRole(user: User): void {
     this.selectedUser = user;
+    this.modalPosition = {
+      top: rect.bottom + window.scrollY + 5,
+      left: rect.left + window.scrollX - 180,
+    };
     this.showAddRoleModal = true;
+    setTimeout(() => {
+      const clickHandler = (e: MouseEvent) => {
+        const modalElement = document.querySelector('.modal-container');
+        if (
+          modalElement &&
+          !modalElement.contains(e.target as Node) &&
+          e.target !== target
+        ) {
+          this.closeModal();
+          window.removeEventListener('click', clickHandler);
+        }
+      };
+      window.addEventListener('click', clickHandler);
+    }, 100);
   }
 
   onSelectRole(role: string): void {
     if (this.selectedUser) {
-      if (!this.selectedUser.roles) {
-        this.selectedUser.roles = [];
+      if (!this.selectedUser.jabatanFunctionalAkademik) {
+        this.selectedUser.jabatanFunctionalAkademik = [];
       }
-      if (!this.selectedUser.roles.includes(role)) {
-        this.selectedUser.roles.push(role);
+      if (!this.selectedUser.jabatanFunctionalAkademik.includes(role)) {
+        this.selectedUser.jabatanFunctionalAkademik.push(role);
       }
     }
     this.closeModal();
@@ -101,7 +110,9 @@ export class AssignRoleComponent implements OnInit {
   }
 
   onRemoveRole(user: User, role: string): void {
-    user.roles = user.roles?.filter((r) => r !== role);
+    user.jabatanFunctionalAkademik = user.jabatanFunctionalAkademik?.filter(
+      (r) => r !== role
+    );
   }
 
   onSearch(searchQuery: { nama: string; kode: string }): void {
@@ -112,11 +123,10 @@ export class AssignRoleComponent implements OnInit {
         (nama
           ? user.name.toLowerCase().includes(nama.toLowerCase()) ||
             user.id.includes(nama) ||
-            user.email?.toLowerCase().includes(nama.toLowerCase()) ||
-            user.department.toLowerCase().includes(nama.toLowerCase())
+            user.email?.toLowerCase().includes(nama.toLowerCase())
           : true) &&
         (kode
-          ? user.kodeDosen?.toLowerCase().includes(kode.toLowerCase())
+          ? user.lecturerCode?.toLowerCase().includes(kode.toLowerCase())
           : true)
     );
 

@@ -1,1 +1,67 @@
-<p>manage-role works!</p>
+<div class="manage-role-container">
+  <!-- Full-width header section -->
+  <div class="full-width-header">
+    <div class="manage-role-header">
+      <app-search-header
+        (itemsPerPageChange)="onItemsPerPageChange($event)"
+        [title]="'Role List'"
+        (search)="onSearch($event)"
+      ></app-search-header>
+    </div>
+    <div class="horizontal-divider"></div>
+  </div>
+
+  <div class="content-area">
+    <div class="sidebar-container">
+      <div class="role-list-sidebar">
+        <div class="role-filter-list">
+          <div
+            class="role-filter-item"
+            [class.active]="activeRoleFilter === 'Kaur Lab'"
+            (click)="filterByRole('Kaur Lab')"
+          >
+            <div class="role-color red"></div>
+            <span>Kaur Lab</span>
+          </div>
+        </div>
+      </div>
+      <div class="vertical-divider"></div>
+    </div>
+
+    <div class="main-content">
+      @if (isLoading) {
+      <div class="loading-spinner">
+        <i class="fas fa-spinner fa-spin"></i> Loading users...
+      </div>
+      } @else { @if (filteredUsers.length === 0) {
+      <div class="no-results">
+        <i class="fas fa-user-slash"></i>
+        <p>No users found matching your search</p>
+      </div>
+      } @else {
+      <div class="user-grid">
+        @for (user of paginatedUsers; track user.id) {
+        <app-user-card
+          [user]="user"
+          (removeRole)="onRemoveRole(user, $event)"
+        ></app-user-card>
+        }
+      </div>
+      <app-pagination
+        [currentPage]="currentPage"
+        [itemsPerPage]="itemsPerPage"
+        [totalItems]="filteredUsers.length"
+        (pageChange)="onPageChange($event)"
+      ></app-pagination>
+      }}
+    </div>
+  </div>
+</div>
+
+<app-add-role-modal
+  [show]="showAddRoleModal"
+  [availableRoles]="availableRoles"
+  [position]="modalPosition"
+  (close)="closeModal()"
+  (selectRole)="onSelectRole($event)"
+></app-add-role-modal>

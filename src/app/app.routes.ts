@@ -28,13 +28,19 @@ export const routes: Routes = [
           ),
       },
       {
-        path: 'admin/manage-permission',
+        path: 'ketua-kk/dashboard',
         loadComponent: () =>
-          import('./features/admin/permission/permission.component').then(
-            (m) => m.PermissionComponent
+          import('./features/ketua-kk/ketua-kk.component').then(
+            (m) => m.KetuaKkComponent
           ),
       },
-      { path: '', redirectTo: '/admin/dashboard', pathMatch: 'full' },
+      {
+        path: 'ketua-kk/list-dosen',
+        loadComponent: () =>
+          import('./features/shared-pages/list-dosen/list-dosen.component').then(
+            (m) => m.ListDosenComponent
+          ),
+      },
     ],
   },
 ];

@@ -12,6 +12,7 @@ import { FormsModule } from '@angular/forms';
 export class SearchHeaderComponent {
   @Input() placeholder: string = 'Search...';
   @Input() itemsPerPage: number = 9;
+  @Input() title = 'Assign Role';
   @Output() search = new EventEmitter<{ nama: string; kode: string }>();
   @Output() itemsPerPageChange = new EventEmitter<number>();
 

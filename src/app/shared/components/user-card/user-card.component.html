@@ -1,19 +1,19 @@
 <div class="user-card">
   <div class="user-info">
     <div class="user-name">{{ user.name }}</div>
-    <div class="user-department">{{ user.department }}</div>
+    <div class="user-department">{{ user.lecturerCode }}</div>
     <div class="user-id">{{ user.id }}</div>
   </div>
   <div class="card-actions">
-    <ng-container *ngIf="user.roles && user.roles.length > 0">
+    <ng-container *ngIf="user.jabatanFunctionalAkademik.length > 0">
       <app-role-tag
-        *ngFor="let role of user.roles"
+        *ngFor="let role of user.jabatanFunctionalAkademik"
         [roleName]="role"
         (remove)="onRemoveRole(role)"
       >
       </app-role-tag>
     </ng-container>
-    <button class="add-btn" (click)="onAddRole()">
+    <button class="add-btn" (click)="onAddRole($event)" title="Add Role">
       <i class="fa fa-plus"></i>
     </button>
   </div>
