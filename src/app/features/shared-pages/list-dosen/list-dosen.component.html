@@ -1,0 +1,70 @@
+<div class="lecturer-table-container container my-4">
+  <div class="mb-3">
+    <app-search-header
+      (itemsPerPageChange)="onItemsPerPageChange($event)"
+      (search)="onSearch($event)"
+    >
+    </app-search-header>
+  </div>
+
+  <div class="divider border-bottom mb-3"></div>
+
+  @if (isLoading) {
+  <div class="text-center text-secondary py-4">
+    <i class="fas fa-spinner fa-spin me-2"></i>Loading lecturers...
+  </div>
+  } @else if (filteredLecturers.length === 0) {
+  <div class="text-center text-muted py-4">
+    <i class="fas fa-user-slash fa-lg d-block mb-2"></i>
+    <p class="mb-0">No lecturers found matching your search</p>
+  </div>
+  } @else {
+  <div class="table-responsive">
+    <table class="table table table-hover align-middle">
+      <thead class="table">
+        <tr>
+          <th class="col">No.</th>
+          <th class="col-nama-dosen">Nama Dosen</th>
+          <th class="col">Kode</th>
+          <th class="col">NIP</th>
+          <th class="col-bidang-keahlian">Bidang Keahlian</th>
+          <th class="col">Status</th>
+          <th class="col">Beban SKS</th>
+          <th class="col">Detail</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (lecturer of paginatedLecturers; track lecturer.id; let i = $index)
+        {
+        <tr>
+          <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
+          <td>{{ lecturer.name }}</td>
+          <td>{{ lecturer.lecturerCode }}</td>
+          <td>{{ lecturer.nidn }}</td>
+          <td>{{ lecturer.kelompokKeahlian }}</td>
+          <td>{{ lecturer.statusPegawai }}</td>
+          <td>
+            <button class="action-btn" title="View SKS">
+              <i class="fas fa-calendar-alt"></i>
+            </button>
+          </td>
+          <td>
+            <button class="action-btn" title="Detail">
+              <i class="fas fa-file-alt"></i>
+            </button>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <app-pagination
+    [currentPage]="currentPage"
+    [itemsPerPage]="itemsPerPage"
+    [totalItems]="filteredLecturers.length"
+    (pageChange)="onPageChange($event)"
+  >
+  </app-pagination>
+  }
+</div>
