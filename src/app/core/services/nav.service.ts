@@ -15,6 +15,7 @@ export class NavService {
           { label: 'Assign', routerLink: '/admin/assign' },
           { label: 'Manage Role', routerLink: '/admin/manage-role' },
           { label: 'Dosen', routerLink: '/ketua-kk/list-dosen' },
+          { label: 'Detail Dosen', routerLink: '/ketua-kk/detail-dosen/:id' },
         ],
       },
       { label: 'Switch App', icon: 'dashboard', routerLink: '/switch-app' },

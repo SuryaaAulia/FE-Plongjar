@@ -37,9 +37,16 @@ export const routes: Routes = [
       {
         path: 'ketua-kk/list-dosen',
         loadComponent: () =>
-          import('./features/shared-pages/list-dosen/list-dosen.component').then(
-            (m) => m.ListDosenComponent
-          ),
+          import(
+            './features/shared-pages/list-dosen/list-dosen.component'
+          ).then((m) => m.ListDosenComponent),
+      },
+      {
+        path: 'ketua-kk/detail-dosen/:id',
+        loadComponent: () =>
+          import(
+            './features/shared-pages/detail-dosen/detail-dosen.component'
+          ).then((m) => m.DetailDosenComponent),
       },
     ],
   },

@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import {
   SearchHeaderComponent,
   PaginationComponent,
 } from '../../../shared/components/index';
-import { User } from '../../../core/models/user.model';
+import { Lecturer } from '../../../core/models/user.model';
 
 @Component({
   selector: 'app-lecturer-table',
@@ -20,9 +21,10 @@ import { User } from '../../../core/models/user.model';
   styleUrls: ['./list-dosen.component.scss'],
 })
 export class ListDosenComponent implements OnInit {
-  users: User[] = [];
-  filteredLecturers: User[] = [];
-  paginatedLecturers: User[] = [];
+  constructor(private router: Router) {}
+  lecturer: Lecturer[] = [];
+  filteredLecturers: Lecturer[] = [];
+  paginatedLecturers: Lecturer[] = [];
 
   isLoading = true;
   error: string | null = null;
@@ -31,7 +33,7 @@ export class ListDosenComponent implements OnInit {
   itemsPerPage = 5;
 
   showDetailModal = false;
-  selectedLecturer: User | null = null;
+  selectedLecturer: Lecturer | null = null;
   modalPosition = { top: '200px', left: '50%' };
 
   ngOnInit(): void {
@@ -42,7 +44,7 @@ export class ListDosenComponent implements OnInit {
     this.isLoading = true;
 
     // Dummy data
-    this.users = Array.from({ length: 35 }, (_, i) => ({
+    this.lecturer = Array.from({ length: 35 }, (_, i) => ({
       id: (i + 1).toString(),
       name: `Lecturer Japran Hapis Risjad Rangga ${i + 1}`,
       lecturerCode: `LCD-${1000 + i}`,
@@ -63,15 +65,15 @@ export class ListDosenComponent implements OnInit {
   onSearch(searchQuery: { nama: string; kode: string }): void {
     const { nama, kode } = searchQuery;
 
-    this.filteredLecturers = this.users.filter(
-      (user) =>
+    this.filteredLecturers = this.lecturer.filter(
+      (lecturer) =>
         (nama
-          ? user.name.toLowerCase().includes(nama.toLowerCase()) ||
-            user.id.includes(nama) ||
-            user.email?.toLowerCase().includes(nama.toLowerCase())
+          ? lecturer.name.toLowerCase().includes(nama.toLowerCase()) ||
+            lecturer.id.includes(nama) ||
+            lecturer.email?.toLowerCase().includes(nama.toLowerCase())
           : true) &&
         (kode
-          ? user.lecturerCode?.toLowerCase().includes(kode.toLowerCase())
+          ? lecturer.lecturerCode?.toLowerCase().includes(kode.toLowerCase())
           : true)
     );
 
@@ -91,12 +93,12 @@ export class ListDosenComponent implements OnInit {
 
   applyFilter(): void {
     const term = this.searchTerm.toLowerCase();
-    this.filteredLecturers = this.users.filter(
-      (user) =>
-        user.name.toLowerCase().includes(term) ||
-        user.lecturerCode.toLowerCase().includes(term) ||
-        user.nidn?.toLowerCase().includes(term) ||
-        user.kelompokKeahlian?.toLowerCase().includes(term)
+    this.filteredLecturers = this.lecturer.filter(
+      (lecturer) =>
+        lecturer.name.toLowerCase().includes(term) ||
+        lecturer.lecturerCode.toLowerCase().includes(term) ||
+        lecturer.nidn?.toLowerCase().includes(term) ||
+        lecturer.kelompokKeahlian?.toLowerCase().includes(term)
     );
     this.currentPage = 1;
     this.updatePaginatedLecturers();
@@ -111,5 +113,9 @@ export class ListDosenComponent implements OnInit {
   closeDetailModal(): void {
     this.showDetailModal = false;
     this.selectedLecturer = null;
+  }
+
+  viewLecturerDetails(lecturerCode: string): void {
+    this.router.navigate(['/ketua-kk/detail-dosen/', lecturerCode]);
   }
 }

@@ -49,8 +49,12 @@
             </button>
           </td>
           <td>
-            <button class="action-btn" title="Detail">
-              <i class="fas fa-file-alt"></i>
+            <button
+              class="action-btn"
+              title="Detail"
+              (click)="viewLecturerDetails(lecturer.lecturerCode)"
+            >
+              <i class="fas fa-file"></i>
             </button>
           </td>
         </tr>
