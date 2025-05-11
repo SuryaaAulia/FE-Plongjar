@@ -2,7 +2,8 @@
     position: relative;
     overflow: hidden;
     padding: 2rem;
-    max-width: 100%;
+    max-width: 70%;
+    height: min-content;
     margin: 0 auto;
     box-shadow: 0 0 17.3px rgba(0, 0, 0, 0.3);
     border-radius: 8px;
@@ -15,20 +16,22 @@
     }
   
     .lecturer-profile {
+      margin-top: 2rem;
+      margin-left: 3rem;
       display: flex;
       align-items: flex-start;
-      gap: 2rem;
+      gap: 4rem;
   
       .profile-image {
         flex-shrink: 0;
-        color: #1e2c3a;
+        color: var(--secondary-blue);
       }
   
       .profile-details {
         flex-grow: 1;
         display: flex;
         flex-direction: column;
-        gap: 0.8rem;
+        gap: 2rem;
       }
     }
   
@@ -125,7 +128,6 @@
     }
   }
   
-  // Responsive adjustments
   @media (max-width: 768px) {
     .detil-dosen-container {
       padding: 1.5rem;

@@ -14,23 +14,22 @@ export class DetailDosenComponent implements OnInit {
   lecturer: Lecturer | null = null;
   lecturerCode: string | null = null;
   currentPage = 1;
-  totalPages = 2; // We have 2 pages based on your screenshots
+  totalPages = 2;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private location: Location
-  ) {}
+  ) { }
 
   ngOnInit(): void {
-    this.lecturerCode = this.route.snapshot.paramMap.get('code');
+    this.lecturerCode = this.route.snapshot.paramMap.get('id');
     const page = this.route.snapshot.queryParamMap.get('page');
     if (page) {
       this.currentPage = parseInt(page, 10);
     }
 
     if (this.lecturerCode) {
-      // In a real app, you would fetch the lecturer data from a service
       this.lecturer = {
         id: '1',
         name: 'Bambang Pamungkas, S.T., M.T.',
@@ -43,14 +42,11 @@ export class DetailDosenComponent implements OnInit {
         kelompokKeahlian:
           'Data Science, Artificial Intelligence, Cyber Security',
       };
-    } else {
-      // Handle case where no lecturer code is provided
-      this.router.navigate(['/lecturers']);
     }
   }
 
   goBack(): void {
-    this.location.back();
+    this.router.navigate(['/ketua-kk/list-dosen']);
   }
 
   prevPage(): void {

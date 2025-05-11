@@ -21,7 +21,7 @@ import { Lecturer } from '../../../core/models/user.model';
   styleUrls: ['./list-dosen.component.scss'],
 })
 export class ListDosenComponent implements OnInit {
-  constructor(private router: Router) {}
+  constructor(private router: Router) { }
   lecturer: Lecturer[] = [];
   filteredLecturers: Lecturer[] = [];
   paginatedLecturers: Lecturer[] = [];
@@ -69,8 +69,8 @@ export class ListDosenComponent implements OnInit {
       (lecturer) =>
         (nama
           ? lecturer.name.toLowerCase().includes(nama.toLowerCase()) ||
-            lecturer.id.includes(nama) ||
-            lecturer.email?.toLowerCase().includes(nama.toLowerCase())
+          lecturer.id.includes(nama) ||
+          lecturer.email?.toLowerCase().includes(nama.toLowerCase())
           : true) &&
         (kode
           ? lecturer.lecturerCode?.toLowerCase().includes(kode.toLowerCase())

@@ -2,12 +2,11 @@
   <div class="lecturer-info">
     <div class="lecturer-profile">
       <div class="profile-image">
-        <i class="<fas fa-solid fa-file"></i>
+        <i class="fa fa-solid fa-user" style="font-size: 120px"></i>
       </div>
 
       <div class="profile-details">
         @if (currentPage === 1) {
-        <!-- Page 1 Content -->
         <div class="info-row">
           <div class="info-label">Nama Dosen</div>
           <div class="info-divider">:</div>
@@ -57,13 +56,12 @@
           <div class="info-value">{{ lecturer?.statusPegawai }}</div>
         </div>
         } @else if (currentPage === 2) {
-        <!-- Page 2 Content -->
         <div class="info-row">
           <div class="info-label">Contact Person</div>
           <div class="info-divider">:</div>
           <div class="info-value">
             <span class="email-value">
-              <i class="<fas fa-solid fa-file"></i>
+              <i class="<fas fa-solid fa-envelope"></i>
             </span>
           </div>
         </div>
@@ -73,7 +71,7 @@
           <div class="info-divider"></div>
           <div class="info-value">
             <span class="phone-value">
-              <i class="<fas fa-solid fa-file"></i>
+              <i class="<fas fa-solid fa-phone"></i>
             </span>
           </div>
         </div>
@@ -124,7 +122,7 @@
         (click)="prevPage()"
         [disabled]="currentPage === 1"
       >
-        <i class="<fas fa-solid fa-file"></i>
+        <i class="fa fa-chevron-left"></i>
       </button>
       <span class="page-number">{{ currentPage }}</span>
       <button
@@ -132,7 +130,7 @@
         (click)="nextPage()"
         [disabled]="currentPage === totalPages"
       >
-        <i class="<fas fa-solid fa-file"></i>
+        <i class="fa fa-chevron-right"></i>
       </button>
     </div>
   </div>
