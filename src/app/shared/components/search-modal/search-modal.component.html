@@ -4,11 +4,10 @@
       <h1 class="title">
         <ng-container
           *ngIf="!hasSearched || (!searchNameTerm && !searchCodeTerm)"
-          >Cari Dosen</ng-container
-        >
+        ></ng-container>
       </h1>
       <button class="close-button" (click)="requestClose()">
-        <span>X</span>
+        <i class="fas fa-times"></i>
       </button>
     </div>
 

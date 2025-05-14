@@ -22,8 +22,8 @@
         }}</span>
         <ng-template #pilihKoordinatorText>
           <span class="placeholder-text">Pilih Dosen</span>
+          <i class="fa fa-plus icon-hover"></i>
         </ng-template>
-        <i class="fas fa-plus icon-hover"></i>
       </button>
     </div>
   </div>
@@ -49,18 +49,19 @@
           <td>{{ row.kelas }}</td>
           <td>
             <button
-              class="input-like-button dosen-button"
+              class="input-like-button has-hover-icon"
               (click)="openLecturerModal('dosen', i)"
             >
-              <span *ngIf="row.dosen; else pilihDosenText">{{
-                row.dosen
-              }}</span>
-              <ng-template #pilihDosenText>
+              <ng-container *ngIf="row.dosen; else pilihDosenWithHover">
+                {{ row.dosen }}
+              </ng-container>
+              <ng-template #pilihDosenWithHover>
                 <span class="placeholder-text">Pilih Dosen</span>
+                <i class="fa fa-plus icon-hover"></i>
               </ng-template>
-              <i class="fas fa-plus icon-hover"></i>
             </button>
           </td>
+
           <td [class.praktikum-yes]="row.praktikum === 'YES'">
             {{ row.praktikum }}
           </td>

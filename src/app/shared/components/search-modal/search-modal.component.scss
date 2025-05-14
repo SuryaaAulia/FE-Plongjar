@@ -155,38 +155,6 @@
         font-weight: 500;
         margin-bottom: 20px;
     }
-
-    .decorative-search-icon-modal {
-        svg {
-            width: 45px;
-            height: 45px;
-            color: #bdc3c7;
-            margin-bottom: 20px;
-        }
-    }
-
-    .stats-bar-modal {
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-        max-width: 220px;
-        margin: 0 auto;
-        color: #555;
-
-        span {
-            font-size: 1.3em;
-            font-weight: bold;
-        }
-
-        .seal-modal {
-            font-size: 0.9em;
-            font-weight: 600;
-            background-color: #ecf0f1;
-            padding: 5px 10px;
-            border-radius: 4px;
-            color: #34495e;
-        }
-    }
 }
 
 
@@ -306,7 +274,7 @@
         span {
             padding: 5px 8px;
             font-weight: bold;
-            color: #3498db;
+            color: var(--primary-blue);
         }
     }
 }
