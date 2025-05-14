@@ -7,6 +7,7 @@ import {
   PaginationComponent,
 } from '../../../shared/components/index';
 import { Lecturer } from '../../../core/models/user.model';
+import { TableComponent, TableColumn, ActionButton } from '../../../shared/components/table/table.component';
 
 @Component({
   selector: 'app-lecturer-table',
@@ -16,6 +17,7 @@ import { Lecturer } from '../../../core/models/user.model';
     FormsModule,
     SearchHeaderComponent,
     PaginationComponent,
+    TableComponent,
   ],
   templateUrl: './list-dosen.component.html',
   styleUrls: ['./list-dosen.component.scss'],
@@ -30,11 +32,28 @@ export class ListDosenComponent implements OnInit {
   error: string | null = null;
   searchTerm = '';
   currentPage = 1;
-  itemsPerPage = 5;
+  itemsPerPage = 9;
 
-  showDetailModal = false;
-  selectedLecturer: Lecturer | null = null;
-  modalPosition = { top: '200px', left: '50%' };
+  tableColumns: TableColumn<Lecturer>[] = [
+    { key: 'name', header: 'Nama Dosen', width: 'col-nama-dosen' },
+    { key: 'lecturerCode', header: 'Kode' },
+    { key: 'nidn', header: 'NIP' },
+    { key: 'kelompokKeahlian', header: 'Bidang Keahlian', width: 'col-bidang-keahlian' },
+    { key: 'statusPegawai', header: 'Status' },
+  ];
+
+  actionButtons: ActionButton<Lecturer>[] = [
+    {
+      icon: 'fa-money-check',
+      title: 'Detail SKS',
+      onClick: (lecturer: Lecturer) => this.viewLecturerSKS(lecturer.lecturerCode),
+    },
+    {
+      icon: 'fa-file',
+      title: 'Detail',
+      onClick: (lecturer: Lecturer) => this.viewLecturerDetails(lecturer.lecturerCode),
+    },
+  ];
 
   ngOnInit(): void {
     this.loadMockData();
@@ -62,22 +81,25 @@ export class ListDosenComponent implements OnInit {
     this.isLoading = false;
   }
 
-  onSearch(searchQuery: { nama: string; kode: string }): void {
-    const { nama, kode } = searchQuery;
+  onSearch(searchQuery: { query1: string; query2: string }): void {
+    const { query1, query2 } = searchQuery;
+    const namaTerm = query1.toLowerCase();
+    const kodeTerm = query2.toLowerCase();
 
     this.filteredLecturers = this.lecturer.filter(
       (lecturer) =>
-        (nama
-          ? lecturer.name.toLowerCase().includes(nama.toLowerCase()) ||
-          lecturer.id.includes(nama) ||
-          lecturer.email?.toLowerCase().includes(nama.toLowerCase())
+        (namaTerm
+          ? lecturer.name.toLowerCase().includes(namaTerm) ||
+          lecturer.nidn?.toLowerCase().includes(namaTerm) ||
+          lecturer.email?.toLowerCase().includes(namaTerm)
           : true) &&
-        (kode
-          ? lecturer.lecturerCode?.toLowerCase().includes(kode.toLowerCase())
+        (kodeTerm
+          ? lecturer.lecturerCode?.toLowerCase().includes(kodeTerm)
           : true)
     );
 
     this.currentPage = 1;
+    this.updatePaginatedLecturers();
   }
 
   onItemsPerPageChange(count: number): void {
@@ -110,9 +132,13 @@ export class ListDosenComponent implements OnInit {
     this.paginatedLecturers = this.filteredLecturers.slice(start, end);
   }
 
-  closeDetailModal(): void {
-    this.showDetailModal = false;
-    this.selectedLecturer = null;
+  onRowClick(lecturer: Lecturer): void {
+    this.viewLecturerDetails(lecturer.lecturerCode);
+    this.viewLecturerSKS(lecturer.lecturerCode);
+  }
+
+  viewLecturerSKS(lecturerCode: string): void {
+    this.router.navigate(['/ketua-kk/riwayat-mengajar/', lecturerCode]);
   }
 
   viewLecturerDetails(lecturerCode: string): void {

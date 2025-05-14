@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
-export type UserRole = 'admin' | 'lecturer' | 'student';
+export type UserRole = 'admin' | 'ketua_kk' | 'kaprodi' | 'LAAK' | 'kaurlab';
 
 export interface User {
     id?: string;
@@ -26,19 +26,25 @@ export class AuthService {
     }
 
     login(email: string, password: string) {
-        let role: UserRole = 'student';
+        let role: UserRole;
 
         if (email.includes('admin')) {
             role = 'admin';
         } else if (email.includes('lecturer')) {
-            role = 'lecturer';
+            role = 'ketua_kk';
+        } else if (email.includes('kaprodi')) {
+            role = 'kaprodi';
+        } else if (email.includes('laak')) {
+            role = 'LAAK';
+        } else if (email.includes('kaurlab')) {
+            role = 'kaurlab';
         }
 
         const user: User = {
             id: '123',
             name: 'Test User',
             email,
-            role
+            role: 'LAAK',
         };
 
         this.currentUserSubject.next(user);
@@ -46,6 +52,6 @@ export class AuthService {
     }
 
     logout() {
-        this.currentUserSubject.next({ role: 'student' });
+
     }
 }

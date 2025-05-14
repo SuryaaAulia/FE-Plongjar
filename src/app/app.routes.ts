@@ -48,6 +48,20 @@ export const routes: Routes = [
             './features/shared-pages/detail-dosen/detail-dosen.component'
           ).then((m) => m.DetailDosenComponent),
       },
+      {
+        path: 'ketua-kk/riwayat-mengajar/:id',
+        loadComponent: () =>
+          import(
+            './features/shared-pages/riwayat-mengajar/riwayat-mengajar.component'
+          ).then((m) => m.RiwayatMengajarComponent),
+      },
+      {
+        path: 'ketua-kk/plotting',
+        loadComponent: () =>
+          import(
+            './features/ketua-kk/plotting/plotting.component'
+          ).then((m) => m.PlottingComponent),
+      },
     ],
   },
 ];

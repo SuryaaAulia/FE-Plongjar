@@ -14,15 +14,23 @@ export class NavService {
         children: [
           { label: 'Assign', routerLink: '/admin/assign' },
           { label: 'Manage Role', routerLink: '/admin/manage-role' },
-          { label: 'Dosen', routerLink: '/ketua-kk/list-dosen' },
-          { label: 'Detail Dosen', routerLink: '/ketua-kk/detail-dosen/:id' },
         ],
       },
       { label: 'Switch App', icon: 'dashboard', routerLink: '/switch-app' },
     ],
     ketua_kk: [
-      { label: 'Home', icon: '', routerLink: '/dosen/dashboard' },
-      { label: 'Reports', icon: 'chart-bar', routerLink: '/dosen/reports' },
+      { label: 'Home', icon: '', routerLink: '/ketua-kk/dashboard' },
+      { label: 'Dosen', icon: 'user-group', routerLink: '/ketua-kk/list-dosen' },
+      {
+        label: 'Plotting',
+        icon: 'user-group',
+        routerLink: '',
+        children: [
+          { label: 'Start Plotting', routerLink: '/ketua-kk/plotting' },
+          { label: 'Preview', routerLink: '/ketua-kk/manage-role' },
+          { label: 'Beban SKS', routerLink: '/ketua-kk/detail-dosen/:id' },
+        ],
+      },
       { label: 'Switch App', icon: 'dashboard', routerLink: '/switch-app' },
     ],
   };

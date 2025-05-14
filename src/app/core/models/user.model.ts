@@ -30,3 +30,14 @@ export interface Lecturer {
   nidn?: string;
   kelompokKeahlian?: string;
 }
+
+export interface TeachingRecord {
+  id: string;
+  subject: string;
+  pic: string;
+  class_type: 'Online' | 'Onsite';
+  class: string;
+  quota: number;
+  period: string;
+  lecturerName?: string;
+}

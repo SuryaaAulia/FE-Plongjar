@@ -62,9 +62,8 @@ export class AssignRoleComponent implements OnInit {
     const firstNames = ['Surya', 'Suep', 'Ohayoyo', 'Keegan', 'Andi'];
     const lastNames = ['Aulia', '1170', 'Junaidi', 'Ijat'];
     const degrees = ['S.T., M.T.', 'S.Kom., M.Kom.', 'S.Si., M.Si.'];
-    return `${firstNames[Math.floor(Math.random() * firstNames.length)]} ${
-      lastNames[Math.floor(Math.random() * lastNames.length)]
-    }, ${degrees[Math.floor(Math.random() * degrees.length)]}`;
+    return `${firstNames[Math.floor(Math.random() * firstNames.length)]} ${lastNames[Math.floor(Math.random() * lastNames.length)]
+      }, ${degrees[Math.floor(Math.random() * degrees.length)]}`;
   }
 
   onAddRole(user: User, event: MouseEvent): void {
@@ -115,18 +114,18 @@ export class AssignRoleComponent implements OnInit {
     );
   }
 
-  onSearch(searchQuery: { nama: string; kode: string }): void {
-    const { nama, kode } = searchQuery;
+  onSearch(searchQuery: { query1: string; query2: string }): void {
+    const { query1, query2 } = searchQuery;
 
     this.filteredUsers = this.users.filter(
       (user) =>
-        (nama
-          ? user.name.toLowerCase().includes(nama.toLowerCase()) ||
-            user.id.includes(nama) ||
-            user.email?.toLowerCase().includes(nama.toLowerCase())
+        (query1
+          ? user.name.toLowerCase().includes(query1.toLowerCase()) ||
+          user.id.includes(query1) ||
+          user.email?.toLowerCase().includes(query1.toLowerCase())
           : true) &&
-        (kode
-          ? user.lecturerCode?.toLowerCase().includes(kode.toLowerCase())
+        (query2
+          ? user.lecturerCode?.toLowerCase().includes(query2.toLowerCase())
           : true)
     );
 

@@ -20,16 +20,16 @@
       <div class="search-inputs">
         <input
           type="text"
-          placeholder="Nama/NIP"
+          [placeholder]="placeholder1"
           class="search-field"
-          [(ngModel)]="searchQueryNama"
+          [(ngModel)]="query1"
           (keyup.enter)="onSearch()"
         />
         <input
           type="text"
-          placeholder="Kode Dosen"
+          [placeholder]="placeholder2"
           class="search-field"
-          [(ngModel)]="searchQueryKode"
+          [(ngModel)]="query2"
           (keyup.enter)="onSearch()"
         />
         <button class="search-btn" (click)="onSearch()">

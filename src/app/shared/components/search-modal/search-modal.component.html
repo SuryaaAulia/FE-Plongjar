@@ -1,0 +1,114 @@
+<div class="lecturer-search-overlay">
+  <div class="lecturer-search-modal">
+    <div class="header">
+      <h1 class="title">
+        <ng-container
+          *ngIf="!hasSearched || (!searchNameTerm && !searchCodeTerm)"
+          >Cari Dosen</ng-container
+        >
+      </h1>
+      <button class="close-button" (click)="requestClose()">
+        <span>X</span>
+      </button>
+    </div>
+
+    <div class="search-bar">
+      <input
+        type="text"
+        [(ngModel)]="searchNameTerm"
+        (keyup.enter)="performSearch()"
+        placeholder="Nama Dosen"
+        class="search-input-field lecturer-name-input"
+      />
+      <span class="search-separator">&</span>
+      <input
+        type="text"
+        [(ngModel)]="searchCodeTerm"
+        (keyup.enter)="performSearch()"
+        placeholder="Kode Dosen"
+        class="search-input-field lecturer-code-input"
+      />
+      <button (click)="performSearch()" class="search-button-new">
+        <i class="fas fa-search"></i>
+      </button>
+    </div>
+    <div
+      *ngIf="!hasSearched && !searchNameTerm && !searchCodeTerm"
+      class="initial-state-modal"
+    >
+      <div class="image-placeholder-modal">
+        <p>Image Placeholder</p>
+      </div>
+    </div>
+
+    <div *ngIf="hasSearched" class="results-state">
+      <div
+        *ngIf="searchResults.length > 0; else noResults"
+        class="results-list"
+      ></div>
+      <ng-template #noResults>
+        <p class="no-results-message">
+          Tidak ada dosen yang cocok dengan kriteria pencarian Anda.
+        </p>
+      </ng-template>
+    </div>
+
+    <div *ngIf="hasSearched" class="results-state">
+      <div *ngIf="searchResults.length > 0" class="results-list">
+        <div
+          *ngFor="let lecturer of searchResults"
+          class="result-item"
+          (click)="selectAndClose(lecturer)"
+          role="button"
+          tabindex="0"
+          (keyup.enter)="selectAndClose(lecturer)"
+        >
+          <span class="lecturer-name">{{ lecturer.name }}</span>
+          <span class="lecturer-code">{{ lecturer.lecturerCode }}</span>
+          <button
+            class="add-button-modal"
+            (click)="$event.stopPropagation(); selectAndClose(lecturer)"
+          >
+            +
+          </button>
+        </div>
+      </div>
+
+      <div
+        *ngIf="searchResults.length > 0 && totalItems > itemsPerPage"
+        class="pagination-controls"
+      >
+        <span class="pagination-info">
+          Menampilkan {{ displayedItemsStart }} sampai
+          {{ displayedItemsEnd }} dari {{ totalItems }} entri
+        </span>
+        <div class="page-buttons">
+          <button (click)="prevPage()" [disabled]="currentPage === 1">
+            &lt;
+          </button>
+          <span>{{ currentPage }}</span>
+          <button
+            (click)="nextPage()"
+            [disabled]="currentPage * itemsPerPage >= totalItems"
+          >
+            &gt;
+          </button>
+        </div>
+      </div>
+
+      <div
+        *ngIf="
+          searchResults.length > 0 &&
+          totalItems <= itemsPerPage &&
+          totalItems > 0
+        "
+        class="pagination-controls"
+      >
+        <span class="pagination-info">
+          Menampilkan {{ displayedItemsStart }} sampai
+          {{ displayedItemsEnd }} dari {{ totalItems }} entri
+        </span>
+      </div>
+    </div>
+  </div>
+</div>

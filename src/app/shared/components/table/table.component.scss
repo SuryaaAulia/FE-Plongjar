@@ -1,0 +1,112 @@
+.table-responsive {
+    overflow-x: auto;
+    margin-bottom: 2rem;
+}
+
+.no-results {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 3rem;
+    text-align: center;
+    color: var(--text-muted);
+
+    i {
+        font-size: 2rem;
+        opacity: 0.5;
+    }
+
+    p {
+        margin: 0;
+        font-size: 1.1rem;
+    }
+}
+
+.table-responsive {
+    overflow-x: auto;
+    margin-bottom: 2rem;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid var(--grey);
+
+    th {
+        padding: 0.75rem;
+        text-align: center;
+        border-bottom: 1px solid var(--grey);
+        border-right: none;
+        vertical-align: middle;
+    }
+
+    tbody {
+        tr {
+            border-bottom: 1px solid var(--grey);
+
+            &:last-child {
+                border-bottom: none;
+            }
+
+            &:hover {
+                background-color: var(--grey);
+            }
+
+            td {
+                font-size: var(--text-base);
+                color: var(--secondary-blue);
+                font-weight: var(--font-medium);
+                padding: 0.75rem;
+                text-align: center;
+                border-right: none;
+                vertical-align: middle;
+            }
+        }
+    }
+}
+
+[class*="col-"] {
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.col-nama-dosen {
+    width: 180px;
+    min-width: 180px;
+    max-width: 180px;
+    text-align: left;
+}
+
+.col-bidang-keahlian {
+    width: 200px;
+    min-width: 200px;
+    max-width: 200px;
+    text-align: left;
+}
+
+.action-btn {
+    background-color: transparent;
+    border: none;
+    color: var(--blue);
+    font-size: var(--text-xl);
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    transition: color 0.2s ease, background-color 0.2s ease;
+
+    i {
+        pointer-events: none;
+    }
+
+    &:hover {
+        background-color: rgba(0, 123, 255, 0.1);
+        border-radius: 4px;
+        color: var(--blue);
+    }
+
+    &:focus {
+        outline: none;
+    }
+}

@@ -21,11 +21,11 @@ export class MainLayoutComponent implements OnInit {
   collapsed = false;
   hovering = false;
 
-  constructor(private nav: NavService, private auth: AuthService) {}
+  constructor(private nav: NavService, private auth: AuthService) { }
 
   ngOnInit(): void {
     this.screenWidth = window.innerWidth;
-    this.menuItems$ = this.nav.getMenu('admin');
+    this.menuItems$ = this.nav.getMenu('ketua_kk');
   }
 
   toggleSidenav(): void {
@@ -43,6 +43,5 @@ export class MainLayoutComponent implements OnInit {
   }
 
   private emitSideNavInfo(): void {
-    // Implementation if needed
   }
 }

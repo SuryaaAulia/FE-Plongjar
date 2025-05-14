@@ -37,7 +37,7 @@ export class ManageRoleComponent implements OnInit {
   selectedUser: User | null = null;
   modalPosition = { top: 0, left: 0 };
 
-  constructor(private router: Router) {}
+  constructor(private router: Router) { }
 
   ngOnInit(): void {
     this.loadUsers();
@@ -86,9 +86,8 @@ export class ManageRoleComponent implements OnInit {
       'S.Si., M.Si.',
       'S.T., M.Kom.',
     ];
-    return `${firstNames[Math.floor(Math.random() * firstNames.length)]} ${
-      lastNames[Math.floor(Math.random() * lastNames.length)]
-    }, ${degrees[Math.floor(Math.random() * degrees.length)]}`;
+    return `${firstNames[Math.floor(Math.random() * firstNames.length)]} ${lastNames[Math.floor(Math.random() * lastNames.length)]
+      }, ${degrees[Math.floor(Math.random() * degrees.length)]}`;
   }
 
   private generateRandomRoles(): string[] {
@@ -97,7 +96,7 @@ export class ManageRoleComponent implements OnInit {
 
     return [
       this.availableRoles[
-        Math.floor(Math.random() * this.availableRoles.length)
+      Math.floor(Math.random() * this.availableRoles.length)
       ],
     ];
   }
@@ -145,8 +144,8 @@ export class ManageRoleComponent implements OnInit {
     }
   }
 
-  onSearch(searchQuery: { nama: string; kode: string }): void {
-    const { nama, kode } = searchQuery;
+  onSearch(searchQuery: { query1: string; query2: string }): void {
+    const { query1, query2 } = searchQuery;
 
     let filtered = this.users;
 
@@ -160,13 +159,13 @@ export class ManageRoleComponent implements OnInit {
 
     this.filteredUsers = filtered.filter(
       (user) =>
-        (nama
-          ? user.name.toLowerCase().includes(nama.toLowerCase()) ||
-            user.id.includes(nama) ||
-            user.email?.toLowerCase().includes(nama.toLowerCase())
+        (query1
+          ? user.name.toLowerCase().includes(query1.toLowerCase()) ||
+          user.id.includes(query1) ||
+          user.email?.toLowerCase().includes(query1.toLowerCase())
           : true) &&
-        (kode
-          ? user.lecturerCode?.toLowerCase().includes(kode.toLowerCase())
+        (query2
+          ? user.lecturerCode?.toLowerCase().includes(query2.toLowerCase())
           : true)
     );
 

@@ -1,1 +1,88 @@
-<p>plotting works!</p>
+<div class="course-assignment-container">
+  <div class="green-header-bar"></div>
+  <div class="form-section">
+    <div class="form-group">
+      <label for="course">Mata Kuliah:</label>
+      <select id="course" [(ngModel)]="selectedCourse">
+        <option *ngFor="let course of courseOptions" [value]="course">
+          {{ course }}
+        </option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="coordinator">Koordinator Mata Kuliah:</label>
+      <button
+        class="input-like-button"
+        (click)="openLecturerModal('coordinator')"
+        id="coordinator"
+      >
+        <span *ngIf="coordinatorName; else pilihKoordinatorText">{{
+          coordinatorName
+        }}</span>
+        <ng-template #pilihKoordinatorText>
+          <span class="placeholder-text">Pilih Dosen</span>
+        </ng-template>
+        <i class="fas fa-plus icon-hover"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>Kelas</th>
+          <th>Dosen</th>
+          <th>Praktikum</th>
+          <th>Kuota</th>
+          <th>Kredit</th>
+          <th>PIC</th>
+          <th>Semester</th>
+          <th>Online/Onsite</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of tableData; let i = index">
+          <td>{{ row.no }}</td>
+          <td>{{ row.kelas }}</td>
+          <td>
+            <button
+              class="input-like-button dosen-button"
+              (click)="openLecturerModal('dosen', i)"
+            >
+              <span *ngIf="row.dosen; else pilihDosenText">{{
+                row.dosen
+              }}</span>
+              <ng-template #pilihDosenText>
+                <span class="placeholder-text">Pilih Dosen</span>
+              </ng-template>
+              <i class="fas fa-plus icon-hover"></i>
+            </button>
+          </td>
+          <td [class.praktikum-yes]="row.praktikum === 'YES'">
+            {{ row.praktikum }}
+          </td>
+          <td>{{ row.kuota }}</td>
+          <td>{{ row.kredit }}</td>
+          <td>{{ row.pic }}</td>
+          <td>{{ row.semester }}</td>
+          <td>{{ row.onlineOnsite }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="footer">
+    <button class="btn btn-back" (click)="onBack()">Back</button>
+    <button class="btn btn-submit" (click)="onSubmit()">Submit</button>
+  </div>
+</div>
+
+<app-search-modal
+  *ngIf="showLecturerSearchModal"
+  (lecturerSelected)="handleLecturerSelected($event)"
+  (closeModal)="closeLecturerModal()"
+>
+</app-search-modal>
