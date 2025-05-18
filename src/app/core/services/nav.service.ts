@@ -27,7 +27,7 @@ export class NavService {
         routerLink: '',
         children: [
           { label: 'Start Plotting', routerLink: '/ketua-kk/plotting' },
-          { label: 'Preview', routerLink: '/ketua-kk/manage-role' },
+          { label: 'Preview', routerLink: '/ketua-kk/preview' },
           { label: 'Beban SKS', routerLink: '/ketua-kk/detail-dosen/:id' },
         ],
       },

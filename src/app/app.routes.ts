@@ -62,6 +62,13 @@ export const routes: Routes = [
             './features/ketua-kk/plotting/plotting.component'
           ).then((m) => m.PlottingComponent),
       },
+      {
+        path: 'ketua-kk/preview',
+        loadComponent: () =>
+          import(
+            './features/ketua-kk/preview/preview.component'
+          ).then((m) => m.PreviewComponent),
+      },
     ],
   },
 ];

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SearchModalComponent } from '../../../shared/components/index';
 import { Lecturer } from '../../../core/models/user.model';
+import { SearchMatkulComponent, Course } from '../../../shared/components/search-matkul/search-matkul.component';
 
 interface CourseRow {
   no: number;
@@ -23,18 +24,17 @@ interface CourseRow {
   imports: [
     CommonModule,
     FormsModule,
-    SearchModalComponent
+    SearchModalComponent,
+    SearchMatkulComponent
   ],
   templateUrl: './plotting.component.html',
   styleUrls: ['./plotting.component.scss']
 })
 export class PlottingComponent implements OnInit {
-  courseOptions: string[] = [
-    'CRI3I3 - MOBILE PROGRAMMING',
-    'CS101 - INTRODUCTION TO PROGRAMMING',
-    'MA205 - LINEAR ALGEBRA'
-  ];
-  selectedCourse: string = this.courseOptions[0];
+  currentSelectedCourse: Course | null = null;
+  currentSelectedAcademicYear: string | null = null;
+  displaySelectedCourseText: string = '';
+
   coordinatorName: string = '';
   coordinatorObject?: Lecturer;
 
@@ -44,25 +44,54 @@ export class PlottingComponent implements OnInit {
   editingField: 'coordinator' | 'dosen' | null = null;
   editingDosenIndex: number | null = null;
 
+  noCourseSelectedImageUrl: string = 'assets/images/search_plotting.svg';
+  showPlaceholderContent: boolean = true;
+
   constructor() { }
 
   ngOnInit(): void {
-    this.generateMockData();
+    this.updatePlaceholderVisibility();
   }
 
-  generateMockData(): void {
-    this.tableData = [
-      { no: 1, kelas: 'SE-45-01', dosen: '', praktikum: 'YES', kuota: 48, kredit: 4, pic: 'SEAL', semester: 'GENAP', onlineOnsite: 'ONSITE' },
-      { no: 2, kelas: 'SE-45-02', dosen: '', praktikum: 'YES', kuota: 48, kredit: 4, pic: 'SEAL', semester: 'GENAP', onlineOnsite: 'ONSITE' },
-      { no: 3, kelas: 'SE-45-03', dosen: '', praktikum: 'YES', kuota: 48, kredit: 4, pic: 'SEAL', semester: 'GENAP', onlineOnsite: 'ONSITE' },
-      { no: 4, kelas: 'SE-45-04', dosen: '', praktikum: 'YES', kuota: 48, kredit: 4, pic: 'SEAL', semester: 'GENAP', onlineOnsite: 'ONSITE' },
-      { no: 5, kelas: 'SE-45-05', dosen: '', praktikum: 'YES', kuota: 48, kredit: 4, pic: 'SEAL', semester: 'GENAP', onlineOnsite: 'ONSITE' },
-      { no: 6, kelas: 'SE-45-06', dosen: '', praktikum: 'YES', kuota: 48, kredit: 4, pic: 'SEAL', semester: 'GENAP', onlineOnsite: 'ONSITE' },
-    ];
+  handleCourseAndYearSelected(selection: { course: Course, academicYear: string }): void {
+    this.currentSelectedCourse = selection.course;
+    this.currentSelectedAcademicYear = selection.academicYear;
+    this.displaySelectedCourseText = `${selection.course.id} - ${selection.course.name} (T.A. ${selection.academicYear})`;
+
+    if (this.currentSelectedCourse) {
+      this.generateMockData(this.currentSelectedCourse.name);
+      this.coordinatorName = '';
+      this.coordinatorObject = undefined;
+    } else {
+      this.tableData = [];
+      this.coordinatorName = '';
+      this.coordinatorObject = undefined;
+    }
+    this.updatePlaceholderVisibility();
   }
 
-  // Opens the lecturer search modal
+  updatePlaceholderVisibility(): void {
+    this.showPlaceholderContent = !this.currentSelectedCourse || this.tableData.length === 0;
+  }
+
+  generateMockData(courseName: string): void {
+    console.log(`Generating data for course: ${courseName}`);
+    if (this.currentSelectedCourse) {
+      this.tableData = [
+        { no: 1, kelas: 'SE-45-01', dosen: '', praktikum: 'YES', kuota: 48, kredit: 4, pic: 'SEAL', semester: 'GENAP', onlineOnsite: 'ONSITE' },
+        { no: 2, kelas: 'SE-45-02', dosen: '', praktikum: 'YES', kuota: 48, kredit: 4, pic: 'SEAL', semester: 'GENAP', onlineOnsite: 'ONSITE' },
+        { no: 3, kelas: 'SE-45-03', dosen: '', praktikum: 'YES', kuota: 48, kredit: 4, pic: 'SEAL', semester: 'GENAP', onlineOnsite: 'ONSITE' },
+      ];
+    } else {
+      this.tableData = [];
+    }
+  }
+
   openLecturerModal(field: 'coordinator' | 'dosen', index?: number): void {
+    if (!this.currentSelectedCourse && field === 'coordinator') {
+      alert('Pilih Mata Kuliah & Tahun Ajaran terlebih dahulu.');
+      return;
+    }
     this.editingField = field;
     if (field === 'dosen' && index !== undefined) {
       this.editingDosenIndex = index;
@@ -92,11 +121,33 @@ export class PlottingComponent implements OnInit {
 
   onBack(): void {
     console.log('Back button clicked');
+    this.currentSelectedCourse = null;
+    this.currentSelectedAcademicYear = null;
+    this.displaySelectedCourseText = '';
+    this.tableData = [];
+    this.coordinatorName = '';
+    this.coordinatorObject = undefined;
+    this.updatePlaceholderVisibility();
   }
 
   onSubmit(): void {
+    if (!this.currentSelectedCourse || !this.currentSelectedAcademicYear) {
+      alert('Mohon pilih Mata Kuliah & Tahun Ajaran terlebih dahulu.');
+      return;
+    }
+    if (!this.coordinatorName) {
+      alert('Mohon pilih Koordinator Mata Kuliah.');
+      return;
+    }
+    const unassignedDosen = this.tableData.find(row => !row.dosen);
+    if (unassignedDosen) {
+      alert(`Mohon tetapkan Dosen untuk kelas ${unassignedDosen.kelas}.`);
+      return;
+    }
+
     console.log('Submit button clicked');
-    console.log('Selected Course:', this.selectedCourse);
+    console.log('Selected Course:', this.currentSelectedCourse);
+    console.log('Selected Academic Year:', this.currentSelectedAcademicYear);
     console.log('Coordinator Name:', this.coordinatorName, 'Object:', this.coordinatorObject);
     console.log('Table Data:', this.tableData);
   }

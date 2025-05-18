@@ -36,7 +36,10 @@
       class="initial-state-modal"
     >
       <div class="image-placeholder-modal">
-        <p>Image Placeholder</p>
+        <img
+          src="assets/images/search_dosen.svg"
+          alt="Lecturer Search Placeholder"
+        />
       </div>
     </div>
 
@@ -68,7 +71,7 @@
             class="add-button-modal"
             (click)="$event.stopPropagation(); selectAndClose(lecturer)"
           >
-            +
+            <i class="fas fa-plus"></i>
           </button>
         </div>
       </div>

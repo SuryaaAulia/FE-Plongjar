@@ -1,0 +1,305 @@
+$sticky-col-0-width: 60px;
+
+$sticky-col-1-width: 120px;
+
+$sticky-col-2-width: 360px;
+
+$sticky-col-3-width: 80px;
+
+$sticky-col-4-width: 110px;
+
+
+
+$col-kelas-width: 160px;
+$col-mk-eksepsi-width: 240px;
+.pagination-controls-top {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 1rem;
+
+  .page-size-selector {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: var(--text-base);
+    font-weight: var(--font-medium);
+
+    label {
+      color: var(--primary-blue);
+    }
+
+    .page-size-dropdown {
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--grey);
+      border-radius: 4px;
+      background-color: var(--primary-white);
+      color: var(--primary-blue);
+      font-size: var(--text-base);
+      cursor: pointer;
+      outline: none;
+
+      &:focus {
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+      }
+    }
+
+    span {
+      color: var(--primary-blue);
+    }
+  }
+}
+
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  max-height: 70vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 1500px;
+  border-bottom: 2px solid var(--grey);
+
+  td.dosen-col {
+    background-color: var(--mint-green);
+    font-weight: var(--font-extrabold);
+  }
+
+  td.koordinator-col {
+    background-color: var(--pastel-blue);
+    font-weight: var(--font-extrabold);
+  }
+
+  th,
+  td {
+    padding: 8px 12px;
+    text-align: left;
+    vertical-align: middle;
+    background-color: var(--primary-white);
+    margin: 0;
+    border-top: none;
+    border-bottom: none;
+    border-left: none;
+    border-right: 1px solid var(--grey);
+
+    &:first-child {
+      border-left: 1px solid var(--black);
+    }
+  }
+
+  th {
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: var(--text-lg);
+    font-weight: var(--font-bold);
+  }
+
+  td {
+    color: var(--primary-blue);
+    text-align: center;
+    white-space: normal;
+    word-wrap: break-word;
+    font-size: var(--text-base);
+    font-weight: var(--font-medium);
+    padding: 16px 12px;
+  }
+
+  thead th {
+    background-color: var(--primary-blue);
+    color: white;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    vertical-align: middle;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 16px 12px;
+  }
+
+  .sticky-col {
+    position: sticky;
+    z-index: 10;
+  }
+
+  thead th.sticky-col {
+    z-index: 25;
+    background-color: var(--primary-blue);
+    color: var(--primary-white);
+  }
+
+  .sticky-col-0 {
+    left: 0;
+    width: $sticky-col-0-width;
+    min-width: $sticky-col-0-width;
+    max-width: $sticky-col-0-width;
+  }
+
+  .sticky-col-1 {
+    left: $sticky-col-0-width;
+    width: $sticky-col-1-width;
+    min-width: $sticky-col-1-width;
+    max-width: $sticky-col-1-width;
+  }
+
+  .sticky-col-2 {
+    left: calc($sticky-col-0-width + $sticky-col-1-width);
+    width: $sticky-col-2-width;
+    min-width: $sticky-col-2-width;
+    max-width: $sticky-col-2-width;
+  }
+
+  .sticky-col-3 {
+    left: calc($sticky-col-0-width + $sticky-col-1-width + $sticky-col-2-width);
+    width: $sticky-col-3-width;
+    min-width: $sticky-col-3-width;
+    max-width: $sticky-col-3-width;
+  }
+
+  .sticky-col-4 {
+    left: calc($sticky-col-0-width + $sticky-col-1-width + $sticky-col-2-width + $sticky-col-3-width);
+    width: $sticky-col-4-width;
+    min-width: $sticky-col-4-width;
+    max-width: $sticky-col-4-width;
+    border-right: 2px solid var(--primary-blue);
+  }
+
+  .col-kelas {
+    width: $col-kelas-width;
+    min-width: $col-kelas-width;
+  }
+
+  .col-mk-eksepsi {
+    width: $col-mk-eksepsi-width;
+    min-width: $col-mk-eksepsi-width;
+  }
+
+  tbody tr:hover td {
+    background-color: #f7fafc;
+  }
+
+  tbody tr:hover td.sticky-col {
+    background-color: #edf2f7;
+  }
+
+  .no-data {
+    text-align: center;
+    padding: 20px;
+    color: #777;
+  }
+
+  .sticky-col-4::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: -3px;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(to right, rgba(45, 55, 72, 0.2), transparent);
+    pointer-events: none;
+  }
+}
+
+.bottom-controls-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.pagination-controls-bottom {
+  .page-navigation {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1.5rem;
+
+    .page-info {
+      display: flex;
+      align-items: center;
+      font-size: var(--text-sm);
+      color: var(--primary-blue);
+    }
+
+    .pagination-arrow-buttons {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      .pagination-arrow-btn {
+        padding: 0.3rem 0.7rem;
+        border: 1px solid var(--grey);
+        border-radius: 4px;
+        background-color: var(--primary-white);
+        color: var(--primary-blue);
+        font-size: var(--text-base);
+        font-weight: var(--font-bold);
+        cursor: pointer;
+        line-height: 1;
+        transition: background-color 0.2s ease, border-color 0.2s ease;
+
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+          border-color: var(--light-grey);
+          color: var(--grey);
+        }
+
+        &:hover:not(:disabled) {
+          background-color: var(--light-grey);
+          border-color: var(--primary-blue);
+        }
+      }
+      .current-page-display {
+        font-size: var(--text-sm);
+        color: var(--primary-blue);
+        padding: 0 0.5rem;
+        font-weight: var(--font-medium);
+      }
+    }
+  }
+}
+
+.action-buttons-container {
+  display: flex;
+  gap: 0.75rem;
+  .action-btn {
+    padding: 0.5rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    color: white;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    &.action-btn-back {
+      background-color: #dc2626;
+      &:hover:not(:disabled) {
+        background-color: #b91c1c;
+      }
+    }
+
+    &.action-btn-submit {
+      background-color: #16a34a;
+      &:hover:not(:disabled) {
+        background-color: #15803d;
+      }
+    }
+  }
+}

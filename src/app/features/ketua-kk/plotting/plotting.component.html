@@ -2,12 +2,12 @@
   <div class="green-header-bar"></div>
   <div class="form-section">
     <div class="form-group">
-      <label for="course">Mata Kuliah:</label>
-      <select id="course" [(ngModel)]="selectedCourse">
-        <option *ngFor="let course of courseOptions" [value]="course">
-          {{ course }}
-        </option>
-      </select>
+      <label for="course-search">Mata Kuliah: </label>
+      <app-search-matkul
+        (selectionConfirmed)="handleCourseAndYearSelected($event)"
+        (selectionClosed)="updatePlaceholderVisibility()"
+        id="course-search"
+      ></app-search-matkul>
     </div>
 
     <div class="form-group">
@@ -16,11 +16,12 @@
         class="input-like-button"
         (click)="openLecturerModal('coordinator')"
         id="coordinator"
+        [disabled]="!currentSelectedCourse"
       >
-        <span *ngIf="coordinatorName; else pilihKoordinatorText">{{
+        <span *ngIf="coordinatorName; else pilihKoordinatorTextCoordinator">{{
           coordinatorName
         }}</span>
-        <ng-template #pilihKoordinatorText>
+        <ng-template #pilihKoordinatorTextCoordinator>
           <span class="placeholder-text">Pilih Dosen</span>
           <i class="fa fa-plus icon-hover"></i>
         </ng-template>
@@ -43,7 +44,7 @@
           <th>Online/Onsite</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody *ngIf="currentSelectedCourse && tableData.length > 0">
         <tr *ngFor="let row of tableData; let i = index">
           <td>{{ row.no }}</td>
           <td>{{ row.kelas }}</td>
@@ -61,7 +62,6 @@
               </ng-template>
             </button>
           </td>
-
           <td [class.praktikum-yes]="row.praktikum === 'YES'">
             {{ row.praktikum }}
           </td>
@@ -72,12 +72,43 @@
           <td>{{ row.onlineOnsite }}</td>
         </tr>
       </tbody>
+      <tbody *ngIf="showPlaceholderContent">
+        <tr>
+          <td [attr.colspan]="9" class="placeholder-cell">
+            <div class="placeholder-content-area">
+              <img
+                [src]="noCourseSelectedImageUrl"
+                alt="Pilih mata kuliah untuk melihat data"
+                class="placeholder-image"
+              />
+              <p *ngIf="!currentSelectedCourse" class="placeholder-message">
+                Silakan pilih Mata Kuliah & Tahun Ajaran untuk menampilkan
+                detail plotting.
+              </p>
+              <p
+                *ngIf="currentSelectedCourse && tableData.length === 0"
+                class="placeholder-message"
+              >
+                Belum ada data plotting untuk mata kuliah yang dipilih.
+              </p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
     </table>
   </div>
 
   <div class="footer">
     <button class="btn btn-back" (click)="onBack()">Back</button>
-    <button class="btn btn-submit" (click)="onSubmit()">Submit</button>
+    <button
+      class="btn btn-submit"
+      (click)="onSubmit()"
+      [disabled]="
+        !currentSelectedCourse || !coordinatorName || tableData.length === 0
+      "
+    >
+      Submit
+    </button>
   </div>
 </div>
 
