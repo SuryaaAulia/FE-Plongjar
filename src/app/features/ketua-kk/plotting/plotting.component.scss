@@ -141,6 +141,8 @@
 
 .table-container {
   overflow-x: auto;
+  overflow-y: auto;
+  max-height: 500px;
 
   table {
     width: 100%;
@@ -163,6 +165,9 @@
     font-weight: bold;
     font-size: var(--text-lg);
     border-bottom: 1px solid var(--grey);
+    position: sticky;
+    top: 0;
+    z-index: 1;
   }
 
   td {

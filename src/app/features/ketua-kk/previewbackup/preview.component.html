@@ -7,7 +7,6 @@
         [(ngModel)]="pageSize"
         (change)="onPageSizeChange()"
         class="page-size-dropdown"
-        aria-label="Select number of items per page"
       >
         <option *ngFor="let size of pageSizeOptions" [value]="size">
           {{ size }}
@@ -17,26 +16,58 @@
     </div>
   </div>
 
-  <app-dynamic-table
-    [data]="paginatedData"
-    [columnConfigs]="mataKuliahColumnConfigs"
-    [tableMinimuWidth]="tableMinimuWidth"
-    [parentMaxHeight]="'70vh'"
-    [noDataMessage]="'Tidak ada data mata kuliah yang tersedia.'"
-  >
-  </app-dynamic-table>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <ng-container *ngFor="let header of tableHeaders">
+            <th
+              [class]="
+                (header.isSticky ? getStickyClass(header.key) + ' ' : '') +
+                (header.key === 'kelas' ? 'col-kelas ' : '') +
+                (header.key === 'mkEksepsi' ? 'col-mk-eksepsi ' : '')
+              "
+              [title]="header.label"
+            >
+              {{ header.label }}
+            </th>
+          </ng-container>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of paginatedData">
+          <ng-container *ngFor="let header of tableHeaders">
+            <td
+              [class]="
+                (header.isSticky ? getStickyClass(header.key) + ' ' : '') +
+                (header.key === 'dosen' ? 'dosen-col ' : '') +
+                (header.key === 'koordinator' ? 'koordinator-col ' : '')
+              "
+              [title]="getCellData(item, header.key)?.toString()"
+            >
+              {{ getCellData(item, header.key) }}
+            </td>
+          </ng-container>
+        </tr>
+        <tr *ngIf="paginatedData.length === 0">
+          <td [attr.colspan]="tableHeaders.length" class="no-data">
+            No data available.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
   <div class="bottom-controls-wrapper">
     <div class="pagination-controls-bottom">
       <div class="page-navigation">
         <div class="page-info">
-          <span *ngIf="totalItems > 0">
-            Menampilkan {{ getStartRecord() }} sampai {{ getEndRecord() }} dari
-            {{ totalItems }} entri
-          </span>
-          <span *ngIf="totalItems === 0">Tidak ada entri</span>
+          <span
+            >Menampilkan {{ getStartRecord() }} sampai {{ getEndRecord() }} dari
+            {{ totalItems }} entri</span
+          >
         </div>
-        <div class="pagination-arrow-buttons" *ngIf="totalPages > 0">
+        <div class="pagination-arrow-buttons">
           <button
             type="button"
             class="pagination-arrow-btn"
@@ -50,7 +81,7 @@
           <button
             type="button"
             class="pagination-arrow-btn"
-            [disabled]="currentPage === totalPages || totalPages === 0"
+            [disabled]="currentPage === totalPages"
             (click)="goToNextPage()"
             aria-label="Next Page"
           >
@@ -72,7 +103,6 @@
         type="button"
         class="action-btn action-btn-submit"
         (click)="onSubmit()"
-        [disabled]="paginatedData.length === 0"
       >
         Submit
       </button>
