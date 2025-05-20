@@ -8,6 +8,7 @@ import {
 } from '../../../shared/components/index';
 import { Lecturer } from '../../../core/models/user.model';
 import { TableComponent, TableColumn, ActionButton } from '../../../shared/components/table/table.component';
+import { AuthService, UserRole } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-lecturer-table',
@@ -23,7 +24,8 @@ import { TableComponent, TableColumn, ActionButton } from '../../../shared/compo
   styleUrls: ['./list-dosen.component.scss'],
 })
 export class ListDosenComponent implements OnInit {
-  constructor(private router: Router) { }
+  constructor(private router: Router, private authService: AuthService) { }
+
   lecturer: Lecturer[] = [];
   filteredLecturers: Lecturer[] = [];
   paginatedLecturers: Lecturer[] = [];
@@ -49,7 +51,7 @@ export class ListDosenComponent implements OnInit {
       onClick: (lecturer: Lecturer) => this.viewLecturerSKS(lecturer.lecturerCode),
     },
     {
-      icon: 'fa-file',
+      icon: 'fa-file-alt',
       title: 'Detail',
       onClick: (lecturer: Lecturer) => this.viewLecturerDetails(lecturer.lecturerCode),
     },
@@ -61,6 +63,7 @@ export class ListDosenComponent implements OnInit {
 
   loadMockData(): void {
     this.isLoading = true;
+    this.error = null;
 
     // Dummy data
     this.lecturer = Array.from({ length: 35 }, (_, i) => ({
@@ -72,35 +75,62 @@ export class ListDosenComponent implements OnInit {
       statusPegawai: i % 2 === 0 ? 'Aktif' : 'Tidak Aktif',
       pendidikanTerakhir: 'S3',
       department: 'Computer Science',
-      nidn: `12345678${i}`,
+      nidn: `12345678${String(i).padStart(2, '0')}`,
       kelompokKeahlian:
         'Artificial Intelligence, Machine Learning, Data Science',
     }));
 
-    this.applyFilter();
+    this.applyFilterAndPaginate();
     this.isLoading = false;
   }
 
   onSearch(searchQuery: { query1: string; query2: string }): void {
     const { query1, query2 } = searchQuery;
-    const namaTerm = query1.toLowerCase();
-    const kodeTerm = query2.toLowerCase();
+    const namaTerm = query1.toLowerCase().trim();
+    const kodeTerm = query2.toLowerCase().trim();
 
     this.filteredLecturers = this.lecturer.filter(
-      (lecturer) =>
+      (lec) =>
         (namaTerm
-          ? lecturer.name.toLowerCase().includes(namaTerm) ||
-          lecturer.nidn?.toLowerCase().includes(namaTerm) ||
-          lecturer.email?.toLowerCase().includes(namaTerm)
+          ? lec.name.toLowerCase().includes(namaTerm) ||
+          lec.nidn?.toLowerCase().includes(namaTerm) ||
+          lec.email?.toLowerCase().includes(namaTerm)
           : true) &&
         (kodeTerm
-          ? lecturer.lecturerCode?.toLowerCase().includes(kodeTerm)
+          ? lec.lecturerCode?.toLowerCase().includes(kodeTerm)
           : true)
     );
 
     this.currentPage = 1;
     this.updatePaginatedLecturers();
   }
+
+  applyFilter(): void {
+    const term = this.searchTerm.toLowerCase().trim();
+    if (!term) {
+      this.filteredLecturers = [...this.lecturer];
+    } else {
+      this.filteredLecturers = this.lecturer.filter(
+        (lec) =>
+          lec.name.toLowerCase().includes(term) ||
+          lec.lecturerCode.toLowerCase().includes(term) ||
+          lec.nidn?.toLowerCase().includes(term) ||
+          lec.kelompokKeahlian?.toLowerCase().includes(term)
+      );
+    }
+    this.currentPage = 1;
+    this.updatePaginatedLecturers();
+  }
+
+  private applyFilterAndPaginate(): void {
+    if (this.searchTerm) {
+      this.applyFilter();
+    } else {
+      this.filteredLecturers = [...this.lecturer];
+    }
+    this.updatePaginatedLecturers();
+  }
+
 
   onItemsPerPageChange(count: number): void {
     this.itemsPerPage = count;
@@ -113,19 +143,6 @@ export class ListDosenComponent implements OnInit {
     this.updatePaginatedLecturers();
   }
 
-  applyFilter(): void {
-    const term = this.searchTerm.toLowerCase();
-    this.filteredLecturers = this.lecturer.filter(
-      (lecturer) =>
-        lecturer.name.toLowerCase().includes(term) ||
-        lecturer.lecturerCode.toLowerCase().includes(term) ||
-        lecturer.nidn?.toLowerCase().includes(term) ||
-        lecturer.kelompokKeahlian?.toLowerCase().includes(term)
-    );
-    this.currentPage = 1;
-    this.updatePaginatedLecturers();
-  }
-
   updatePaginatedLecturers(): void {
     const start = (this.currentPage - 1) * this.itemsPerPage;
     const end = start + this.itemsPerPage;
@@ -134,14 +151,24 @@ export class ListDosenComponent implements OnInit {
 
   onRowClick(lecturer: Lecturer): void {
     this.viewLecturerDetails(lecturer.lecturerCode);
-    this.viewLecturerSKS(lecturer.lecturerCode);
+
   }
 
   viewLecturerSKS(lecturerCode: string): void {
-    this.router.navigate(['/ketua-kk/riwayat-mengajar/', lecturerCode]);
+    const currentUserRole = this.authService.currentUserRole;
+    if (currentUserRole === 'ketua_prodi') {
+      this.router.navigate(['/ketua-prodi/riwayat-mengajar/', lecturerCode]);
+    } else {
+      this.router.navigate(['/ketua-kk/riwayat-mengajar/', lecturerCode]);
+    }
   }
 
   viewLecturerDetails(lecturerCode: string): void {
-    this.router.navigate(['/ketua-kk/detail-dosen/', lecturerCode]);
+    const currentUserRole = this.authService.currentUserRole;
+    if (currentUserRole === 'ketua_prodi') {
+      this.router.navigate(['/ketua-prodi/detail-dosen/', lecturerCode]);
+    } else {
+      this.router.navigate(['/ketua-kk/detail-dosen/', lecturerCode]);
+    }
   }
 }

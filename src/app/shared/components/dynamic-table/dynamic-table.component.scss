@@ -55,14 +55,18 @@
             background-color: var(--primary-white);
             margin: 0;
             border-top: none;
-            border-bottom: 1px solid var(--grey);
+            border-bottom: none;
             border-left: none;
             border-right: 1px solid var(--grey);
         }
 
+        tr th:first-child,
+        tr td:first-child {
+            border-left: 1px solid var(--grey);
+        }
+
         th {
             text-align: center;
-            white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             font-size: var(--text-lg);
@@ -88,6 +92,7 @@
             z-index: 20;
             vertical-align: middle;
             padding: 16px 12px;
+            border-bottom: 2px solid var(--dark-grey, #6c757d);
         }
 
         .sticky-header {
@@ -97,8 +102,8 @@
         }
 
         .sticky-cell {
-            z-index: 15 !important;
-            background-color: var(--primary-white) !important;
+            z-index: 15;
+            background-color: var(--primary-white);
         }
 
         tbody tr:hover {

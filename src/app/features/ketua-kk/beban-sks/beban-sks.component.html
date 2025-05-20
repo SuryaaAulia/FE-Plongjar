@@ -1,1 +1,73 @@
-<p>beban-sks works!</p>
+<div class="controls-and-table-wrapper beban-sks-page">
+  <div class="pagination-controls-top">
+    <div class="page-size-selector">
+      <label for="bebanSksPageSize">Show</label>
+      <select
+        id="bebanSksPageSize"
+        [(ngModel)]="pageSize"
+        (change)="onPageSizeChange()"
+        class="page-size-dropdown"
+        aria-label="Select number of items per page"
+      >
+        <option *ngFor="let size of pageSizeOptions" [value]="size">
+          {{ size }}
+        </option>
+      </select>
+      <span>Data</span>
+    </div>
+  </div>
+
+  <app-dynamic-table
+    [data]="paginatedData"
+    [columnConfigs]="columnConfigs"
+    [tableMinimuWidth]="tableMinimuWidth"
+    [parentMaxHeight]="'70vh'"
+    [noDataMessage]="'Tidak ada data beban SKS dosen yang tersedia.'"
+  >
+  </app-dynamic-table>
+
+  <div class="bottom-controls-wrapper">
+    <div class="pagination-controls-bottom">
+      <div class="page-navigation">
+        <div class="page-info">
+          <span *ngIf="totalItems > 0">
+            Menampilkan {{ getStartRecord() }} sampai {{ getEndRecord() }} dari
+            {{ totalItems }} entri
+          </span>
+          <span *ngIf="totalItems === 0">Tidak ada entri</span>
+        </div>
+        <div class="pagination-arrow-buttons" *ngIf="totalPages > 0">
+          <button
+            type="button"
+            class="pagination-arrow-btn"
+            [disabled]="currentPage === 1"
+            (click)="goToPreviousPage()"
+            aria-label="Previous Page"
+          >
+            &lt;
+          </button>
+          <span class="current-page-display">{{ currentPage }}</span>
+          <button
+            type="button"
+            class="pagination-arrow-btn"
+            [disabled]="currentPage === totalPages || totalPages === 0"
+            (click)="goToNextPage()"
+            aria-label="Next Page"
+          >
+            &gt;
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-buttons-container">
+      <button
+        type="button"
+        class="action-btn action-btn-back"
+        (click)="onBack()"
+      >
+        Back
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,5 +1,5 @@
-import { Component, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy, ViewEncapsulation, Output, EventEmitter } from '@angular/core';
-import { CommonModule, NgStyle } from '@angular/common';
+import { Component, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy, ViewEncapsulation } from '@angular/core';
+import { CommonModule, NgStyle, NgClass } from '@angular/common';
 
 export interface ColumnConfig {
   key: string;
@@ -26,7 +26,7 @@ interface StickyColumnStyle {
 @Component({
   selector: 'app-dynamic-table',
   standalone: true,
-  imports: [CommonModule, NgStyle],
+  imports: [CommonModule, NgStyle, NgClass],
   templateUrl: './dynamic-table.component.html',
   styleUrls: ['./dynamic-table.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -75,13 +75,7 @@ export class DynamicTableComponent implements OnChanges {
       if (widthMatch && widthMatch[1]) {
         currentLeft += parseInt(widthMatch[1], 10);
       } else {
-        // If width is not in simple pixels (e.g., 'auto', 'rem', '%'),
-        // this naive summing won't be accurate for 'left' of subsequent columns.
-        // For robust layout with mixed/relative units, CSS Grid/Flex or more complex JS might be needed.
-        // Or, ensure all sticky column widths are in 'px' if using this calculation method.
-        // console.warn(`Cannot accurately sum width for sticky column '${col.key}' ('${col.width}') for 'left' offset. Consider using 'px' units for sticky column widths.`);
-        // Fallback: estimate or use a fixed value if 'auto' or relative units are common.
-        // For now, we'll assume if it's not 'px', its contribution to 'left' is harder to determine here.
+        // Handle non-pixel width
       }
     }
   }

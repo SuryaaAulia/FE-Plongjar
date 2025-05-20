@@ -6,7 +6,7 @@ import { NavItem } from '../models/nav-item.model';
 export class NavService {
   readonly menuConfig = {
     admin: [
-      { label: 'Home', icon: '', routerLink: '/admin/dashboard' },
+      { label: 'Home', icon: '', routerLink: '/home' },
       {
         label: 'Roles',
         icon: 'user-group',
@@ -19,7 +19,7 @@ export class NavService {
       { label: 'Switch App', icon: 'dashboard', routerLink: '/switch-app' },
     ],
     ketua_kk: [
-      { label: 'Home', icon: '', routerLink: '/ketua-kk/dashboard' },
+      { label: 'Home', icon: '', routerLink: '/home' },
       { label: 'Dosen', icon: 'user-group', routerLink: '/ketua-kk/list-dosen' },
       {
         label: 'Plotting',
@@ -28,7 +28,24 @@ export class NavService {
         children: [
           { label: 'Start Plotting', routerLink: '/ketua-kk/plotting' },
           { label: 'Preview', routerLink: '/ketua-kk/preview' },
-          { label: 'Beban SKS', routerLink: '/ketua-kk/detail-dosen/:id' },
+          { label: 'Beban SKS', routerLink: '/ketua-kk/beban-sks' },
+        ],
+      },
+      { label: 'Switch App', icon: 'dashboard', routerLink: '/switch-app' },
+    ],
+    ketua_prodi: [
+      { label: 'Home', icon: '', routerLink: '/home' },
+      {
+        label: 'Dosen', icon: 'user-group', routerLink: '', children: [
+          { label: 'List Dosen', routerLink: '/ketua-prodi/list-dosen' },
+        ],
+      },
+      {
+        label: 'Plotting',
+        icon: 'user-group',
+        routerLink: '',
+        children: [
+          { label: 'Preview', routerLink: '/ketua-prodi/preview' },
         ],
       },
       { label: 'Switch App', icon: 'dashboard', routerLink: '/switch-app' },

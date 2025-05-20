@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
-export type UserRole = 'admin' | 'ketua_kk' | 'kaprodi' | 'LAAK' | 'kaurlab';
+export type UserRole = 'admin' | 'ketua_kk' | 'ketua_prodi' | 'LAAK' | 'kaurlab';
 
 export interface User {
     id?: string;
@@ -33,7 +33,7 @@ export class AuthService {
         } else if (email.includes('lecturer')) {
             role = 'ketua_kk';
         } else if (email.includes('kaprodi')) {
-            role = 'kaprodi';
+            role = 'ketua_prodi';
         } else if (email.includes('laak')) {
             role = 'LAAK';
         } else if (email.includes('kaurlab')) {

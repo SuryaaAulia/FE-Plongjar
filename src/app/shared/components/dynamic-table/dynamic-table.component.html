@@ -15,10 +15,12 @@
         >
           <th
             [ngStyle]="getStickyStylesForColumn(colConfig.key)"
-            [class.sticky-header]="true"
+            class="sticky-header"
             [class.last-sticky-header]="isLastSticky(colConfig.key)"
-            [class]="colConfig.customClass"
-            [class]="colConfig.headerCustomClass"
+            [ngClass]="[
+              colConfig.customClass || '',
+              colConfig.headerCustomClass || ''
+            ]"
             [style.width]="colConfig.width"
             [style.minWidth]="colConfig.minWidth"
             [style.maxWidth]="colConfig.maxWidth"
@@ -31,8 +33,10 @@
           *ngFor="let colConfig of nonStickyColumns; trackBy: trackByColumnKey"
         >
           <th
-            [class]="colConfig.customClass"
-            [class]="colConfig.headerCustomClass"
+            [ngClass]="[
+              colConfig.customClass || '',
+              colConfig.headerCustomClass || ''
+            ]"
             [style.width]="colConfig.width"
             [style.minWidth]="colConfig.minWidth"
             [style.maxWidth]="colConfig.maxWidth"
@@ -56,10 +60,12 @@
           >
             <td
               [ngStyle]="getStickyStylesForColumn(colConfig.key)"
-              [class.sticky-cell]="true"
+              class="sticky-cell"
               [class.last-sticky-cell]="isLastSticky(colConfig.key)"
-              [class]="colConfig.customClass"
-              [class]="colConfig.cellCustomClass"
+              [ngClass]="[
+                colConfig.customClass || '',
+                colConfig.cellCustomClass || ''
+              ]"
               [title]="getCellTitle(item, colConfig)"
             >
               {{ getCellValue(item, colConfig) }}
@@ -72,8 +78,10 @@
             "
           >
             <td
-              [class]="colConfig.customClass"
-              [class]="colConfig.cellCustomClass"
+              [ngClass]="[
+                colConfig.customClass || '',
+                colConfig.cellCustomClass || ''
+              ]"
               [title]="getCellTitle(item, colConfig)"
             >
               {{ getCellValue(item, colConfig) }}

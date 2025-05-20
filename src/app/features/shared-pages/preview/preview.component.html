@@ -1,5 +1,12 @@
 <div class="controls-and-table-wrapper">
   <div class="pagination-controls-top">
+    <div class="left-content-area">
+      <span *ngIf="!isKetuaKK" class="role-specific-message-text">
+        <span style="color: var(--red)">*</span>Sesuai dengan tampilan terkini
+        preview plottingan milik Ketua Kelompok Keilmuan
+      </span>
+    </div>
+
     <div class="page-size-selector">
       <label for="pageSize">Show</label>
       <select
@@ -69,6 +76,7 @@
         Back
       </button>
       <button
+        *ngIf="isKetuaKK"
         type="button"
         class="action-btn action-btn-submit"
         (click)="onSubmit()"

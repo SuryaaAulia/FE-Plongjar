@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ConfirmationModalComponent } from '../../../shared/components/confirmation-modal/confirmation-modal.component'; // Adjusted path
-// Make sure DynamicTableComponent is correctly imported
-import { DynamicTableComponent, ColumnConfig } from '../../../shared/components/dynamic-table/dynamic-table.component'; // Adjust path as needed
+import { ConfirmationModalComponent } from '../../../shared/components/confirmation-modal/confirmation-modal.component';
+import { DynamicTableComponent, ColumnConfig } from '../../../shared/components/dynamic-table/dynamic-table.component';
+import { AuthService, UserRole } from '../../../core/services/auth.service';
 
 export interface MataKuliah {
   no: number;
@@ -30,7 +30,7 @@ export interface MataKuliah {
     CommonModule,
     FormsModule,
     ConfirmationModalComponent,
-    DynamicTableComponent // Add DynamicTableComponent here
+    DynamicTableComponent
   ],
   templateUrl: './preview.component.html',
   styleUrls: ['./preview.component.scss']
@@ -46,16 +46,14 @@ export class PreviewComponent implements OnInit {
   totalPages: number = 0;
   totalItems: number = 0;
 
-  // Column configurations for the dynamic table
   mataKuliahColumnConfigs: ColumnConfig[] = [];
-  tableMinimuWidth: string = '2000px'; // Adjust as needed, sum of all column widths
+  tableMinimuWidth: string = '2000px';
 
   isConfirmationModalVisible: boolean = false;
   confirmationModalMessage: string = 'Plottingan yang di-<strong>submit</strong> akan langsung diteruskan ke LAA, pastikan data yang anda masukan sudah benar!';
 
-  // SCSS variables (ideally, these would be defined in a more global way or directly in TS if not used in SCSS elsewhere)
-  // For demonstration, using them to define widths.
-  // These values were originally in preview.component.scss
+  public isKetuaKK: boolean = false;
+
   private stickyCol0Width: string = '60px';
   private stickyCol1Width: string = '120px';
   private stickyCol2Width: string = '360px';
@@ -64,12 +62,13 @@ export class PreviewComponent implements OnInit {
   private colKelasWidth: string = '160px';
   private colMkEksepsiWidth: string = '240px';
 
-
-  constructor() { }
+  constructor(private authService: AuthService) { }
 
   ngOnInit(): void {
-    this.setupColumnConfigs(); // Setup columns first
-    this.loadMataKuliahData(); // Then load data
+    this.isKetuaKK = this.authService.currentUserRole === 'ketua_kk';
+
+    this.setupColumnConfigs();
+    this.loadMataKuliahData();
   }
 
   setupColumnConfigs(): void {
@@ -78,24 +77,18 @@ export class PreviewComponent implements OnInit {
       { key: 'idMatkul', label: 'ID Matkul', isSticky: true, stickyOrder: 1, width: this.stickyCol1Width, minWidth: this.stickyCol1Width },
       { key: 'matkul', label: 'Matkul', isSticky: true, stickyOrder: 2, width: this.stickyCol2Width, minWidth: this.stickyCol2Width },
       { key: 'pic', label: 'PIC', isSticky: true, stickyOrder: 3, width: this.stickyCol3Width, minWidth: this.stickyCol3Width },
-      { key: 'dosen', label: 'Dosen', isSticky: true, stickyOrder: 4, width: this.stickyCol4Width, minWidth: this.stickyCol4Width, cellCustomClass: 'dosen-col' }, // Added custom class
+      { key: 'dosen', label: 'Dosen', isSticky: true, stickyOrder: 4, width: this.stickyCol4Width, minWidth: this.stickyCol4Width, cellCustomClass: 'dosen-col' },
       { key: 'mandatory', label: 'Mandatory', width: '150px' },
       { key: 'tingkatMatkul', label: 'Tingkat Matkul', width: '150px' },
-      { key: 'kredit', label: 'Kredit', width: '80px', customClass: 'text-center' }, // Example custom class for centering
+      { key: 'kredit', label: 'Kredit', width: '80px', customClass: 'text-center' },
       { key: 'kelas', label: 'Kelas', width: this.colKelasWidth, minWidth: this.colKelasWidth },
       { key: 'praktikum', label: 'Praktikum', width: '100px' },
-      { key: 'koordinator', label: 'Koordinator', width: '110px', cellCustomClass: 'koordinator-col' }, // Added custom class
+      { key: 'koordinator', label: 'Koordinator', width: '110px', cellCustomClass: 'koordinator-col' },
       { key: 'semester', label: 'Semester', width: '100px' },
       { key: 'hourTarget', label: 'Hour Target', width: '120px' },
       { key: 'tahunAjaran', label: 'Tahun Ajaran', width: '120px' },
       { key: 'mkEksepsi', label: 'MK Eksepsi', width: this.colMkEksepsiWidth, minWidth: this.colMkEksepsiWidth }
     ];
-
-    // Calculate minimum table width (optional, can be set manually too)
-    // this.tableMinimuWidth = this.mataKuliahColumnConfigs.reduce((sum, col) => {
-    // const widthVal = parseInt(col.width || '0', 10);
-    // return sum + (isNaN(widthVal) ? 150 : widthVal); // Estimate 150px for 'auto' or non-px widths
-    // }, 0) + 'px';
   }
 
   loadMataKuliahData(): void {
@@ -103,13 +96,13 @@ export class PreviewComponent implements OnInit {
     for (let i = 1; i <= 50; i++) {
       this.mataKuliahData.push({
         no: i,
-        idMatkul: `CRI3I${i % 10 === 0 ? 1 : i % 10}`, // More varied ID
-        matkul: `MOBILE PROGRAMMING ${String.fromCharCode(65 + (i % 5))}`, // More varied name
+        idMatkul: `CRI3I${i % 10 === 0 ? 1 : i % 10}`,
+        matkul: `MOBILE PROGRAMMING ${String.fromCharCode(65 + (i % 5))}`,
         pic: ['SEAL', 'BNL', 'SUI', 'VLY'][i % 4],
         dosen: ['VLY', 'SUI', 'BNL', 'SEAL'][i % 4],
         mandatory: i % 2 === 0 ? 'Wajib Prodi' : 'Pilihan',
         tingkatMatkul: `Tingkat ${(i % 3) + 1}`,
-        kredit: (i % 3) + 2, // 2, 3, or 4
+        kredit: (i % 3) + 2,
         kelas: `SE-45-0${(i % 4) + 1}`,
         praktikum: i % 2 === 0 ? 'YES' : 'NO',
         koordinator: ['SUI', 'VLY', 'SEAL', 'BNL'][i % 4],
@@ -124,20 +117,18 @@ export class PreviewComponent implements OnInit {
     this.updatePagination();
   }
 
-
   updatePagination(): void {
     this.totalPages = Math.ceil(this.totalItems / this.pageSize);
 
     if (this.currentPage > this.totalPages && this.totalPages > 0) {
       this.currentPage = this.totalPages;
-    } else if (this.totalPages === 0 && this.totalItems > 0) { // if totalPages is 0 but items exist (pageSize issue)
+    } else if (this.totalPages === 0 && this.totalItems > 0) {
       this.currentPage = 1;
-      this.totalPages = 1; // Should have at least one page
+      this.totalPages = 1;
     } else if (this.totalItems === 0) {
       this.currentPage = 1;
       this.totalPages = 0;
     }
-
 
     const startIndex = (this.currentPage - 1) * this.pageSize;
     const endIndex = Math.min(startIndex + this.pageSize, this.totalItems);
@@ -146,7 +137,7 @@ export class PreviewComponent implements OnInit {
   }
 
   onPageSizeChange(): void {
-    this.currentPage = 1; // Reset to first page when page size changes
+    this.currentPage = 1;
     this.updatePagination();
   }
 
@@ -175,7 +166,6 @@ export class PreviewComponent implements OnInit {
 
   onBack(): void {
     console.log('Main Back button clicked');
-    // Implement navigation or other back logic
   }
 
   onSubmit(): void {
@@ -184,7 +174,6 @@ export class PreviewComponent implements OnInit {
 
   handleModalConfirm(): void {
     console.log('Data submission confirmed by user!');
-    // Actual submission logic here
     this.isConfirmationModalVisible = false;
   }
 
