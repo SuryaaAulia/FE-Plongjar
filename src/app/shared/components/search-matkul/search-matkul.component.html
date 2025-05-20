@@ -1,0 +1,103 @@
+<div class="course-selection-container" [class.dropdown-is-open]="showDropdown">
+  <div class="search-header">
+    <input
+      #searchInput
+      type="text"
+      [(ngModel)]="searchTerm"
+      (ngModelChange)="onSearchInput()"
+      [placeholder]="searchPlaceholder"
+      (focus)="onSearchFocus()"
+      aria-label="Search for course"
+      class="search-input"
+    />
+    <button
+      *ngIf="searchTerm"
+      (click)="clearSearch()"
+      class="icon-button clear-button"
+      aria-label="Clear search"
+    >
+      <i class="fas fa-times-circle"></i>
+    </button>
+    <span class="icon-button search-icon-magnifier">
+      <i class="fas fa-search"></i>
+    </span>
+  </div>
+
+  <div class="dropdown-panel" [class.is-open]="showDropdown">
+    <div class="content-area">
+      <div class="course-list-panel">
+        <div *ngIf="showPlaceholder()" class="placeholder-container">
+          <div class="placeholder-image-wrapper">
+            <img
+              src="assets/images/search_mata_kuliah.svg"
+              alt="Mata Kuliah Illustration"
+              class="placeholder-svg"
+            />
+          </div>
+          <p class="placeholder-text">{{ searchInputNote }}</p>
+        </div>
+
+        <ul *ngIf="filteredCourses.length > 0" class="course-list">
+          <li
+            *ngFor="let course of filteredCourses"
+            (click)="selectCourse(course)"
+            [class.selected]="course === selectedCourse"
+            tabindex="0"
+            (keydown.enter)="selectCourse(course)"
+            role="option"
+            [attr.aria-selected]="course === selectedCourse"
+            [title]="course.id + ' - ' + course.name"
+          >
+            {{ course.id }} - {{ course.name }}
+          </li>
+        </ul>
+
+        <div
+          *ngIf="
+            searchTerm.trim() !== '' &&
+            filteredCourses.length === 0 &&
+            !showPlaceholder() &&
+            !selectedCourse
+          "
+          class="no-results"
+        >
+          No courses found matching "{{ searchTerm }}".
+        </div>
+      </div>
+
+      <div
+        class="academic-year-panel"
+        *ngIf="
+          selectedCourse ||
+          filteredCourses.length > 0 ||
+          searchTerm.trim() !== ''
+        "
+      >
+        <h3 class="panel-title">Tahun Ajaran</h3>
+        <ul class="academic-year-list">
+          <li *ngFor="let year of academicYears">
+            <label>
+              <input
+                type="radio"
+                name="academicYear"
+                [value]="year.value"
+                [(ngModel)]="selectedAcademicYear"
+              />
+              {{ year.label }}
+            </label>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-actions">
+      <button
+        (click)="onDone()"
+        class="done-button"
+        [disabled]="!selectedCourse || !selectedAcademicYear"
+      >
+        Done
+      </button>
+    </div>
+  </div>
+</div>

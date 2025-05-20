@@ -25,7 +25,7 @@ export class MainLayoutComponent implements OnInit {
 
   ngOnInit(): void {
     this.screenWidth = window.innerWidth;
-    this.menuItems$ = this.nav.getMenu('ketua_kk');
+    this.menuItems$ = this.nav.getMenu('ketua_prodi');
   }
 
   toggleSidenav(): void {

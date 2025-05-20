@@ -1,9 +1,16 @@
-<div class="controls-and-table-wrapper beban-sks-page">
+<div class="controls-and-table-wrapper">
   <div class="pagination-controls-top">
+    <div class="left-content-area">
+      <span *ngIf="!isKetuaKK" class="role-specific-message-text">
+        <span style="color: var(--red)">*</span>Sesuai dengan tampilan terkini
+        preview plottingan milik Ketua Kelompok Keilmuan
+      </span>
+    </div>
+
     <div class="page-size-selector">
-      <label for="bebanSksPageSize">Show</label>
+      <label for="pageSize">Show</label>
       <select
-        id="bebanSksPageSize"
+        id="pageSize"
         [(ngModel)]="pageSize"
         (change)="onPageSizeChange()"
         class="page-size-dropdown"
@@ -19,10 +26,10 @@
 
   <app-dynamic-table
     [data]="paginatedData"
-    [columnConfigs]="columnConfigs"
+    [columnConfigs]="mataKuliahColumnConfigs"
     [tableMinimuWidth]="tableMinimuWidth"
     [parentMaxHeight]="'70vh'"
-    [noDataMessage]="'Tidak ada data beban SKS dosen yang tersedia.'"
+    [noDataMessage]="'Tidak ada data mata kuliah yang tersedia.'"
   >
   </app-dynamic-table>
 
@@ -68,6 +75,23 @@
       >
         Back
       </button>
+      <button
+        *ngIf="isKetuaKK"
+        type="button"
+        class="action-btn action-btn-submit"
+        (click)="onSubmit()"
+        [disabled]="paginatedData.length === 0"
+      >
+        Submit
+      </button>
     </div>
   </div>
 </div>
+
+<app-confirmation-modal
+  [isVisible]="isConfirmationModalVisible"
+  [message]="confirmationModalMessage"
+  (confirmed)="handleModalConfirm()"
+  (cancelled)="handleModalCancel()"
+>
+</app-confirmation-modal>
