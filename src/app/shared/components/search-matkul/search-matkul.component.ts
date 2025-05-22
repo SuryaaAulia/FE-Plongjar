@@ -1,11 +1,7 @@
 import { Component, OnInit, Output, EventEmitter, ElementRef, HostListener, ViewChild, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
-export interface Course {
-  id: string;
-  name: string;
-}
+import { Course } from '../../../core/models/user.model';
 
 interface AcademicYear {
   value: string;
@@ -27,11 +23,11 @@ export class SearchMatkulComponent implements OnInit {
   searchInputNote: string = '* Masukkan nama mata kuliah yang ingin di tambahkan';
 
   availableCourses: Course[] = [
-    { id: 'CRI3I3', name: 'PEMROGRAMAN PERANGKAT BERGERAK' },
-    { id: 'CRI3B3', name: 'PEMROGRAMAN WEB' },
-    { id: 'CII3B4', name: 'PEMROGRAMAN BERORIENTASI OBJEK' },
-    { id: 'CSH2A3', name: 'ALGORITMA DAN STRUKTUR DATA' },
-    { id: 'CSI3A3', name: 'BASIS DATA' },
+    { id: 'CRI3I3', name: 'PEMROGRAMAN PERANGKAT BERGERAK', pic: 'SEAL', code: 'CRI3I3', sks: 3, statusMatkul: 'Aktif', metodePerkuliahan: 'Daring', praktikum: 'Ya' },
+    { id: 'CRI3B3', name: 'PEMROGRAMAN WEB', pic: 'SEAL', code: 'CRI3I3', sks: 3, statusMatkul: 'Aktif', metodePerkuliahan: 'Daring', praktikum: 'Ya' },
+    { id: 'CII3B4', name: 'PEMROGRAMAN BERORIENTASI OBJEK', pic: 'SEAL', code: 'CRI3I3', sks: 3, statusMatkul: 'Aktif', metodePerkuliahan: 'Daring', praktikum: 'Ya' },
+    { id: 'CSH2A3', name: 'ALGORITMA DAN STRUKTUR DATA', pic: 'SEAL', code: 'CRI3I3', sks: 3, statusMatkul: 'Aktif', metodePerkuliahan: 'Daring', praktikum: 'Ya' },
+    { id: 'CSI3A3', name: 'BASIS DATA', pic: 'SEAL', code: 'CRI3I3', sks: 3, statusMatkul: 'Aktif', metodePerkuliahan: 'Daring', praktikum: 'Ya' },
   ];
 
   filteredCourses: Course[] = [];

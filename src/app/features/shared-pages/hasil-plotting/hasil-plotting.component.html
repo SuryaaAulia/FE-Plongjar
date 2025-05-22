@@ -1,0 +1,82 @@
+<div class="pagination-controls-top">
+  <div class="left-content-area"></div>
+
+  <div class="page-size-selector">
+    <label for="pageSize">Show</label>
+    <select
+      id="pageSize"
+      [(ngModel)]="pageSize"
+      (change)="onPageSizeChange()"
+      class="page-size-dropdown"
+      aria-label="Select number of items per page"
+    >
+      <option *ngFor="let size of pageSizeOptions" [value]="size">
+        {{ size }}
+      </option>
+    </select>
+    <span>Data</span>
+  </div>
+</div>
+
+<app-dynamic-table
+  [data]="paginatedData"
+  [columnConfigs]="mataKuliahColumnConfigs"
+  [tableMinimuWidth]="tableMinimuWidth"
+  [parentMaxHeight]="'70vh'"
+  [noDataMessage]="'Tidak ada data hasil plotting yang tersedia.'"
+>
+</app-dynamic-table>
+
+<div class="bottom-controls-wrapper">
+  <div class="pagination-controls-bottom">
+    <div class="page-navigation">
+      <div class="page-info">
+        <span *ngIf="totalItems > 0">
+          Menampilkan {{ getStartRecord() }} sampai {{ getEndRecord() }} dari
+          {{ totalItems }} entri
+        </span>
+        <span *ngIf="totalItems === 0">Tidak ada entri</span>
+      </div>
+      <div class="pagination-arrow-buttons" *ngIf="totalPages > 0">
+        <button
+          type="button"
+          class="pagination-arrow-btn"
+          [disabled]="currentPage === 1"
+          (click)="goToPreviousPage()"
+          aria-label="Previous Page"
+        >
+          &lt;
+        </button>
+        <span class="current-page-display">{{ currentPage }}</span>
+        <button
+          type="button"
+          class="pagination-arrow-btn"
+          [disabled]="currentPage === totalPages || totalPages === 0"
+          (click)="goToNextPage()"
+          aria-label="Next Page"
+        >
+          &gt;
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="action-buttons-container">
+    <app-action-button
+      text="Back"
+      backgroundColorVar="var(--red)"
+      [fontSizePx]="16"
+      [paddingScaleFactor]="0.6"
+      (buttonClick)="onBack()"
+    ></app-action-button>
+    <app-action-button
+      text="Download Excel"
+      iconClass="fas fa-download"
+      backgroundColorVar="var(--primary-blue)"
+      [fontSizePx]="16"
+      [paddingScaleFactor]="0.6"
+      [disabled]="paginatedData.length === 0"
+      (buttonClick)="onDownloadExcel()"
+    ></app-action-button>
+  </div>
+</div>

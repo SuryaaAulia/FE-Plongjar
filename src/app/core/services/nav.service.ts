@@ -6,7 +6,7 @@ import { NavItem } from '../models/nav-item.model';
 export class NavService {
   readonly menuConfig = {
     admin: [
-      { label: 'Home', icon: '', routerLink: '/home' },
+      { label: 'Home', icon: 'house', routerLink: '/home' },
       {
         label: 'Roles',
         icon: 'user-group',
@@ -19,11 +19,11 @@ export class NavService {
       { label: 'Switch App', icon: 'dashboard', routerLink: '/switch-app' },
     ],
     ketua_kk: [
-      { label: 'Home', icon: '', routerLink: '/home' },
+      { label: 'Home', icon: 'house', routerLink: '/home' },
       { label: 'Dosen', icon: 'user-group', routerLink: '/ketua-kk/list-dosen' },
       {
         label: 'Plotting',
-        icon: 'user-group',
+        icon: 'table-list',
         routerLink: '',
         children: [
           { label: 'Start Plotting', routerLink: '/ketua-kk/plotting' },
@@ -34,7 +34,7 @@ export class NavService {
       { label: 'Switch App', icon: 'dashboard', routerLink: '/switch-app' },
     ],
     ketua_prodi: [
-      { label: 'Home', icon: '', routerLink: '/home' },
+      { label: 'Home', icon: 'house', routerLink: '/home' },
       {
         label: 'Dosen', icon: 'user-group', routerLink: '', children: [
           { label: 'List Dosen', routerLink: '/ketua-prodi/list-dosen' },
@@ -42,10 +42,22 @@ export class NavService {
       },
       {
         label: 'Plotting',
-        icon: 'user-group',
+        icon: 'table-list',
         routerLink: '',
         children: [
+          { label: 'Start Plotting', routerLink: '/ketua-kk/plotting' },
           { label: 'Preview', routerLink: '/ketua-prodi/preview' },
+          { label: 'Hasil', routerLink: '/ketua-prodi/hasil-plotting' },
+        ],
+      },
+      {
+        label: 'Matkul',
+        icon: 'graduation-cap',
+        routerLink: '',
+        children: [
+          { label: 'Tambah Matkul', routerLink: '/ketua-prodi/tambah-matkul' },
+          { label: 'Mapping', routerLink: '/ketua-prodi/mapping-matkul' },
+          { label: 'Manage', routerLink: '/ketua-prodi/manage-matkul' },
         ],
       },
       { label: 'Switch App', icon: 'dashboard', routerLink: '/switch-app' },

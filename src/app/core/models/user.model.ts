@@ -41,3 +41,14 @@ export interface TeachingRecord {
   period: string;
   lecturerName?: string;
 }
+
+export interface Course {
+  id: string;
+  name: string;
+  code: string;
+  sks: number | string;
+  pic: string;
+  statusMatkul: string;
+  metodePerkuliahan: string;
+  praktikum: string;
+}

@@ -1,0 +1,191 @@
+<div class="mapping-container">
+  <div class="header-section">
+    <h2>Mapping Kelas Mata Kuliah</h2>
+    <p>Isi form untuk menambahkan mapping kelas matakuliah</p>
+  </div>
+
+  <form [formGroup]="mappingForm">
+    <div class="form-grid top-filters">
+      <div class="form-field">
+        <label for="mataKuliah">
+          <span class="required">*</span>Mata Kuliah
+        </label>
+        <div class="select-wrapper">
+          <select id="mataKuliah" formControlName="mataKuliah">
+            <option value="" disabled selected>Pilih Mata Kuliah</option>
+            <option *ngFor="let mk of mataKuliahOptions" [value]="mk.id">
+              {{ mk.nama }}
+            </option>
+          </select>
+          <i class="fas fa-chevron-down select-arrow-icon"></i>
+        </div>
+        <div
+          *ngIf="
+            mappingForm.get('mataKuliah')?.invalid &&
+            mappingForm.get('mataKuliah')?.touched
+          "
+          class="error-message"
+        >
+          Mata Kuliah wajib dipilih.
+        </div>
+      </div>
+      <div class="form-field">
+        <label for="tahunAjaran">
+          <span class="required">*</span>Tahun Ajaran
+        </label>
+        <div class="select-wrapper">
+          <select id="tahunAjaran" formControlName="tahunAjaran">
+            <option value="" disabled selected>Pilih Tahun Ajaran</option>
+            <option *ngFor="let ta of tahunAjaranOptions" [value]="ta.value">
+              {{ ta.label }}
+            </option>
+          </select>
+          <i class="fas fa-chevron-down select-arrow-icon"></i>
+        </div>
+        <div
+          *ngIf="
+            mappingForm.get('tahunAjaran')?.invalid &&
+            mappingForm.get('tahunAjaran')?.touched
+          "
+          class="error-message"
+        >
+          Tahun Ajaran wajib dipilih.
+        </div>
+      </div>
+    </div>
+
+    <div class="tambah-kelas-section">
+      <h3>Tambah Kelas</h3>
+      <div class="form-grid tambah-kelas-grid">
+        <div class="form-field">
+          <label for="prefixNamaKelas">
+            <span class="required">*</span>Prefix Nama Kelas
+          </label>
+          <input
+            type="text"
+            id="prefixNamaKelas"
+            formControlName="prefixNamaKelas"
+            placeholder="Contoh: SE-45-"
+          />
+          <small class="format-hint">Format: [Kode Prodi]-[Angkatan]-</small>
+          <div
+            *ngIf="
+              mappingForm.get('prefixNamaKelas')?.invalid &&
+              mappingForm.get('prefixNamaKelas')?.touched
+            "
+            class="error-message"
+          >
+            Prefix Nama Kelas wajib diisi.
+          </div>
+        </div>
+        <div class="form-field">
+          <label for="kuotaDefault">
+            <span class="required">*</span>Kuota Default
+          </label>
+          <input
+            type="number"
+            id="kuotaDefault"
+            formControlName="kuotaDefault"
+            placeholder="Contoh: 40"
+            min="1"
+          />
+          <div
+            *ngIf="
+              mappingForm.get('kuotaDefault')?.invalid &&
+              mappingForm.get('kuotaDefault')?.touched
+            "
+            class="error-message"
+          >
+            Kuota Default wajib diisi dan minimal 1.
+          </div>
+        </div>
+        <div class="form-field tambah-kelas-button-container">
+          <app-action-button
+            text="Tambah Kelas"
+            iconClass="fas fa-plus"
+            backgroundColorVar="var(--primary-blue)"
+            [fontSizePx]="14"
+            [paddingScaleFactor]="1"
+            (buttonClick)="tambahKelas()"
+            [disabled]="isTambahKelasDisabled"
+          ></app-action-button>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <div *ngIf="!showTable" class="no-data-placeholder">
+    <img
+      src="assets/images/search_plotting.svg"
+      alt="Belum ada data"
+      class="placeholder-image"
+    />
+    <p>Belum Ada Data Yang Ditambahkan!</p>
+  </div>
+
+  <div *ngIf="showTable" class="daftar-kelas-section">
+    <h3>Daftar Kelas ({{ daftarKelas.length }})</h3>
+    <div class="table-container">
+      <table class="daftar-kelas-table">
+        <thead>
+          <tr>
+            <th class="col-no">No</th>
+            <th class="col-nama-kelas">Nama Kelas</th>
+            <th class="col-kuota">Kuota</th>
+            <th class="col-team-teaching">Team Teaching</th>
+            <th class="col-action">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let kelas of daftarKelas; let i = index">
+            <td class="col-no">{{ i + 1 }}</td>
+            <td class="col-nama-kelas">{{ kelas.namaKelas }}</td>
+            <td class="col-kuota">
+              <input
+                type="number"
+                [(ngModel)]="kelas.kuota"
+                [ngModelOptions]="{ standalone: true }"
+                min="1"
+                class="kuota-input"
+              />
+            </td>
+            <td class="col-team-teaching">
+              <label class="toggle-switch">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="kelas.teamTeaching"
+                  [ngModelOptions]="{ standalone: true }"
+                />
+                <span class="slider round"></span>
+              </label>
+            </td>
+            <td class="col-action">
+              <app-action-button
+                iconClass="fas fa-trash-alt"
+                backgroundColorVar="var(--red)"
+                [fontSizePx]="13"
+                [paddingScaleFactor]="0.4"
+                (buttonClick)="hapusKelas(i)"
+                title="Hapus Kelas"
+              ></app-action-button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="footer-submit-section">
+    <p class="data-summary">
+      Menambahkan {{ daftarKelas.length }} data kedalam sistem
+    </p>
+    <app-action-button
+      text="Submit"
+      backgroundColorVar="var(--primary-blue)"
+      [fontSizePx]="16"
+      [paddingScaleFactor]="0.6"
+      (buttonClick)="submitMapping()"
+      [disabled]="isSubmitMappingDisabled"
+    ></app-action-button>
+  </div>
+</div>

@@ -1,0 +1,15 @@
+<button
+  [type]="type"
+  class="action-btn"
+  [class.full-width]="fullWidth"
+  [ngStyle]="currentButtonStyles"
+  (click)="onButtonClick($event)"
+  [disabled]="disabled"
+  [attr.aria-disabled]="disabled"
+  [attr.aria-label]="text"
+>
+  <ng-container *ngIf="iconClass && showIcon">
+    <i [ngClass]="iconClass" [ngStyle]="getIconStyles()"></i>
+  </ng-container>
+  <span *ngIf="text" [class.has-icon]="iconClass && showIcon">{{ text }}</span>
+</button>

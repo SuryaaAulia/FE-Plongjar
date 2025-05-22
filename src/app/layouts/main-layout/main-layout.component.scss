@@ -14,14 +14,12 @@
 }
 
 .main-content-wrapper {
-  //align-self: center;
   flex: 1;
   transition: margin-left 0.3s ease, width 0.3s ease;
   margin-left: 16.2rem;
   width: calc(100% - 16.2rem);
   display: flex;
   flex-direction: column;
-  padding: 1.5rem;
 
   &.wrapper-collapsed {
     margin-left: 5rem;

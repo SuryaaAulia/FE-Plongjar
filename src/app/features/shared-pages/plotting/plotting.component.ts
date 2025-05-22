@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SearchModalComponent } from '../../../shared/components/index';
 import { Lecturer } from '../../../core/models/user.model';
-import { SearchMatkulComponent, Course } from '../../../shared/components/search-matkul/search-matkul.component';
+import { SearchMatkulComponent } from '../../../shared/components/search-matkul/search-matkul.component';
+import { Course } from '../../../core/models/user.model';
 
 interface CourseRow {
   no: number;

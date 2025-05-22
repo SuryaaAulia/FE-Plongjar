@@ -7,3 +7,6 @@ export * from './search-dosen-modal/search-modal.component';
 export * from './search-matkul/search-matkul.component';
 export * from './confirmation-modal/confirmation-modal.component';
 export * from './dynamic-table/dynamic-table.component';
+export * from './buttons/action-button/action-button.component';
+export * from './buttons/paginate-button/paginate-button.component';
+export * from './course-card/course-card.component';

@@ -19,13 +19,6 @@ export const routes: Routes = [
           ),
       },
       {
-        path: 'admin/dashboard',
-        loadComponent: () =>
-          import('./features/admin/admin.component').then(
-            (m) => m.AdminComponent
-          ),
-      },
-      {
         path: 'admin/assign',
         loadComponent: () =>
           import('./features/admin/assign-role/assign-role.component').then(
@@ -37,13 +30,6 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/admin/manage-role/manage-role.component').then(
             (m) => m.ManageRoleComponent
-          ),
-      },
-      {
-        path: 'ketua-kk/dashboard',
-        loadComponent: () =>
-          import('./features/ketua-kk/ketua-kk.component').then(
-            (m) => m.KetuaKkComponent
           ),
       },
       {
@@ -71,7 +57,7 @@ export const routes: Routes = [
         path: 'ketua-kk/plotting',
         loadComponent: () =>
           import(
-            './features/ketua-kk/plotting/plotting.component'
+            './features/shared-pages/plotting/plotting.component'
           ).then((m) => m.PlottingComponent),
       },
       {
@@ -109,6 +95,54 @@ export const routes: Routes = [
             './features/shared-pages/riwayat-mengajar/riwayat-mengajar.component'
           ).then((m) => m.RiwayatMengajarComponent),
       },
+      {
+        path: 'ketua-prodi/detail-dosen/:id',
+        loadComponent: () =>
+          import(
+            './features/shared-pages/detail-dosen/detail-dosen.component'
+          ).then((m) => m.DetailDosenComponent),
+      },
+      {
+        path: 'ketua-prodi/hasil-plotting',
+        loadComponent: () =>
+          import(
+            './features/shared-pages/hasil-plotting/hasil-plotting.component'
+          ).then((m) => m.HasilPlottingComponent),
+      },
+      {
+        path: 'ketua-prodi/tambah-matkul',
+        loadComponent: () =>
+          import(
+            './features/kaprodi/tambah-matkul/tambah-matkul.component'
+          ).then((m) => m.TambahMatkulComponent),
+      },
+      {
+        path: 'ketua-prodi/matkul/edit/:code', // Route for editing an existing Mata Kuliah
+        loadComponent: () =>
+          import('./features/kaprodi/tambah-matkul/tambah-matkul.component') // Uses the SAME component
+            .then(m => m.TambahMatkulComponent)
+      },
+      {
+        path: 'ketua-prodi/mapping-matkul',
+        loadComponent: () =>
+          import(
+            './features/kaprodi/mapping-matkul/mapping-matkul.component'
+          ).then((m) => m.MappingMatkulComponent),
+      },
+      {
+        path: 'ketua-prodi/manage-matkul',
+        loadComponent: () =>
+          import(
+            './features/kaprodi/manage-matkul/manage-matkul.component'
+          ).then((m) => m.ManageMatkulComponent),
+      },
+      {
+        path: 'ketua-prodi/detail-matkul/:code',
+        loadComponent: () =>
+          import(
+            './features/kaprodi/detail-matkul/detail-matkul.component'
+          ).then((m) => m.DetailMatkulComponent),
+      }
     ],
   },
 ];

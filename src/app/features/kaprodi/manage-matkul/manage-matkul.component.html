@@ -1,0 +1,67 @@
+<div class="manage-items-container">
+  <div class="page-header">
+    <h1>Manage Role</h1>
+    <div class="controls">
+      <div class="items-per-page-selector">
+        <label for="itemsPerPage">Show</label>
+        <select
+          id="itemsPerPage"
+          [(ngModel)]="itemsPerPage"
+          (ngModelChange)="onItemsPerPageChange($event)"
+        >
+          <option [value]="6">6 Data</option>
+          <option [value]="9">9 Data</option>
+          <option [value]="12">12 Data</option>
+          <option [value]="24">24 Data</option>
+          <option [value]="30">30 Data</option>
+        </select>
+      </div>
+      <input
+        type="text"
+        placeholder="Nama Matkul"
+        [(ngModel)]="searchNamaMatkul"
+        (keyup.enter)="onSearch()"
+      />
+      <input
+        type="text"
+        placeholder="PIC"
+        [(ngModel)]="searchPIC"
+        (keyup.enter)="onSearch()"
+      />
+      <button class="search-button" (click)="onSearch()">
+        <i class="fas fa-search"></i> Search
+      </button>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  @if (isLoading) {
+  <div class="loading-spinner">
+    <i class="fas fa-spinner fa-spin"></i> Loading courses...
+  </div>
+  } @else { @if (filteredCourses.length === 0) {
+  <div class="no-results">
+    <i class="fas fa-folder-open"></i>
+    <p>No courses found matching your criteria</p>
+  </div>
+  } @else {
+  <div class="item-grid">
+    @for (course of paginatedCourses; track course.id) {
+    <app-course-card
+      [course]="course"
+      (settings)="handleViewDetails($event)"
+      (edit)="handleEditCourse($event)"
+      (delete)="handleDeleteCourse($event)"
+    ></app-course-card>
+    }
+  </div>
+
+  <app-pagination
+    [currentPage]="currentPage"
+    [itemsPerPage]="itemsPerPage"
+    [totalItems]="filteredCourses.length"
+    (pageChange)="onPageChange($event)"
+  ></app-pagination>
+  } }
+</div>

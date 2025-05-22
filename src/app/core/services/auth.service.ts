@@ -12,7 +12,7 @@ export interface User {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-    private currentUserSubject = new BehaviorSubject<User>({ role: 'admin' });
+    private currentUserSubject = new BehaviorSubject<User>({ role: 'ketua_prodi' });
 
     currentUser$ = this.currentUserSubject.asObservable();
 
