@@ -5,19 +5,44 @@
       <button class="close-button" (click)="onCancel()">×</button>
     </div>
     <div class="modal-body">
-      <p [innerHTML]="message"></p>
-      <div class="checkbox-container">
-        <input type="checkbox" id="confirmationCheckbox" [(ngModel)]="isConfirmed">
-        <label for="confirmationCheckbox">{{ checkboxLabel }}</label>
-      </div>
+      <ng-container *ngIf="mode === 'checkbox'">
+        <p [innerHTML]="message"></p>
+        <div class="checkbox-container">
+          <input
+            type="checkbox"
+            id="confirmationCheckbox"
+            [(ngModel)]="isCheckboxConfirmed"
+          />
+          <label for="confirmationCheckbox">{{ checkboxLabel }}</label>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="mode === 'password'">
+        <p [innerHTML]="passwordPrompt"></p>
+        <div class="form-field password-field">
+          <label for="passwordInput"
+            ><span style="color: var(--red)">*</span>Password</label
+          >
+          <input
+            type="password"
+            id="passwordInput"
+            [(ngModel)]="passwordValue"
+            placeholder="Enter your password"
+          />
+        </div>
+      </ng-container>
     </div>
     <div class="modal-footer">
       <button
         class="button ok-button"
         (click)="onConfirm()"
-        [disabled]="!isConfirmed"> {{ okButtonText }}
+        [disabled]="isOkDisabled()"
+      >
+        {{ okButtonText }}
       </button>
-      <button class="button cancel-button" (click)="onCancel()">{{ cancelButtonText }}</button>
+      <button class="button cancel-button" (click)="onCancel()">
+        {{ cancelButtonText }}
+      </button>
     </div>
   </div>
 </div>

@@ -1,6 +1,6 @@
 <div class="manage-items-container">
   <div class="page-header">
-    <h1>Manage Role</h1>
+    <h1>Manage Matkul</h1>
     <div class="controls">
       <div class="items-per-page-selector">
         <label for="itemsPerPage">Show</label>
@@ -50,7 +50,7 @@
     @for (course of paginatedCourses; track course.id) {
     <app-course-card
       [course]="course"
-      (settings)="handleViewDetails($event)"
+      (viewDetails)="handleViewDetails($event)"
       (edit)="handleEditCourse($event)"
       (delete)="handleDeleteCourse($event)"
     ></app-course-card>
@@ -63,5 +63,24 @@
     [totalItems]="filteredCourses.length"
     (pageChange)="onPageChange($event)"
   ></app-pagination>
+  <div class="pagination-summary">
+    Menampilkan {{ displayedStartIndex }} sampai {{ displayedEndIndex }} dari
+    {{ filteredCourses.length }} entri
+  </div>
   } }
+
+  <app-confirmation-modal
+    [isVisible]="showDeleteModal"
+    [title]="deleteModalTitle"
+    [message]="deleteModalMessage"
+    [mode]="deleteModalMode"
+    [passwordPrompt]="deletePasswordPrompt"
+    checkboxLabel="Ya, saya yakin."
+    okButtonText="OK"
+    cancelButtonText="Cancel"
+    (confirmed)="onInitialDeleteConfirmed()"
+    (passwordEntered)="onPasswordDeleteSubmitted($event)"
+    (cancelled)="onDeleteCancelled()"
+  >
+  </app-confirmation-modal>
 </div>

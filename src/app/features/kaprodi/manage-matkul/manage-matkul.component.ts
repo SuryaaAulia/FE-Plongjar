@@ -6,7 +6,8 @@ import { Course } from '../../../core/models/user.model';
 import {
   SearchHeaderComponent,
   PaginationComponent,
-  CourseCardComponent
+  CourseCardComponent,
+  ConfirmationModalComponent
 } from '../../../shared/components/index';
 
 @Component({
@@ -18,6 +19,7 @@ import {
     SearchHeaderComponent,
     CourseCardComponent,
     PaginationComponent,
+    ConfirmationModalComponent
   ],
   templateUrl: './manage-matkul.component.html',
   styleUrl: './manage-matkul.component.scss'
@@ -31,7 +33,15 @@ export class ManageMatkulComponent implements OnInit {
   searchNamaMatkul: string = '';
   searchPIC: string = '';
 
-  constructor(private router: Router) { } // <-- Inject Router
+  // Properties for Delete Confirmation Modal State
+  showDeleteModal = false;
+  deleteModalMode: 'checkbox' | 'password' = 'checkbox';
+  courseToDelete: Course | null = null;
+  deleteModalTitle = '';
+  deleteModalMessage = '';
+  deletePasswordPrompt = 'Masukan password akun anda untuk melanjutkan tindakan penghapusan mata kuliah';
+
+  constructor(private router: Router) { }
 
   ngOnInit(): void {
     this.loadCourses();
@@ -48,7 +58,6 @@ export class ManageMatkulComponent implements OnInit {
 
   private generateMockCourses(): Course[] {
     const courseNames = ['MOBILE PROGRAMMING', 'WEB DEVELOPMENT', 'DATABASE SYSTEMS', 'ALGORITHMS', 'DATA STRUCTURES', 'OPERATING SYSTEMS', 'NETWORKING', 'SOFTWARE ENGINEERING', 'ARTIFICIAL INTELLIGENCE', 'MACHINE LEARNING'];
-    // Ensure these codes are unique if they are the primary lookup key
     const courseCodes = ['CRI3I3', 'CS101', 'DB202', 'ALGO303', 'DS304', 'OS401', 'NET402', 'SE501', 'AI601', 'ML602'];
     const pics = ['SEAL', 'RPL', 'KBK', 'DOSEN X', 'DOSEN Y'];
     const sksValues = [1, 2, 3, 4, 5, 6];
@@ -56,12 +65,12 @@ export class ManageMatkulComponent implements OnInit {
     const metodes = ['online', 'offline', 'hybrid'];
     const praktikumValues = ['true', 'false'];
 
-    return Array.from({ length: 20 }, (_, i) => { // Reduced to 20 for more unique codes with modulo
-      const code = courseCodes[i % courseCodes.length] + (i >= courseCodes.length ? `_V${Math.floor(i / courseCodes.length)}` : ''); // Attempt at uniqueness for mock
+    return Array.from({ length: 20 }, (_, i) => {
+      const code = courseCodes[i % courseCodes.length] + (i >= courseCodes.length ? `_V${Math.floor(i / courseCodes.length)}` : '');
       return {
-        id: `db-${i + 1}`, // A separate internal ID
+        id: `db-${i + 1}`,
         name: courseNames[i % courseNames.length] + (i >= courseNames.length ? ` ${Math.floor(i / courseNames.length) + 1}` : ''),
-        code: code, // This is the identifier for routing
+        code: code,
         sks: sksValues[i % sksValues.length],
         pic: pics[i % pics.length],
         statusMatkul: statuses[i % statuses.length],
@@ -102,41 +111,67 @@ export class ManageMatkulComponent implements OnInit {
     return this.filteredCourses.slice(start, start + this.itemsPerPage);
   }
 
-  // --- Card Action Handlers ---
   handleViewDetails(course: Course): void {
-    console.log('Navigating to View Details for:', course);
+    console.log('Navigating to View Details for:', course.code);
+    // Assuming your detail route is something like this, adjust if necessary
     this.router.navigate(['/ketua-prodi/detail-matkul', course.code]);
-    // If using nested routes:
-    // this.router.navigate(['/manage-matkul', course.id, 'detail']);
   }
 
   handleEditCourse(course: Course): void {
-    console.log('Edit Course:', course);
-    // This might still open a modal or navigate to an edit page
-    // If navigating: this.router.navigate(['/course-edit', course.id]);
-    // If modal, your existing logic for modals would apply here.
+    console.log('Navigating to Edit Course for code:', course.code);
+    // Assuming your edit route is something like this
     this.router.navigate(['/ketua-prodi/matkul/edit', course.code]);
   }
 
   handleDeleteCourse(course: Course): void {
-    console.log('Delete Course:', course);
-    // This would typically open a confirmation modal first.
-    // After confirmation, you'd call a service to delete and then refresh the list.
-    if (confirm(`Are you sure you want to delete ${course.name}?`)) {
-      // Call your service to delete course
-      // this.courseService.delete(course.id).subscribe(() => {
-      //   this.loadCourses(); // Refresh list
-      // });
-      alert(`Placeholder: Course ${course.name} deleted (mock).`);
-      this.allCourses = this.allCourses.filter(c => c.id !== course.id);
-      this.applyFilters();
-    }
+    this.courseToDelete = course;
+    this.deleteModalTitle = 'Confirmation!';
+    this.deleteModalMessage = `Anda yakin ingin menghapus mata kuliah <strong>${course.code} - ${course.name}</strong> dari daftar?`;
+    this.deleteModalMode = 'checkbox';
+    this.showDeleteModal = true;
   }
-  get displayedEndIndex(): number { // 👈 New getter
+
+  onInitialDeleteConfirmed(): void {
+    this.deleteModalTitle = 'Confirmation!';
+    this.deleteModalMode = 'password';
+    this.showDeleteModal = true;
+  }
+
+  onPasswordDeleteSubmitted(password: string): void {
+    if (!this.courseToDelete) {
+      console.error('courseToDelete is null. Cannot proceed with deletion.');
+      this.closeDeleteModal();
+      return;
+    }
+
+    console.log(`Attempting to delete course: ${this.courseToDelete.code} with password: ${password}`);
+    // ** TODO: Implement actual delete logic here **
+    // 1. Verify password with backend (optional step, depends on your API)
+    // 2. Call a service: this.matkulService.deleteMatkul(this.courseToDelete.code, password).subscribe(...);
+
+    alert(`Mata Kuliah ${this.courseToDelete.name} (${this.courseToDelete.code}) akan dihapus setelah verifikasi password (Password: "${password}") - Mock Action`);
+
+    this.allCourses = this.allCourses.filter(c => c.code !== this.courseToDelete!.code);
+    this.applyFilters();
+
+    this.closeDeleteModal();
+  }
+
+  onDeleteCancelled(): void {
+    this.closeDeleteModal();
+  }
+
+  private closeDeleteModal(): void {
+    this.showDeleteModal = false;
+    this.courseToDelete = null;
+    this.deleteModalMode = 'checkbox';
+  }
+
+  get displayedEndIndex(): number {
     return Math.min(this.currentPage * this.itemsPerPage, this.filteredCourses.length);
   }
 
-  get displayedStartIndex(): number { // 👈 Optional: for consistency
+  get displayedStartIndex(): number {
     if (this.filteredCourses.length === 0) {
       return 0;
     }
