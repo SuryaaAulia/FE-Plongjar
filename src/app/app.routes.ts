@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { MainLayoutComponent } from './layouts/main-layout/main-layout.component';
+import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component';
 
 export const routes: Routes = [
   {
@@ -157,6 +158,19 @@ export const routes: Routes = [
             './features/shared-pages/hasil-plotting/hasil-plotting.component'
           ).then((m) => m.HasilPlottingComponent),
       },
+    ],
+  },
+  {
+    path: 'auth',
+    component: AuthLayoutComponent,
+    children: [
+      {
+        path: 'login',
+        loadComponent: () =>
+          import('./pages/login/login.component').then(
+            (c) => c.LoginComponent
+          ),
+      }
     ],
   },
 ];
