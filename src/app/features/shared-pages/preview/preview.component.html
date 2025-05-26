@@ -28,6 +28,7 @@
     [data]="paginatedData"
     [columnConfigs]="mataKuliahColumnConfigs"
     [tableMinimuWidth]="tableMinimuWidth"
+    [isLoading]="isLoading"
     [parentMaxHeight]="'70vh'"
     [noDataMessage]="'Tidak ada data mata kuliah yang tersedia.'"
   >
@@ -68,22 +69,25 @@
     </div>
 
     <div class="action-buttons-container">
-      <button
+      <app-action-button
+        text="Back"
+        backgroundColorVar="var(--red)"
+        [fontSizePx]="16"
+        [paddingScaleFactor]="0.6"
         type="button"
-        class="action-btn action-btn-back"
         (click)="onBack()"
-      >
-        Back
-      </button>
-      <button
+      ></app-action-button>
+      <app-action-button
         *ngIf="isKetuaKK"
+        text="Submit"
+        iconClass="fa fa-paper-plane"
+        backgroundColorVar="var(--green)"
+        [fontSizePx]="16"
+        [paddingScaleFactor]="0.6"
         type="button"
-        class="action-btn action-btn-submit"
         (click)="onSubmit()"
         [disabled]="paginatedData.length === 0"
-      >
-        Submit
-      </button>
+      ></app-action-button>
     </div>
   </div>
 </div>

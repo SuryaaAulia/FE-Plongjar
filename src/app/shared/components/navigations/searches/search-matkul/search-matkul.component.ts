@@ -1,7 +1,7 @@
 import { Component, OnInit, Output, EventEmitter, ElementRef, HostListener, ViewChild, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Course } from '../../../core/models/user.model';
+import { Course } from '../../../../../core/models/user.model';
 
 interface AcademicYear {
   value: string;

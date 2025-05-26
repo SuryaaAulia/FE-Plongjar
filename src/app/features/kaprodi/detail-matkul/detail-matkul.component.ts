@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule, Location } from '@angular/common'; // Import Location
+import { CommonModule, Location } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ActionButtonComponent } from '../../../shared/components/index'; // Adjust path
-import { Course } from '../../../core/models/user.model'; // Adjust path
-// import { MatkulService } from '../../../core/services/matkul.service'; // Ideal: a service to fetch data
+import { ActionButtonComponent } from '../../../shared/components/index';
+import { Course } from '../../../core/models/user.model';
+
 
 interface SelectOption {
   value: string | number;
@@ -20,13 +20,11 @@ interface SelectOption {
     ActionButtonComponent
   ],
   templateUrl: './detail-matkul.component.html',
-  styleUrls: ['./detail-matkul.component.scss'] // You can reuse or adapt tambah-matkul.scss
+  styleUrls: ['./detail-matkul.component.scss']
 })
 export class DetailMatkulComponent implements OnInit {
   detailMatkulForm!: FormGroup;
-  courseData: Course | null = null; // To store the fetched course
-
-  // Options for dropdowns - same as TambahMatkulComponent
+  courseData: Course | null = null;
   sksOptions: number[] = [1, 2, 3, 4, 5, 6];
   picOptions: SelectOption[] = [
     { value: 'pic1', label: 'PIC A (SEAL)' },
@@ -59,7 +57,6 @@ export class DetailMatkulComponent implements OnInit {
       this.loadCourseDetails(courseId);
     } else {
       console.error('Course ID not found!');
-      // Optionally navigate back or show an error
       this.goBack();
     }
   }

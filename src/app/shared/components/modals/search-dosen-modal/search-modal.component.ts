@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Lecturer } from '../../../core/models/user.model';
+import { Lecturer } from '../../../../core/models/user.model';
 
 @Component({
   selector: 'app-search-modal',

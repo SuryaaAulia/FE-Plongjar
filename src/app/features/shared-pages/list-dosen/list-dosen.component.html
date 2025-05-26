@@ -10,11 +10,17 @@
 
   <div class="divider border-bottom mb-3"></div>
 
+  @if (isLoading) {
+  <app-loading-spinner></app-loading-spinner>
+  } @else { @if (filteredLecturers.length === 0) {
+  <app-search-not-found
+    [keyword]="currentSearchKeyword"
+    altText="Data dosen tidak ditemukan"
+  ></app-search-not-found>
+  } @else {
   <app-table
     [columns]="tableColumns"
     [data]="paginatedLecturers"
-    [isLoading]="isLoading"
-    [noDataMessage]="'No lecturers found matching your search'"
     [showIndex]="true"
     [currentPage]="currentPage"
     [itemsPerPage]="itemsPerPage"
@@ -30,4 +36,5 @@
     (pageChange)="onPageChange($event)"
   >
   </app-pagination>
+  } }
 </div>

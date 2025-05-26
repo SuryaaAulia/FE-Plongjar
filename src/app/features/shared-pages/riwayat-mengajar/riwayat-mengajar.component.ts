@@ -5,9 +5,10 @@ import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import {
   SearchHeaderComponent,
   PaginationComponent,
+  TableComponent,
+  TableColumn
 } from '../../../shared/components/index';
 import { TeachingRecord } from '../../../core/models/user.model';
-import { TableComponent, TableColumn } from '../../../shared/components/table/table.component';
 import { of, switchMap } from 'rxjs';
 
 @Component({

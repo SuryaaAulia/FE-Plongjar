@@ -117,9 +117,9 @@ export const routes: Routes = [
           ).then((m) => m.TambahMatkulComponent),
       },
       {
-        path: 'ketua-prodi/matkul/edit/:code', // Route for editing an existing Mata Kuliah
+        path: 'ketua-prodi/matkul/edit/:code',
         loadComponent: () =>
-          import('./features/kaprodi/tambah-matkul/tambah-matkul.component') // Uses the SAME component
+          import('./features/kaprodi/tambah-matkul/tambah-matkul.component')
             .then(m => m.TambahMatkulComponent)
       },
       {
@@ -142,7 +142,21 @@ export const routes: Routes = [
           import(
             './features/kaprodi/detail-matkul/detail-matkul.component'
           ).then((m) => m.DetailMatkulComponent),
-      }
+      },
+      {
+        path: 'kaur-lab/rekap-hasil-plotting',
+        loadComponent: () =>
+          import(
+            './features/shared-pages/rekap-plotting/rekap-plotting.component'
+          ).then((m) => m.RekapPlottingComponent),
+      },
+      {
+        path: 'kaur-lab/hasil-plotting/:id',
+        loadComponent: () =>
+          import(
+            './features/shared-pages/hasil-plotting/hasil-plotting.component'
+          ).then((m) => m.HasilPlottingComponent),
+      },
     ],
   },
 ];

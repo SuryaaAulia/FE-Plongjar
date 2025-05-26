@@ -21,6 +21,7 @@
     [data]="paginatedData"
     [columnConfigs]="columnConfigs"
     [tableMinimuWidth]="tableMinimuWidth"
+    [isLoading]="isLoading"
     [parentMaxHeight]="'70vh'"
     [noDataMessage]="'Tidak ada data beban SKS dosen yang tersedia.'"
   >
@@ -60,14 +61,13 @@
       </div>
     </div>
 
-    <div class="action-buttons-container">
-      <button
-        type="button"
-        class="action-btn action-btn-back"
-        (click)="onBack()"
-      >
-        Back
-      </button>
-    </div>
+    <app-action-button
+      text="Back"
+      backgroundColorVar="var(--red)"
+      [fontSizePx]="16"
+      [paddingScaleFactor]="0.6"
+      type="button"
+      (click)="onBack()"
+    ></app-action-button>
   </div>
 </div>

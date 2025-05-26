@@ -1,10 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { SearchModalComponent } from '../../../shared/components/index';
-import { Lecturer } from '../../../core/models/user.model';
-import { SearchMatkulComponent } from '../../../shared/components/search-matkul/search-matkul.component';
-import { Course } from '../../../core/models/user.model';
+import { SearchModalComponent, SearchMatkulComponent, ActionButtonComponent } from '../../../shared/components/index';
+import { Lecturer, Course } from '../../../core/models/user.model';
 
 interface CourseRow {
   no: number;
@@ -26,7 +24,8 @@ interface CourseRow {
     CommonModule,
     FormsModule,
     SearchModalComponent,
-    SearchMatkulComponent
+    SearchMatkulComponent,
+    ActionButtonComponent
   ],
   templateUrl: './plotting.component.html',
   styleUrls: ['./plotting.component.scss']

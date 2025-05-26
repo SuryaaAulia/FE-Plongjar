@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { DynamicTableComponent, ColumnConfig } from '../../../shared/components/dynamic-table/dynamic-table.component';
+import { DynamicTableComponent, ColumnConfig, LoadingSpinnerComponent, ActionButtonComponent } from '../../../shared/components/index';
+
 export interface BebanSksDosen {
   no: number;
   kode: string;
@@ -26,13 +27,16 @@ export interface BebanSksDosen {
   totalSksIntDouble?: number;
   sksBerjabatanPlusNormal?: number;
 }
+
 @Component({
   selector: 'app-beban-sks',
   standalone: true,
   imports: [
     CommonModule,
     FormsModule,
-    DynamicTableComponent
+    DynamicTableComponent,
+    LoadingSpinnerComponent,
+    ActionButtonComponent
   ],
   templateUrl: './beban-sks.component.html',
   styleUrls: ['./beban-sks.component.scss']
@@ -41,6 +45,7 @@ export class BebanSksComponent implements OnInit {
   dosenBebanSksData: BebanSksDosen[] = [];
   paginatedData: BebanSksDosen[] = [];
 
+  isLoading: boolean = true;
   currentPage: number = 1;
   pageSize: number = 12;
   pageSizeOptions: number[] = [12, 30, 50];
@@ -53,6 +58,7 @@ export class BebanSksComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
+    this.isLoading = true;
     this.setupColumnConfigs();
     this.loadDosenBebanSksData();
   }
@@ -88,36 +94,41 @@ export class BebanSksComponent implements OnInit {
   }
 
   loadDosenBebanSksData(): void {
-    const sampleData: BebanSksDosen[] = [];
-    for (let i = 1; i <= 75; i++) {
-      sampleData.push({
-        no: i,
-        kode: `SUI`,
-        nama: `Dosen Ke-${i} Sejahtera`,
-        prodi: ['S1 ', 'S2 ', 'S3 '][i % 3] + ['IF', 'SI', 'DS', 'TE'][i % 4],
-        jfa: ['Asisten Ahli', 'Lektor', 'Lektor Kepala', 'Guru Besar'][i % 4],
-        statusDosen: i % 2 === 0 ? 'Aktif' : 'Tidak Aktif',
-        maxSks: 12 + (i % 3 * 2),
-        struktural: 'Ka.Prodi S1 Rekayasa Perangkat Lunak',
-        statusKepegawaian: i % 2 === 0 ? 'Tetap' : 'Kontrak',
-        s1IfRegIntNormal: (i % 5) * 2,
-        s1IfDoubleSksInt: i % 4,
-        s1Rpl: i % 3,
-        s1It: i % 5,
-        s2If: i % 2,
-        s1IfPjj: i % 3,
-        s1Ds: (i % 4) + 1,
-        s2Fs: i % 2,
-        s1IfTukj: i % 3,
-        s3If: i % 4 === 0 ? 1 : 0,
-        totalSksIntNormal: 8 + i % 5,
-        totalSksIntDouble: 2 + i % 3,
-        sksBerjabatanPlusNormal: 10 + i % 6,
-      });
-    }
-    this.dosenBebanSksData = sampleData;
-    this.totalItems = this.dosenBebanSksData.length;
-    this.updatePagination();
+    this.isLoading = true;
+
+    setTimeout(() => {
+      const sampleData: BebanSksDosen[] = [];
+      for (let i = 1; i <= 75; i++) {
+        sampleData.push({
+          no: i,
+          kode: `SUI`,
+          nama: `Dosen Ke-${i} Sejahtera`,
+          prodi: ['S1 ', 'S2 ', 'S3 '][i % 3] + ['IF', 'SI', 'DS', 'TE'][i % 4],
+          jfa: ['Asisten Ahli', 'Lektor', 'Lektor Kepala', 'Guru Besar'][i % 4],
+          statusDosen: i % 2 === 0 ? 'Aktif' : 'Tidak Aktif',
+          maxSks: 12 + (i % 3 * 2),
+          struktural: 'Ka.Prodi S1 Rekayasa Perangkat Lunak',
+          statusKepegawaian: i % 2 === 0 ? 'Tetap' : 'Kontrak',
+          s1IfRegIntNormal: (i % 5) * 2,
+          s1IfDoubleSksInt: i % 4,
+          s1Rpl: i % 3,
+          s1It: i % 5,
+          s2If: i % 2,
+          s1IfPjj: i % 3,
+          s1Ds: (i % 4) + 1,
+          s2Fs: i % 2,
+          s1IfTukj: i % 3,
+          s3If: i % 4 === 0 ? 1 : 0,
+          totalSksIntNormal: 8 + i % 5,
+          totalSksIntDouble: 2 + i % 3,
+          sksBerjabatanPlusNormal: 10 + i % 6,
+        });
+      }
+      this.dosenBebanSksData = sampleData;
+      this.totalItems = this.dosenBebanSksData.length;
+      this.updatePagination();
+      this.isLoading = false;
+    }, 800); // 800ms delay to simulate loading
   }
 
   updatePagination(): void {
@@ -166,6 +177,5 @@ export class BebanSksComponent implements OnInit {
 
   onBack(): void {
     console.log('Beban SKS Back button clicked');
-
   }
 }

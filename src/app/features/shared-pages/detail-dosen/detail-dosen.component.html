@@ -1,8 +1,11 @@
 <div class="detail-dosen-container">
+  @if (isLoading) {
+  <app-loading-spinner></app-loading-spinner>
+  } @else { @if (lecturer) {
   <div class="lecturer-info">
     <div class="lecturer-profile">
       <div class="profile-image">
-        <i class="fa fa-solid fa-user" style="font-size: 120px"></i>
+        <i class="fa fa-solid fa-user" style="font-size: 100px"></i>
       </div>
 
       <div class="profile-details">
@@ -12,13 +15,11 @@
           <div class="info-divider">:</div>
           <div class="info-value">{{ lecturer?.name }}</div>
         </div>
-
         <div class="info-row">
           <div class="info-label">Kode Dosen</div>
           <div class="info-divider">:</div>
           <div class="info-value">{{ lecturer?.lecturerCode }}</div>
         </div>
-
         <div class="info-row">
           <div class="info-label">Jabatan</div>
           <div class="info-divider">:</div>
@@ -26,30 +27,26 @@
             {{ lecturer?.jabatanFunctionalAkademik?.[0] }}
           </div>
         </div>
-
         <div class="info-row">
           <div class="info-label">Home Base</div>
           <div class="info-divider">:</div>
           <div class="info-value">{{ lecturer?.department }}</div>
         </div>
-
         <div class="info-row">
           <div class="info-label">NIP</div>
           <div class="info-divider">:</div>
           <div class="info-value">{{ lecturer?.nidn }}</div>
         </div>
-
         <div class="info-row">
           <div class="info-label">NIDN/K</div>
           <div class="info-divider">:</div>
+          <div class="info-value"></div>
         </div>
-
         <div class="info-row">
           <div class="info-label">Bidang Keahlian</div>
           <div class="info-divider">:</div>
           <div class="info-value">{{ lecturer?.kelompokKeahlian }}</div>
         </div>
-
         <div class="info-row">
           <div class="info-label">Status</div>
           <div class="info-divider">:</div>
@@ -61,42 +58,38 @@
           <div class="info-divider">:</div>
           <div class="info-value">
             <span class="email-value">
-              <i class="<fas fa-solid fa-envelope"></i>
+              <i class="fas fa-envelope icon-small"></i> {{ lecturer?.email }}
             </span>
           </div>
         </div>
-
         <div class="info-row">
           <div class="info-label"></div>
           <div class="info-divider"></div>
           <div class="info-value">
             <span class="phone-value">
-              <i class="<fas fa-solid fa-phone"></i>
+              <i class="fas fa-phone icon-small"></i>
             </span>
           </div>
         </div>
-
         <div class="info-row">
           <div class="info-label">JFA</div>
           <div class="info-divider">:</div>
+          <div class="info-value"></div>
         </div>
-
         <div class="info-row">
           <div class="info-label">Riwayat Mengajar</div>
           <div class="info-divider">:</div>
           <div class="info-value">
-            <i class="<fas fa-solid fa-file"></i>
+            <i class="fas fa-file-alt file-icon"></i>
           </div>
         </div>
-
         <div class="info-row">
           <div class="info-label">EDOM</div>
           <div class="info-divider">:</div>
           <div class="info-value">
-            <i class="<fas fa-solid fa-file"></i>
+            <i class="fas fa-file-alt file-icon"></i>
           </div>
         </div>
-
         <div class="info-row">
           <div class="info-label">Pendidikan</div>
           <div class="info-divider">:</div>
@@ -104,6 +97,8 @@
             <ul class="education-list">
               @for (edu of lecturer?.pendidikanTerakhir; track $index) {
               <li>{{ edu }}</li>
+              } @empty {
+              <li>Data pendidikan tidak tersedia.</li>
               }
             </ul>
           </div>
@@ -114,8 +109,16 @@
   </div>
 
   <div class="navigation-controls">
-    <button class="back-btn" (click)="goBack()">Back</button>
-
+    <div class="action-buttons-container">
+      <app-action-button
+        text="Back"
+        backgroundColorVar="var(--red)"
+        [fontSizePx]="16"
+        [paddingScaleFactor]="0.6"
+        type="button"
+        (click)="goBack()"
+      ></app-action-button>
+    </div>
     <div class="pagination-controls">
       <button
         class="page-nav-btn"
@@ -134,4 +137,7 @@
       </button>
     </div>
   </div>
+  } @else {
+  <p class="text-center p-4">Detail dosen tidak dapat dimuat.</p>
+  } }
 </div>

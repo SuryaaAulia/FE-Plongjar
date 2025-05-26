@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ConfirmationModalComponent } from '../../../shared/components/confirmation-modal/confirmation-modal.component';
-import { DynamicTableComponent, ColumnConfig } from '../../../shared/components/dynamic-table/dynamic-table.component';
+import { ConfirmationModalComponent, DynamicTableComponent, ColumnConfig, LoadingSpinnerComponent, ActionButtonComponent } from '../../../shared/components/index';
 import { AuthService, UserRole } from '../../../core/services/auth.service';
 
 export interface MataKuliah {
@@ -30,7 +29,9 @@ export interface MataKuliah {
     CommonModule,
     FormsModule,
     ConfirmationModalComponent,
-    DynamicTableComponent
+    DynamicTableComponent,
+    LoadingSpinnerComponent,
+    ActionButtonComponent
   ],
   templateUrl: './preview.component.html',
   styleUrls: ['./preview.component.scss']
@@ -40,6 +41,7 @@ export class PreviewComponent implements OnInit {
   mataKuliahData: MataKuliah[] = [];
   paginatedData: MataKuliah[] = [];
 
+  isLoading: boolean = true;
   currentPage: number = 1;
   pageSize: number = 12;
   pageSizeOptions: number[] = [12, 24, 36];
@@ -65,8 +67,8 @@ export class PreviewComponent implements OnInit {
   constructor(private authService: AuthService) { }
 
   ngOnInit(): void {
+    this.isLoading = true;
     this.isKetuaKK = this.authService.currentUserRole === 'ketua_kk';
-
     this.setupColumnConfigs();
     this.loadMataKuliahData();
   }
@@ -92,29 +94,33 @@ export class PreviewComponent implements OnInit {
   }
 
   loadMataKuliahData(): void {
-    this.mataKuliahData = [];
-    for (let i = 1; i <= 50; i++) {
-      this.mataKuliahData.push({
-        no: i,
-        idMatkul: `CRI3I${i % 10 === 0 ? 1 : i % 10}`,
-        matkul: `MOBILE PROGRAMMING ${String.fromCharCode(65 + (i % 5))}`,
-        pic: ['SEAL', 'BNL', 'SUI', 'VLY'][i % 4],
-        dosen: ['VLY', 'SUI', 'BNL', 'SEAL'][i % 4],
-        mandatory: i % 2 === 0 ? 'Wajib Prodi' : 'Pilihan',
-        tingkatMatkul: `Tingkat ${(i % 3) + 1}`,
-        kredit: (i % 3) + 2,
-        kelas: `SE-45-0${(i % 4) + 1}`,
-        praktikum: i % 2 === 0 ? 'YES' : 'NO',
-        koordinator: ['SUI', 'VLY', 'SEAL', 'BNL'][i % 4],
-        semester: i % 2 === 0 ? 'Ganjil' : 'Genap',
-        hourTarget: 120 + (i % 5) * 10,
-        tahunAjaran: '2024/2025',
-        mkEksepsi: i % 10 === 0 ? 'ADA EKSEPSI' : '-'
-      });
-    }
+    this.isLoading = true;
 
-    this.totalItems = this.mataKuliahData.length;
-    this.updatePagination();
+    setTimeout(() => {
+      this.mataKuliahData = [];
+      for (let i = 1; i <= 50; i++) {
+        this.mataKuliahData.push({
+          no: i,
+          idMatkul: `CRI3I${i % 10 === 0 ? 1 : i % 10}`,
+          matkul: `MOBILE PROGRAMMING ${String.fromCharCode(65 + (i % 5))}`,
+          pic: ['SEAL', 'BNL', 'SUI', 'VLY'][i % 4],
+          dosen: ['VLY', 'SUI', 'BNL', 'SEAL'][i % 4],
+          mandatory: i % 2 === 0 ? 'Wajib Prodi' : 'Pilihan',
+          tingkatMatkul: `Tingkat ${(i % 3) + 1}`,
+          kredit: (i % 3) + 2,
+          kelas: `SE-45-0${(i % 4) + 1}`,
+          praktikum: i % 2 === 0 ? 'YES' : 'NO',
+          koordinator: ['SUI', 'VLY', 'SEAL', 'BNL'][i % 4],
+          semester: i % 2 === 0 ? 'Ganjil' : 'Genap',
+          hourTarget: 120 + (i % 5) * 10,
+          tahunAjaran: '2024/2025',
+          mkEksepsi: i % 10 === 0 ? 'ADA EKSEPSI' : '-'
+        });
+      }
+      this.totalItems = this.mataKuliahData.length;
+      this.updatePagination();
+      this.isLoading = false;
+    }, 500);
   }
 
   updatePagination(): void {

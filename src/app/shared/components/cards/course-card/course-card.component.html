@@ -1,0 +1,31 @@
+<app-base-card
+  [title]="course.name"
+  [subtitle]="course.code"
+  [headerActionsTemplate]="headerActions"
+  [contentTemplate]="courseContent"
+  [footerActionsTemplate]="footerActions"
+>
+</app-base-card>
+
+<ng-template #headerActions>
+  <button
+    class="card-action-btn settings-btn"
+    (click)="onSettingsClick()"
+    title="Detail Mata Kuliah"
+  >
+    <i class="fas fa-expand-arrows-alt"></i>
+  </button>
+</ng-template>
+
+<ng-template #courseContent>
+  <div class="course-pic">{{ course.pic }}</div>
+</ng-template>
+
+<ng-template #footerActions>
+  <button class="edit-btn" (click)="onEditClick()" title="Edit Course">
+    <i class="fa-solid fa-pen-to-square"></i>
+  </button>
+  <button class="delete-btn" (click)="onDeleteClick()" title="Delete Course">
+    <i class="fa-solid fa-trash"></i>
+  </button>
+</ng-template>

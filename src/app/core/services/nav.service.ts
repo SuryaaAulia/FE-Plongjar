@@ -62,6 +62,13 @@ export class NavService {
       },
       { label: 'Switch App', icon: 'dashboard', routerLink: '/switch-app' },
     ],
+    kaur_lab: [
+      { label: 'Home', icon: 'house', routerLink: '/home' },
+      {
+        label: 'Hasil Plotting', icon: 'table-list', routerLink: 'kaur-lab/rekap-hasil-plotting'
+      },
+      { label: 'Switch App', icon: 'dashboard', routerLink: '/switch-app' },
+    ],
   };
 
   getMenu(role: keyof typeof this.menuConfig = 'admin') {

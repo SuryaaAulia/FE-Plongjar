@@ -99,16 +99,26 @@
   </div>
 
   <div class="footer">
-    <button class="btn btn-back" (click)="onBack()">Back</button>
-    <button
-      class="btn btn-submit"
+    <app-action-button
+      text="Back"
+      backgroundColorVar="var(--red)"
+      [fontSizePx]="16"
+      [paddingScaleFactor]="0.6"
+      type="button"
+      (click)="onBack()"
+    ></app-action-button>
+    <app-action-button
+      text="Submit"
+      iconClass="fa fa-paper-plane"
+      backgroundColorVar="var(--green)"
+      [fontSizePx]="16"
+      [paddingScaleFactor]="0.6"
+      type="button"
       (click)="onSubmit()"
       [disabled]="
         !currentSelectedCourse || !coordinatorName || tableData.length === 0
       "
-    >
-      Submit
-    </button>
+    ></app-action-button>
   </div>
 </div>
 

@@ -37,14 +37,12 @@
   <div class="divider"></div>
 
   @if (isLoading) {
-  <div class="loading-spinner">
-    <i class="fas fa-spinner fa-spin"></i> Loading courses...
-  </div>
+  <app-loading-spinner></app-loading-spinner>
   } @else { @if (filteredCourses.length === 0) {
-  <div class="no-results">
-    <i class="fas fa-folder-open"></i>
-    <p>No courses found matching your criteria</p>
-  </div>
+  <app-search-not-found
+    [keyword]="currentSearchDisplayKeyword"
+    altText="Mata kuliah tidak ditemukan"
+  ></app-search-not-found>
   } @else {
   <div class="item-grid">
     @for (course of paginatedCourses; track course.id) {

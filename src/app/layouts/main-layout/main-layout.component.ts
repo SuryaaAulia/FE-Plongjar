@@ -3,8 +3,7 @@ import { NavService } from '../../core/services/nav.service';
 import { AuthService } from '../../core/services/auth.service';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
-import { SidenavComponent } from '../../shared/components/sidenav/sidenav.component';
-import { NavbarComponent } from '../../shared/components/navbar/navbar.component';
+import { SidenavComponent, NavbarComponent } from '../../shared/components/index';
 import { NavItem, SideNavToggle } from '../../core/models/nav-item.model';
 import { Observable } from 'rxjs';
 

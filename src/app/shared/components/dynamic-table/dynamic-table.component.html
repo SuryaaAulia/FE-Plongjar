@@ -1,9 +1,4 @@
 <div class="dynamic-table-container" [style.maxHeight]="parentMaxHeight">
-  <div *ngIf="isLoading" class="loading-overlay">
-    <div class="spinner"></div>
-    Loading...
-  </div>
-
   <table [style.minWidth]="tableMinimuWidth || 'auto'">
     <thead>
       <tr>
@@ -48,9 +43,14 @@
       </tr>
     </thead>
     <tbody>
-      <ng-container
-        *ngIf="!isLoading && data && data.length > 0; else noDataTemplate"
-      >
+      <ng-container *ngIf="isLoading">
+        <tr>
+          <td [attr.colspan]="columnConfigs.length" class="loading-cell">
+            <app-loading-spinner></app-loading-spinner>
+          </td>
+        </tr>
+      </ng-container>
+      <ng-container *ngIf="!isLoading && data && data.length > 0">
         <tr *ngFor="let item of data; trackBy: trackByRow">
           <ng-container
             *ngFor="
@@ -89,20 +89,13 @@
           </ng-container>
         </tr>
       </ng-container>
+      <ng-container *ngIf="!isLoading && (!data || data.length === 0)">
+        <tr>
+          <td [attr.colspan]="columnConfigs.length" class="no-data-message">
+            {{ noDataMessage }}
+          </td>
+        </tr>
+      </ng-container>
     </tbody>
   </table>
-
-  <ng-template #noDataTemplate>
-    <div *ngIf="!isLoading" class="no-data-container">
-      <table>
-        <tbody>
-          <tr>
-            <td [attr.colspan]="columnConfigs.length" class="no-data-message">
-              {{ noDataMessage }}
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </ng-template>
 </div>

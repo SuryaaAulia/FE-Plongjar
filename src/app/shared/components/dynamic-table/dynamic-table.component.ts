@@ -1,5 +1,6 @@
 import { Component, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy, ViewEncapsulation } from '@angular/core';
 import { CommonModule, NgStyle, NgClass } from '@angular/common';
+import { LoadingSpinnerComponent } from '../index';
 
 export interface ColumnConfig {
   key: string;
@@ -26,7 +27,7 @@ interface StickyColumnStyle {
 @Component({
   selector: 'app-dynamic-table',
   standalone: true,
-  imports: [CommonModule, NgStyle, NgClass],
+  imports: [CommonModule, NgStyle, NgClass, LoadingSpinnerComponent],
   templateUrl: './dynamic-table.component.html',
   styleUrls: ['./dynamic-table.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

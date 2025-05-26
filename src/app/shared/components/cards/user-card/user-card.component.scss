@@ -1,0 +1,39 @@
+.user-id {
+  font-weight: var(--font-light);
+  color: var(--black);
+  font-size: var(--text-xs);
+  margin: 0;
+}
+
+.card-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  width: 100%;
+
+  .add-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--secondary-blue);
+    border: 1px solid var(--secondary-blue);
+    border-radius: 0.25rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    font-size: var(--text-xs);
+    cursor: pointer;
+    margin-left: auto;
+
+    i{
+      color: var(--primary-white);
+    }
+
+    &:hover {
+      background-color: var(--secondary-white);
+      i{
+        color: var(--secondary-blue);
+      }
+    }
+  }
+}

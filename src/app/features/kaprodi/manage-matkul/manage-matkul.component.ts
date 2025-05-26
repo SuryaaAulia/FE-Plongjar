@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Course } from '../../../core/models/user.model';
 import {
-  SearchHeaderComponent,
   PaginationComponent,
   CourseCardComponent,
-  ConfirmationModalComponent
-} from '../../../shared/components/index';
+  ConfirmationModalComponent,
+  LoadingSpinnerComponent,
+  SearchNotFoundComponent
+} from '../../../shared/components/index'
 
 @Component({
   selector: 'app-manage-matkul',
@@ -16,10 +17,11 @@ import {
   imports: [
     CommonModule,
     FormsModule,
-    SearchHeaderComponent,
     CourseCardComponent,
     PaginationComponent,
-    ConfirmationModalComponent
+    ConfirmationModalComponent,
+    LoadingSpinnerComponent,
+    SearchNotFoundComponent
   ],
   templateUrl: './manage-matkul.component.html',
   styleUrl: './manage-matkul.component.scss'
@@ -33,7 +35,9 @@ export class ManageMatkulComponent implements OnInit {
   searchNamaMatkul: string = '';
   searchPIC: string = '';
 
-  // Properties for Delete Confirmation Modal State
+  currentSearchDisplayKeyword: string = '';
+  noResultsImagePath: string = 'assets/images/image_57e4f0.png';
+
   showDeleteModal = false;
   deleteModalMode: 'checkbox' | 'password' = 'checkbox';
   courseToDelete: Course | null = null;
@@ -49,6 +53,7 @@ export class ManageMatkulComponent implements OnInit {
 
   loadCourses(): void {
     this.isLoading = true;
+    this.currentSearchDisplayKeyword = '';
     setTimeout(() => {
       this.allCourses = this.generateMockCourses();
       this.applyFilters();
@@ -95,10 +100,23 @@ export class ManageMatkulComponent implements OnInit {
       return nameMatch && picMatch;
     });
     this.currentPage = 1;
+    this.updateSearchDisplayKeyword();
   }
 
+  updateSearchDisplayKeyword(): void {
+    let keywords = [];
+    if (this.searchNamaMatkul) {
+      keywords.push(`Nama: "${this.searchNamaMatkul}"`);
+    }
+    if (this.searchPIC) {
+      keywords.push(`PIC: "${this.searchPIC}"`);
+    }
+    this.currentSearchDisplayKeyword = keywords.join(', ');
+  }
+
+
   onItemsPerPageChange(items: number): void {
-    this.itemsPerPage = items;
+    this.itemsPerPage = Number(items);
     this.currentPage = 1;
   }
 
@@ -112,48 +130,35 @@ export class ManageMatkulComponent implements OnInit {
   }
 
   handleViewDetails(course: Course): void {
-    console.log('Navigating to View Details for:', course.code);
-    // Assuming your detail route is something like this, adjust if necessary
     this.router.navigate(['/ketua-prodi/detail-matkul', course.code]);
   }
 
   handleEditCourse(course: Course): void {
-    console.log('Navigating to Edit Course for code:', course.code);
-    // Assuming your edit route is something like this
     this.router.navigate(['/ketua-prodi/matkul/edit', course.code]);
   }
 
   handleDeleteCourse(course: Course): void {
     this.courseToDelete = course;
-    this.deleteModalTitle = 'Confirmation!';
-    this.deleteModalMessage = `Anda yakin ingin menghapus mata kuliah <strong>${course.code} - ${course.name}</strong> dari daftar?`;
+    this.deleteModalTitle = 'Konfirmasi Penghapusan!';
+    this.deleteModalMessage = `Anda yakin ingin menghapus mata kuliah <strong>${course.code} - ${course.name}</strong> dari daftar? Tindakan ini tidak dapat diurungkan.`;
     this.deleteModalMode = 'checkbox';
     this.showDeleteModal = true;
   }
 
   onInitialDeleteConfirmed(): void {
-    this.deleteModalTitle = 'Confirmation!';
+    this.deleteModalTitle = 'Verifikasi Penghapusan!';
     this.deleteModalMode = 'password';
     this.showDeleteModal = true;
   }
 
   onPasswordDeleteSubmitted(password: string): void {
     if (!this.courseToDelete) {
-      console.error('courseToDelete is null. Cannot proceed with deletion.');
       this.closeDeleteModal();
       return;
     }
-
-    console.log(`Attempting to delete course: ${this.courseToDelete.code} with password: ${password}`);
-    // ** TODO: Implement actual delete logic here **
-    // 1. Verify password with backend (optional step, depends on your API)
-    // 2. Call a service: this.matkulService.deleteMatkul(this.courseToDelete.code, password).subscribe(...);
-
-    alert(`Mata Kuliah ${this.courseToDelete.name} (${this.courseToDelete.code}) akan dihapus setelah verifikasi password (Password: "${password}") - Mock Action`);
-
+    console.log(`Mata Kuliah ${this.courseToDelete.name} (${this.courseToDelete.code}) akan dihapus. Password: ${password}`);
     this.allCourses = this.allCourses.filter(c => c.code !== this.courseToDelete!.code);
     this.applyFilters();
-
     this.closeDeleteModal();
   }
 
