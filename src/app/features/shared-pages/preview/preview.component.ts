@@ -68,7 +68,7 @@ export class PreviewComponent implements OnInit {
 
   ngOnInit(): void {
     this.isLoading = true;
-    this.isKetuaKK = this.authService.currentUserRole === 'ketua_kk';
+    this.isKetuaKK = this.authService.hasRole('KelompokKeahlian');
     this.setupColumnConfigs();
     this.loadMataKuliahData();
   }

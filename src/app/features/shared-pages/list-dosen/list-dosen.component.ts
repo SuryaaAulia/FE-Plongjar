@@ -154,8 +154,7 @@ export class ListDosenComponent implements OnInit {
   }
 
   viewLecturerSKS(lecturerCode: string): void {
-    const currentUserRole = this.authService.currentUserRole;
-    if (currentUserRole === 'ketua_prodi') {
+    if (this.authService.hasRole('ProgramStudi')) {
       this.router.navigate(['/ketua-prodi/riwayat-mengajar/', lecturerCode]);
     } else {
       this.router.navigate(['/ketua-kk/riwayat-mengajar/', lecturerCode]);
@@ -163,8 +162,7 @@ export class ListDosenComponent implements OnInit {
   }
 
   viewLecturerDetails(lecturerCode: string): void {
-    const currentUserRole = this.authService.currentUserRole;
-    if (currentUserRole === 'ketua_prodi') {
+    if (this.authService.hasRole('ProgramStudi')) {
       this.router.navigate(['/ketua-prodi/detail-dosen/', lecturerCode]);
     } else {
       this.router.navigate(['/ketua-kk/detail-dosen/', lecturerCode]);

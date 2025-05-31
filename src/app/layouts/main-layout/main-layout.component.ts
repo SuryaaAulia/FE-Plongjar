@@ -1,11 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { NavService } from '../../core/services/nav.service';
 import { AuthService } from '../../core/services/auth.service';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { SidenavComponent, NavbarComponent } from '../../shared/components/index';
 import { NavItem, SideNavToggle } from '../../core/models/nav-item.model';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
+import { takeUntil, switchMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-main-layout',
@@ -14,17 +15,49 @@ import { Observable } from 'rxjs';
   templateUrl: './main-layout.component.html',
   styleUrls: ['./main-layout.component.scss'],
 })
-export class MainLayoutComponent implements OnInit {
+export class MainLayoutComponent implements OnInit, OnDestroy {
   menuItems$!: Observable<NavItem[]>;
   screenWidth = 0;
   collapsed = false;
   hovering = false;
+  currentUser$!: Observable<any>;
+  private destroy$ = new Subject<void>();
 
-  constructor(private nav: NavService, private auth: AuthService) { }
+  constructor(
+    private navService: NavService,
+    private authService: AuthService
+  ) { }
 
   ngOnInit(): void {
     this.screenWidth = window.innerWidth;
-    this.menuItems$ = this.nav.getMenu('ketua_prodi');
+
+    this.currentUser$ = this.authService.currentUser$;
+
+    this.menuItems$ = this.authService.currentUser$.pipe(
+      takeUntil(this.destroy$),
+      switchMap(user => {
+        if (user && user.currentRole) {
+          const navRole = this.authService.getNavRole();
+          return this.navService.getMenu(navRole);
+        }
+        return this.navService.getMenu('admin');
+      })
+    );
+
+    window.addEventListener('resize', this.onResize.bind(this));
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    window.removeEventListener('resize', this.onResize.bind(this));
+  }
+
+  onResize(): void {
+    this.screenWidth = window.innerWidth;
+    if (this.screenWidth <= 768) {
+      this.collapsed = true;
+    }
   }
 
   toggleSidenav(): void {
@@ -39,6 +72,10 @@ export class MainLayoutComponent implements OnInit {
 
   handleSidenavHover(isHovering: boolean): void {
     this.hovering = isHovering;
+  }
+
+  logout(): void {
+    this.authService.logout();
   }
 
   private emitSideNavInfo(): void {

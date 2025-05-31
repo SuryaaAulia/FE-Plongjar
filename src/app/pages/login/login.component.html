@@ -4,6 +4,15 @@
     <h2>Login</h2>
   </div>
 
+  <!-- Error Message Display -->
+  <div *ngIf="errorMessage" class="alert alert-error">
+    <i class="fas fa-exclamation-circle"></i>
+    <span>{{ errorMessage }}</span>
+    <button type="button" class="alert-close" (click)="clearError()">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+
   <form (ngSubmit)="onSubmit(loginForm)" #loginForm="ngForm" novalidate>
     <div class="form-field">
       <label for="email">Email</label>
@@ -18,10 +27,13 @@
           [(ngModel)]="email"
           name="email"
           required
+          email
           #emailInput="ngModel"
           [class.invalid-input]="
             emailInput.invalid && (emailInput.dirty || emailInput.touched)
           "
+          [disabled]="isLoading"
+          (input)="clearError()"
         />
       </div>
       <div
@@ -48,17 +60,21 @@
           [(ngModel)]="password"
           name="password"
           required
+          minlength="6"
           #passwordInput="ngModel"
           [class.invalid-input]="
             passwordInput.invalid &&
             (passwordInput.dirty || passwordInput.touched)
           "
+          [disabled]="isLoading"
+          (input)="clearError()"
         />
         <button
           type="button"
           class="password-toggle"
           (click)="togglePasswordVisibility()"
           aria-label="Toggle password visibility"
+          [disabled]="isLoading"
         >
           <i
             class="fas"
@@ -76,28 +92,41 @@
         <span *ngIf="passwordInput.errors?.['required']"
           >Password is required</span
         >
+        <span *ngIf="passwordInput.errors?.['minlength']"
+          >Password must be at least 6 characters</span
+        >
       </div>
     </div>
 
     <div class="options">
       <label class="checkbox-container">
-        <input type="checkbox" [(ngModel)]="rememberMe" name="rememberMe" />
+        <input
+          type="checkbox"
+          [(ngModel)]="rememberMe"
+          name="rememberMe"
+          [disabled]="isLoading"
+        />
         <span class="checkmark"></span>
         Remember me
       </label>
     </div>
 
     <app-action-button
-      text="Sign in"
+      [text]="isLoading ? 'Signing in...' : 'Sign in'"
       type="submit"
       [fullWidth]="true"
-      [disabled]="loginForm.invalid === true"
+      [disabled]="loginForm.invalid || isLoading"
       backgroundColorVar="#374151"
       textColorVar="#ffffff"
       [fontSizePx]="14"
       [paddingScaleFactor]="0.75"
       [paddingHorizontalMultiplier]="1.5"
     >
+      <i
+        *ngIf="isLoading"
+        class="fas fa-spinner fa-spin"
+        style="margin-right: 8px"
+      ></i>
     </app-action-button>
   </form>
 </div>
