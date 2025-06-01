@@ -2,22 +2,26 @@
   height: var(--navbar-height, 68px);
   background-color: var(--primary-white);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  position: sticky;
-  width: 100%;
-  z-index: 1000;
+  position: fixed;
+  top: 0;
   transition: all 0.3s ease;
   padding: 0 1rem;
   display: flex;
   align-items: center;
+  z-index: 100;
+  &.navbar-collapsed {
+    left: 5rem;
+    width: calc(100% - 5rem);
+  }
   
   &.navbar-expanded {
     left: 16.2rem;
     width: calc(100% - 16.2rem);
   }
   
-  &.navbar-collapsed {
-    left: 5rem;
-    width: calc(100% - 5rem);
+  &.navbar-hover-expanded {
+    left: 16.2rem;
+    width: calc(100% - 16.2rem);
   }
 }
 
@@ -42,8 +46,8 @@
   color: var(--primary-blue);
   border: none;
   border-radius: 50%;
-  width: 2rem;
-  height: 2rem;
+  width: 2.5rem;
+  height: 2.5rem;
   cursor: pointer;
   transition: all 0.2s;
   
@@ -52,19 +56,19 @@
   }
   
   i {
-    font-size: 1.2rem;
+    font-size: var(--text-lg);
   }
 }
 
 .breadcrumb {
-  font-size: 1.125rem;
+  font-size: var(--text-lg);
   color: var(--secondary-blue);
-  font-weight: 600;
+  font-weight: var(--font-semibold);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   
-  .breadcrumb-item {
+  .breadcrumb-full {
     display: inline-block;
   }
   
@@ -93,23 +97,22 @@
   }
   
   .avatar {
-    width: 32px;
-    height: 32px;
+    width: 34px;
+    height: 34px;
     border-radius: 50%;
     overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 600;
+    font-weight: var(--font-semibold);
     color: var(--primary-white);
-    font-size: 0.875rem;
+    font-size: var(--text-sm);
     transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    background-color: var(--primary-blue); // Default background color
+    background-color: var(--grey);
     
     .initials {
       user-select: none;
-      font-weight: 600;
+      font-weight: var(--font-semibold);
       letter-spacing: 0.5px;
     }
     
@@ -127,8 +130,8 @@
     line-height: 1.2;
     
     .user-name {
-      font-size: 1rem;
-      font-weight: 600;
+      font-size: var(--text-base);
+      font-weight: var(--font-semibold);
       color: var(--secondary-blue);
       margin: 0;
       white-space: nowrap;
@@ -168,9 +171,9 @@
         gap: 0.75rem;
         padding: 0.75rem 1rem;
         text-decoration: none;
-        color: var(--secondary-blue);
-        font-size: 0.875rem;
-        font-weight: 500;
+        color: var(--secondary);
+        font-size: var(--text-sm);
+        font-weight: var(--font-medium);
         transition: all 0.2s ease;
         cursor: pointer;
         border: none;
@@ -189,8 +192,8 @@
         
         i {
           width: 1rem;
-          font-size: 0.875rem;
-          color: var(--grey-alternative);
+          font-size: var(--text-sm);
+          color: var(--red);
           transition: color 0.2s ease;
         }
         
@@ -204,26 +207,16 @@
       }
     }
   }
-  
-  // Guest state styling
-  &.guest {
-    .avatar {
-      background-color: var(--grey-alternative);
-    }
-    
-    .user-info .user-name {
-      color: var(--grey-alternative);
-      font-style: italic;
-    }
-  }
 }
 
-// Responsive design
-@media (max-width: 1024px) {
-  .navbar {
-    &.navbar-expanded {
-      left: 14rem;
-      width: calc(100% - 14rem);
+@media (max-width: 1200px) {
+  .breadcrumb {
+    .breadcrumb-full {
+      display: none;
+    }
+    
+    .breadcrumb-short {
+      display: inline-block;
     }
   }
 }
@@ -232,28 +225,22 @@
   .navbar {
     padding: 0 0.75rem;
     
-    // Always full width on mobile, no sidebar offset
-    left: 0 !important;
-    width: 100% !important;
+    &.navbar-collapsed,
+    &.navbar-expanded,
+    &.navbar-hover-expanded {
+      left: 0;
+      width: 100%;
+    }
   }
   
   .navbar-left {
     .toggle-btn {
-      // Keep the toggle button visible in mobile
       display: flex;
     }
   }
   
   .breadcrumb {
-    font-size: 1rem;
-    
-    .breadcrumb-full {
-      display: none;
-    }
-    
-    .breadcrumb-short {
-      display: inline-block;
-    }
+    font-size: var(--text-base);
   }
   
   .user-profile {
@@ -278,15 +265,10 @@
 @media (max-width: 768px) {
   .navbar {
     padding: 0 0.75rem;
-    
-    // Always full width on mobile, no sidebar offset
-    left: 0 !important;
-    width: 100% !important;
   }
   
   .breadcrumb {
-    font-size: 0.9rem;
-    
+    font-size: var(--text-base);
     .breadcrumb-full {
       display: none;
     }
@@ -318,10 +300,6 @@
 @media (max-width: 480px) {
   .navbar {
     padding: 0 0.5rem;
-    
-    // Always full width on mobile, no sidebar offset  
-    left: 0 !important;
-    width: 100% !important;
   }
   
   .navbar-left {
@@ -329,7 +307,8 @@
   }
   
   .breadcrumb {
-    font-size: 0.875rem;
+    font-size: var(--text-sm);
+    max-width: 180px;
     
     .breadcrumb-full {
       display: none;
@@ -347,7 +326,7 @@
     .avatar {
       width: 28px;
       height: 28px;
-      font-size: 0.75rem;
+      font-size: var(--text-xs);
     }
     
     .user-dropdown {
@@ -357,14 +336,13 @@
         
         .dropdown-item {
           padding: 0.5rem 0.75rem;
-          font-size: 0.8rem;
+          font-size: var(--text-sm);
         }
       }
     }
   }
 }
 
-// Animation for smooth transitions
 @keyframes fadeInDown {
   from {
     opacity: 0;

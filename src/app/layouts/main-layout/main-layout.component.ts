@@ -18,7 +18,7 @@ import { takeUntil, switchMap } from 'rxjs/operators';
 export class MainLayoutComponent implements OnInit, OnDestroy {
   menuItems$!: Observable<NavItem[]>;
   screenWidth = 0;
-  collapsed = false;
+  collapsed = true;
   hovering = false;
   currentUser$!: Observable<any>;
   private destroy$ = new Subject<void>();
@@ -55,13 +55,11 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
 
   onResize(): void {
     this.screenWidth = window.innerWidth;
-    if (this.screenWidth <= 768) {
-      this.collapsed = true;
-    }
   }
 
   toggleSidenav(): void {
     this.collapsed = !this.collapsed;
+    this.hovering = false;
     this.emitSideNavInfo();
   }
 
@@ -71,7 +69,9 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   }
 
   handleSidenavHover(isHovering: boolean): void {
-    this.hovering = isHovering;
+    if (this.collapsed && this.screenWidth > 768) {
+      this.hovering = isHovering;
+    }
   }
 
   logout(): void {

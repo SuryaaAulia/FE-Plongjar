@@ -8,6 +8,7 @@
     text-decoration: none;
     white-space: nowrap;
     line-height: 1;
+    position: relative;
 
     &:hover:not(:disabled) {
         filter: brightness(90%);
@@ -25,11 +26,28 @@
         filter: grayscale(60%);
     }
 
+    &.loading {
+        cursor: wait;
+        
+        &:hover {
+            filter: none;
+        }
+        
+        &:active {
+            transform: none;
+        }
+    }
+
     i {
         line-height: inherit;
 
         &:only-child {
             margin-right: 0;
+        }
+        
+        // Spinner animation
+        &.fa-spin {
+            animation: fa-spin 1s infinite linear;
         }
     }
 
@@ -47,5 +65,14 @@
 
     &.full-width {
         width: 100%;
+    }
+}
+
+@keyframes fa-spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
     }
 }

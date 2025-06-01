@@ -13,6 +13,8 @@ export class ActionButtonComponent implements OnInit, OnChanges {
   @Input() iconClass?: string;
   @Input() iconCustomColor?: string;
   @Input() showIcon: boolean = true;
+  @Input() loading: boolean = false;
+  @Input() loadingText?: string;
 
   @Input() disabled: boolean = false;
   @Input() type: 'button' | 'submit' | 'reset' = 'button';
@@ -26,11 +28,27 @@ export class ActionButtonComponent implements OnInit, OnChanges {
   @Input() paddingScaleFactor: number = 0.5;
   @Input() paddingHorizontalMultiplier: number = 1.5;
 
-
   @Output() buttonClick = new EventEmitter<MouseEvent>();
 
   public currentButtonStyles: { [key: string]: string | null } = {};
   private readonly FIXED_BORDER_RADIUS_PX: number = 6;
+
+  // Computed properties
+  get isDisabled(): boolean {
+    return this.disabled || this.loading;
+  }
+
+  get displayText(): string | undefined {
+    return this.loading && this.loadingText ? this.loadingText : this.text;
+  }
+
+  get displayIconClass(): string | undefined {
+    return this.loading ? 'fa fa-spinner fa-spin' : this.iconClass;
+  }
+
+  get shouldShowIcon(): boolean {
+    return this.loading || (this.showIcon && !!this.iconClass);
+  }
 
   constructor() { }
 
@@ -77,7 +95,7 @@ export class ActionButtonComponent implements OnInit, OnChanges {
   }
 
   onButtonClick(event: MouseEvent): void {
-    if (!this.disabled) {
+    if (!this.isDisabled) {
       this.buttonClick.emit(event);
     }
   }

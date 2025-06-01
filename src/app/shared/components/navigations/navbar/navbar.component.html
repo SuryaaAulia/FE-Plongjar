@@ -1,8 +1,9 @@
 <nav
   class="navbar"
   [ngClass]="{
-    'navbar-expanded': !collapsed || (collapsed && hovering),
-    'navbar-collapsed': collapsed && !hovering
+    'navbar-collapsed': collapsed && !hovering,
+    'navbar-expanded': !collapsed,
+    'navbar-hover-expanded': collapsed && hovering
   }"
 >
   <div class="navbar-container">
@@ -15,10 +16,11 @@
         ></i>
       </button>
       <div class="breadcrumb">
-        <span class="breadcrumb-item"
+        <span class="breadcrumb-full"
           >Sistem Plottingan Pengajaran | SIPLONGJAR | Tahun Ajaran 2024/2025 |
           Semester Genap</span
         >
+        <span class="breadcrumb-short">Sistem Plottingan Pengajaran</span>
       </div>
     </div>
     <div class="navbar-right">

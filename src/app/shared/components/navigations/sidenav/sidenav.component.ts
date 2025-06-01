@@ -48,4 +48,11 @@ export class SidenavComponent implements OnInit {
   getSubmenuItemDelay(index: number): string {
     return `${index * 0.05}s`;
   }
+
+  closeSidenav(): void {
+    this.onToggleSideNav.emit({
+      collapsed: true,
+      screenWidth: this.screenWidth
+    });
+  }
 }

@@ -112,12 +112,13 @@
     </div>
 
     <app-action-button
-      [text]="isLoading ? 'Signing in...' : 'Sign in'"
+      text="Sign in"
+      [loading]="isLoading"
       type="submit"
       [fullWidth]="true"
       [disabled]="loginForm.invalid || isLoading"
-      backgroundColorVar="#374151"
-      textColorVar="#ffffff"
+      backgroundColorVar="var(--primary-blue)"
+      textColorVar="var(--primary-white)"
       [fontSizePx]="14"
       [paddingScaleFactor]="0.75"
       [paddingHorizontalMultiplier]="1.5"
