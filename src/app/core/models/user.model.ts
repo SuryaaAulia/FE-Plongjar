@@ -19,13 +19,13 @@ export interface PaginatedUsers {
 }
 
 export interface Lecturer {
-  id: string;
+  id: number;
   name: string;
   lecturerCode: string;
   email?: string;
   jabatanFunctionalAkademik: string[];
   statusPegawai: string;
-  pendidikanTerakhir?: string;
+  pendidikanTerakhir?: string[];
   department?: string;
   nidn?: string;
   nip?: string;

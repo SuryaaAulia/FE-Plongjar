@@ -42,26 +42,37 @@
       margin-bottom: 0.5rem;
       
       .info-label {
-        font-weight: 600;
-        color: #000;
+        font-weight: var(--font-semibold);
+        color: var(--black);
       }
       
       .info-divider {
         text-align: center;
-        color: #000;
+        color: var(--black);
       }
       
       .info-value {
-        color: #000;
+        color: var(--black);
+        .email-value {
+          i{
+            color: var(--secondary-blue);
+          }
+        }
+
+        .phone-value {
+          i{
+            color: var(--secondary-blue);
+          }
+        }
         
         .icon-small {
           margin-right: 0.5rem;
-          font-size: 0.9rem;
+          font-size: var(--text-base);
         }
         
         .file-icon {
-          color: #3b82f6;
-          font-size: 1.25rem;
+          color: var(--blue);
+          font-size: var(--text-xl);
           cursor: pointer;
         }
         
@@ -82,21 +93,6 @@
       justify-content: space-between;
       align-items: center;
       margin-top: 2rem;
-      
-      .back-btn {
-        background-color: #dc3545;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        padding: 0.5rem 1rem;
-        font-size: 0.9rem;
-        cursor: pointer;
-        transition: background-color 0.2s;
-        
-        &:hover {
-          background-color: darken(#dc3545, 10%);
-        }
-      }
       
       .pagination-controls {
         display: flex;
@@ -122,7 +118,7 @@
         }
         
         .page-number {
-          font-weight: 500;
+          font-weight: var(--font-medium);
         }
       }
     }
@@ -144,7 +140,7 @@
       
       .info-row {
         grid-template-columns: 120px 20px 1fr;
-        font-size: 0.9rem;
+        font-size: var(--text-base);
       }
     }
   }

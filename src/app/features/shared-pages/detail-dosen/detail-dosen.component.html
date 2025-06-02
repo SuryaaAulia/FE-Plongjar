@@ -13,44 +13,44 @@
         <div class="info-row">
           <div class="info-label">Nama Dosen</div>
           <div class="info-divider">:</div>
-          <div class="info-value">{{ lecturer?.name }}</div>
+          <div class="info-value">{{ lecturer.name }}</div>
         </div>
         <div class="info-row">
           <div class="info-label">Kode Dosen</div>
           <div class="info-divider">:</div>
-          <div class="info-value">{{ lecturer?.lecturerCode }}</div>
+          <div class="info-value">{{ lecturer.lecturerCode }}</div>
         </div>
         <div class="info-row">
           <div class="info-label">Jabatan</div>
           <div class="info-divider">:</div>
           <div class="info-value">
-            {{ lecturer?.jabatanFunctionalAkademik?.[0] }}
+            {{ lecturer.jabatanFunctionalAkademik }}
           </div>
         </div>
         <div class="info-row">
           <div class="info-label">Home Base</div>
           <div class="info-divider">:</div>
-          <div class="info-value">{{ lecturer?.department }}</div>
+          <div class="info-value">{{ lecturer.department }}</div>
         </div>
         <div class="info-row">
           <div class="info-label">NIP</div>
           <div class="info-divider">:</div>
-          <div class="info-value">{{ lecturer?.nidn }}</div>
+          <div class="info-value">{{ lecturer.nip }}</div>
         </div>
         <div class="info-row">
           <div class="info-label">NIDN/K</div>
           <div class="info-divider">:</div>
-          <div class="info-value"></div>
+          <div class="info-value">{{ lecturer.nidn }}</div>
         </div>
         <div class="info-row">
           <div class="info-label">Bidang Keahlian</div>
           <div class="info-divider">:</div>
-          <div class="info-value">{{ lecturer?.kelompokKeahlian }}</div>
+          <div class="info-value">{{ lecturer.kelompokKeahlian }}</div>
         </div>
         <div class="info-row">
           <div class="info-label">Status</div>
           <div class="info-divider">:</div>
-          <div class="info-value">{{ lecturer?.statusPegawai }}</div>
+          <div class="info-value">{{ lecturer.statusPegawai }}</div>
         </div>
         } @else if (currentPage === 2) {
         <div class="info-row">
@@ -58,7 +58,7 @@
           <div class="info-divider">:</div>
           <div class="info-value">
             <span class="email-value">
-              <i class="fas fa-envelope icon-small"></i> {{ lecturer?.email }}
+              <i class="fas fa-envelope icon-small"></i> {{ lecturer.email }}
             </span>
           </div>
         </div>
@@ -95,7 +95,7 @@
           <div class="info-divider">:</div>
           <div class="info-value">
             <ul class="education-list">
-              @for (edu of lecturer?.pendidikanTerakhir; track $index) {
+              @for (edu of lecturer.pendidikanTerakhir; track $index) {
               <li>{{ edu }}</li>
               } @empty {
               <li>Data pendidikan tidak tersedia.</li>

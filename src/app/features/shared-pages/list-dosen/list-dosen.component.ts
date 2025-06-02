@@ -72,7 +72,7 @@ export class ListDosenComponent implements OnInit, OnDestroy {
     {
       icon: 'fa-file-alt',
       title: 'Detail',
-      onClick: (lecturer: Lecturer) => this.viewLecturerDetails(lecturer.lecturerCode),
+      onClick: (lecturer: Lecturer) => this.viewLecturerDetails(lecturer.id),
     },
   ];
 
@@ -164,13 +164,13 @@ export class ListDosenComponent implements OnInit, OnDestroy {
 
   private mapDosenResponseToLecturer(dosenList: DosenResponse[]): Lecturer[] {
     return dosenList.map(dosen => ({
-      id: dosen.id.toString(),
+      id: dosen.id,
       name: dosen.name,
       lecturerCode: dosen.lecturer_code,
       email: dosen.email || '',
       jabatanFunctionalAkademik: dosen.jabatan_fungsional_akademik ? [dosen.jabatan_fungsional_akademik] : [],
       statusPegawai: dosen.status_pegawai,
-      pendidikanTerakhir: dosen.pendidikan_terakhir || '',
+      pendidikanTerakhir: dosen.pendidikan_terakhir ? dosen.pendidikan_terakhir.split(',').map(s => s.trim()) : [],
       department: dosen.kelompok_keahlian?.nama || '',
       nidn: dosen.nidn || '',
       nip: dosen.nip || '',
@@ -196,7 +196,7 @@ export class ListDosenComponent implements OnInit, OnDestroy {
   }
 
   onRowClick(lecturer: Lecturer): void {
-    this.viewLecturerDetails(lecturer.lecturerCode);
+    this.viewLecturerDetails(lecturer.id);
   }
 
   viewLecturerSKS(lecturerCode: string): void {
@@ -207,11 +207,11 @@ export class ListDosenComponent implements OnInit, OnDestroy {
     }
   }
 
-  viewLecturerDetails(lecturerCode: string): void {
+  viewLecturerDetails(lecturerId: number): void {
     if (this.authService.hasRole('ProgramStudi')) {
-      this.router.navigate(['/ketua-prodi/detail-dosen/', lecturerCode]);
+      this.router.navigate(['/ketua-prodi/detail-dosen/', lecturerId]);
     } else {
-      this.router.navigate(['/ketua-kk/detail-dosen/', lecturerCode]);
+      this.router.navigate(['/ketua-kk/detail-dosen/', lecturerId]);
     }
   }
 }
