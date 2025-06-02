@@ -24,11 +24,16 @@ export interface Lecturer {
   lecturerCode: string;
   email?: string;
   jabatanFunctionalAkademik: string[];
-  statusPegawai?: string;
+  statusPegawai: string;
   pendidikanTerakhir?: string;
   department?: string;
   nidn?: string;
+  nip?: string;
   kelompokKeahlian?: string;
+  idJabatanStruktural?: number;
+  idKelompokKeahlian?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface TeachingRecord {

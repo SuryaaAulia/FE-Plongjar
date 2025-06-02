@@ -1,4 +1,3 @@
-// detail-dosen.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';

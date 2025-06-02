@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Endpoint } from './endpoint';
 
@@ -81,9 +81,13 @@ export class ApiService {
         return this.http.post(url!, dosenData);
     }
 
-    getAllDosen(): Observable<any> {
+    getAllDosen(params?: HttpParams): Observable<any> {
         const url = this.endpoint.getUrl('dosen', 'get_all');
-        return this.http.get(url!);
+        if (!url) {
+            console.error('URL for getAllDosen is not defined');
+            return new Observable();
+        }
+        return this.http.get(url, { params: params });
     }
 
     getDosenByKK(kkId: number): Observable<any> {

@@ -4,7 +4,6 @@ import { map, catchError, tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { ApiService } from './api.service';
 
-// Update your role types to match backend
 export type UserRole = 'Superadmin' | 'ProgramStudi' | 'KelompokKeahlian' | 'LayananAkademik' | 'KepalaUrusanLab';
 
 export interface User {

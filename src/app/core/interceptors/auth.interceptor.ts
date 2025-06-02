@@ -10,14 +10,20 @@ export class AuthInterceptor implements HttpInterceptor {
 
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         const authToken = this.authService.getToken();
-
         let authReq = req;
-        if (authToken && !this.isPublicRoute(req.url)) {
+        if (authToken) {
             authReq = req.clone({
                 setHeaders: {
                     Authorization: `Bearer ${authToken}`,
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            });
+        } else {
+            authReq = req.clone({
+                setHeaders: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
                 }
             });
         }
@@ -31,9 +37,5 @@ export class AuthInterceptor implements HttpInterceptor {
             })
         );
     }
-
-    private isPublicRoute(url: string): boolean {
-        const publicRoutes = ['/login', '/register'];
-        return publicRoutes.some(route => url.includes(route));
-    }
 }
+export * from './auth.interceptor';

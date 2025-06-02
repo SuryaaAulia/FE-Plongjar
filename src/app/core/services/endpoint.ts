@@ -33,7 +33,6 @@ export class Endpoint {
                 add: `${API}/masterdata/addDosenData`,
                 get_all: `${API}/masterdata/getAllDosen`,
                 get_by_kk: `${API}/masterdata/getAllDosen/${context?.kkId || ':kkId'}`,
-                resource: `${API}/masterdata/dosens`,
                 get_detail: `${API}/masterdata/getDosenDetail/${context?.dosenId || ':dosenId'}`,
                 assign_jabatan: `${API}/masterdata/assignjabatantodosen`,
                 revoke_jabatan: `${API}/masterdata/revokejabatandosen`,

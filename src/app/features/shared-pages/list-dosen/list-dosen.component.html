@@ -4,20 +4,22 @@
       (itemsPerPageChange)="onItemsPerPageChange($event)"
       (search)="onSearch($event)"
       title="List Dosen"
+      [itemsPerPage]="itemsPerPage"
+      [pageSizeOptions]="[9, 15, 25, 50]"
     >
     </app-search-header>
   </div>
 
   <div class="divider border-bottom mb-3"></div>
 
-  @if (isLoading) {
+  @if (isLoading && !hasLoadedData) {
   <app-loading-spinner></app-loading-spinner>
-  } @else { @if (filteredLecturers.length === 0) {
+  } @else if (isSearchEmpty && hasLoadedData && !isLoading) {
   <app-search-not-found
-    [keyword]="currentSearchKeyword"
+    [keyword]="currentCombinedSearchKeyword"
     altText="Data dosen tidak ditemukan"
   ></app-search-not-found>
-  } @else {
+  } @else if (!isLoading) {
   <app-table
     [columns]="tableColumns"
     [data]="paginatedLecturers"
@@ -25,6 +27,7 @@
     [currentPage]="currentPage"
     [itemsPerPage]="itemsPerPage"
     [actionButtons]="actionButtons"
+    [isLoading]="isLoading"
     (rowClick)="onRowClick($event)"
   >
   </app-table>
@@ -32,9 +35,12 @@
   <app-pagination
     [currentPage]="currentPage"
     [itemsPerPage]="itemsPerPage"
-    [totalItems]="filteredLecturers.length"
+    [totalItems]="totalItems"
+    [searchKeyword]="currentCombinedSearchKeyword"
     (pageChange)="onPageChange($event)"
   >
   </app-pagination>
-  } }
+  } @else if (isLoading && hasLoadedData) {
+  <app-loading-spinner></app-loading-spinner>
+  }
 </div>
