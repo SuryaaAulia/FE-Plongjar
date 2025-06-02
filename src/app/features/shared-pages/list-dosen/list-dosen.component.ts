@@ -66,7 +66,7 @@ export class ListDosenComponent implements OnInit, OnDestroy {
   actionButtons: ActionButton<Lecturer>[] = [
     {
       icon: 'fa-money-check',
-      title: 'Detail SKS',
+      title: 'Beban SKS',
       onClick: (lecturer: Lecturer) => this.viewLecturerSKS(lecturer.lecturerCode),
     },
     {

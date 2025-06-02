@@ -25,19 +25,19 @@ export interface DosenResponse {
     kelompok_keahlian?: KelompokKeahlian;
 }
 export interface DosenDetailResponse {
-    bidang_keahlian?: string;
-    contact_person?: string;
-    home_base?: string | null;
-    jabatan?: string;
-    jfa?: string;
-    kode_dosen: string;
-    nama_dosen: string;
-    nidn?: string | null;
-    nip: string;
-    pendidikan?: string;
-    riwayat_pengajaran?: string;
-    status: string;
     id: number;
+    nama_dosen: string;
+    kode_dosen: string;
+    nip: string;
+    nidn?: string | null;
+    contact_person?: string;
+    jfa?: string;
+    jabatan?: string;
+    bidang_keahlian?: string;
+    status: string;
+    riwayat_pengajaran?: string;
+    home_base?: string | null;
+    pendidikan?: string;
 }
 
 export interface DosenListResponse {
