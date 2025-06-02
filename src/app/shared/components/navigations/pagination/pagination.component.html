@@ -1,22 +1,67 @@
-<div class="pagination">
+<div class="pagination" *ngIf="shouldShowPagination || totalItems > 0">
   <div class="pagination-info">
-    Showing page {{ currentPage }} of {{ totalPages }}
+    <span *ngIf="totalItems > 0">
+      Showing {{ showingFrom }} to {{ showingTo }} of {{ totalItems }} entries
+      <span *ngIf="searchKeyword.trim()" class="search-info">
+        for search "<strong>{{ searchKeyword }}</strong
+        >"
+      </span>
+    </span>
+    <span *ngIf="totalItems === 0">
+      No entries found
+      <span *ngIf="searchKeyword.trim()" class="search-info">
+        for search "<strong>{{ searchKeyword }}</strong
+        >"
+      </span>
+    </span>
   </div>
-  <div class="pagination-controls">
+
+  <div class="pagination-controls" *ngIf="shouldShowPagination">
     <button
       class="pagination-btn"
-      [disabled]="currentPage === 1"
-      (click)="goToPage(currentPage - 1)"
+      [disabled]="!hasPreviousPage"
+      (click)="goToPreviousPage()"
+      [attr.aria-label]="'Go to previous page'"
+      [title]="'Previous Page'"
     >
       <i class="fa fa-chevron-left"></i>
     </button>
-    <button class="pagination-btn active">{{ currentPage }}</button>
+    <ng-container *ngIf="showPageNumbers">
+      <button
+        *ngFor="let page of getPageNumbers(); trackBy: trackByPage"
+        class="pagination-btn"
+        [class.active]="page === currentPage"
+        (click)="goToPage(page)"
+        [attr.aria-label]="'Go to page ' + page"
+        [attr.aria-current]="page === currentPage ? 'page' : null"
+        [title]="'Page ' + page"
+      >
+        {{ page }}
+      </button>
+    </ng-container>
+
+    <button
+      *ngIf="!showPageNumbers"
+      class="pagination-btn active"
+      [attr.aria-current]="'page'"
+    >
+      {{ currentPage }}
+    </button>
     <button
       class="pagination-btn"
-      [disabled]="currentPage === totalPages"
-      (click)="goToPage(currentPage + 1)"
+      [disabled]="!hasNextPage"
+      (click)="goToNextPage()"
+      [attr.aria-label]="'Go to next page'"
+      [title]="'Next Page'"
     >
       <i class="fa fa-chevron-right"></i>
     </button>
+  </div>
+
+  <div
+    class="pagination-controls"
+    *ngIf="!shouldShowPagination && totalItems > 0"
+  >
+    <span class="single-page-info">Page 1 of 1</span>
   </div>
 </div>

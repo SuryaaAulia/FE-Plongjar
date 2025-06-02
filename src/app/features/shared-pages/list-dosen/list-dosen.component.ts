@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Subject } from 'rxjs';
+import { takeUntil, debounceTime, distinctUntilChanged, finalize } from 'rxjs/operators';
 import {
   SearchHeaderComponent,
   PaginationComponent,
@@ -12,7 +14,8 @@ import {
   SearchNotFoundComponent
 } from '../../../shared/components/index';
 import { Lecturer } from '../../../core/models/user.model';
-import { AuthService, UserRole } from '../../../core/services/auth.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { DosenService, DosenResponse, DosenListParams } from '../../../core/services/dosen.service';
 
 @Component({
   selector: 'app-list-dosen',
@@ -29,25 +32,33 @@ import { AuthService, UserRole } from '../../../core/services/auth.service';
   templateUrl: './list-dosen.component.html',
   styleUrls: ['./list-dosen.component.scss'],
 })
-export class ListDosenComponent implements OnInit {
-  constructor(private router: Router, private authService: AuthService) { }
+export class ListDosenComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
+  private searchSubject = new Subject<{ query1: string; query2: string }>();
 
   lecturers: Lecturer[] = [];
   filteredLecturers: Lecturer[] = [];
   paginatedLecturers: Lecturer[] = [];
 
   isLoading = true;
-  error: string | null = null;
   currentPage = 1;
   itemsPerPage = 9;
+  totalItems = 0;
+  totalPages = 0;
 
-  currentSearchKeyword: string = '';
+  currentSearchQuery1: string = '';
+  currentSearchQuery2: string = '';
+  currentCombinedSearchKeyword: string = '';
+
+  hasLoadedData: boolean = false;
+  isSearchEmpty: boolean = false;
+
   noResultsImagePath: string = 'assets/images/image_57e4f0.png';
 
   tableColumns: TableColumn<Lecturer>[] = [
     { key: 'name', header: 'Nama Dosen', width: 'col-nama-dosen' },
     { key: 'lecturerCode', header: 'Kode' },
-    { key: 'nidn', header: 'NIP' },
+    { key: 'nip', header: 'NIP' },
     { key: 'kelompokKeahlian', header: 'Bidang Keahlian', width: 'col-bidang-keahlian' },
     { key: 'statusPegawai', header: 'Status' },
   ];
@@ -65,88 +76,123 @@ export class ListDosenComponent implements OnInit {
     },
   ];
 
+  constructor(
+    private router: Router,
+    private authService: AuthService,
+    private dosenService: DosenService
+  ) { }
+
   ngOnInit(): void {
-    this.loadMockData();
+    this.setupSearchSubscription();
+    this.loadDosen();
   }
 
-  loadMockData(): void {
-    this.isLoading = true;
-    this.error = null;
-    this.currentSearchKeyword = '';
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
-    setTimeout(() => {
-      this.lecturers = Array.from({ length: 35 }, (_, i) => ({
-        id: (i + 1).toString(),
-        name: `Lecturer Japran Hapis Risjad Rangga ${i + 1}`,
-        lecturerCode: `LCD-${1000 + i}`,
-        email: `lecturer${i + 1}@univ.edu`,
-        jabatanFunctionalAkademik: ['Lektor'],
-        statusPegawai: i % 2 === 0 ? 'Aktif' : 'Tidak Aktif',
-        pendidikanTerakhir: 'S3',
-        department: 'Computer Science',
-        nidn: `12345678${String(i).padStart(2, '0')}`,
-        kelompokKeahlian:
-          'Artificial Intelligence, Machine Learning, Data Science',
-      }));
-      this.applyFilterAndPaginate();
-      this.isLoading = false;
-    }, 1000);
+  private setupSearchSubscription(): void {
+    this.searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged((prev, curr) => prev.query1 === curr.query1 && prev.query2 === curr.query2),
+      takeUntil(this.destroy$)
+    ).subscribe(searchQueries => {
+      this.currentSearchQuery1 = searchQueries.query1;
+      this.currentSearchQuery2 = searchQueries.query2;
+      this.currentCombinedSearchKeyword = [searchQueries.query1, searchQueries.query2]
+        .filter(q => q && q.trim())
+        .join(' ');
+
+      this.currentPage = 1;
+      this.isSearchEmpty = false;
+      this.loadDosen();
+    });
+  }
+
+  loadDosen(): void {
+    this.isLoading = true;
+    this.hasLoadedData = true;
+
+    const params: DosenListParams = {
+      page: this.currentPage,
+      per_page: this.itemsPerPage,
+    };
+    if (this.currentCombinedSearchKeyword.trim()) {
+      params.search = this.currentCombinedSearchKeyword.trim();
+    }
+
+    this.dosenService.getAllDosen(params)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoading = false)
+      )
+      .subscribe({
+        next: (response) => {
+          if (response.success && response.data) {
+            this.lecturers = this.mapDosenResponseToLecturer(response.data.data);
+            this.paginatedLecturers = [...this.lecturers];
+            this.filteredLecturers = [...this.lecturers];
+            this.totalItems = response.data.total;
+            this.totalPages = response.data.last_page;
+            this.currentPage = response.data.current_page;
+
+            this.isSearchEmpty = this.totalItems === 0;
+          } else {
+            this.lecturers = [];
+            this.paginatedLecturers = [];
+            this.filteredLecturers = [];
+            this.totalItems = 0;
+            this.totalPages = 0;
+            this.currentPage = 1;
+            this.isSearchEmpty = true;
+          }
+        },
+        error: (error) => {
+          console.error('Error loading lecturers:', error);
+          this.isLoading = false;
+          this.lecturers = [];
+          this.paginatedLecturers = [];
+          this.filteredLecturers = [];
+          this.totalItems = 0;
+          this.totalPages = 0;
+          this.currentPage = 1;
+          this.isSearchEmpty = true;
+        }
+      });
+  }
+
+  private mapDosenResponseToLecturer(dosenList: DosenResponse[]): Lecturer[] {
+    return dosenList.map(dosen => ({
+      id: dosen.id.toString(),
+      name: dosen.name,
+      lecturerCode: dosen.lecturer_code,
+      email: dosen.email || '',
+      jabatanFunctionalAkademik: dosen.jabatan_fungsional_akademik ? [dosen.jabatan_fungsional_akademik] : [],
+      statusPegawai: dosen.status_pegawai,
+      pendidikanTerakhir: dosen.pendidikan_terakhir || '',
+      department: dosen.kelompok_keahlian?.nama || '',
+      nidn: dosen.nidn || '',
+      nip: dosen.nip || '',
+      kelompokKeahlian: dosen.kelompok_keahlian?.nama || '',
+      idJabatanStruktural: dosen.id_jabatan_struktural,
+      idKelompokKeahlian: dosen.id_kelompok_keahlian,
+    }));
   }
 
   onSearch(searchQuery: { query1: string; query2: string }): void {
-    const { query1, query2 } = searchQuery;
-    this.currentSearchKeyword = query1 || '';
-    const namaTerm = query1.toLowerCase().trim();
-    const kodeTerm = query2.toLowerCase().trim();
-
-    this.filteredLecturers = this.lecturers.filter(
-      (lec) =>
-        (namaTerm
-          ? lec.name.toLowerCase().includes(namaTerm) ||
-          (lec.nidn && lec.nidn.toLowerCase().includes(namaTerm)) ||
-          (lec.email && lec.email.toLowerCase().includes(namaTerm))
-          : true) &&
-        (kodeTerm
-          ? lec.lecturerCode?.toLowerCase().includes(kodeTerm)
-          : true)
-    );
-
-    this.currentPage = 1;
-    this.updatePaginatedLecturers();
-  }
-
-  private applyFilterAndPaginate(searchTerm: string = this.currentSearchKeyword): void {
-    const lowerSearchTerm = searchTerm.toLowerCase().trim();
-    if (!lowerSearchTerm) {
-      this.filteredLecturers = [...this.lecturers];
-    } else {
-      this.filteredLecturers = this.lecturers.filter(
-        (lec) =>
-          lec.name.toLowerCase().includes(lowerSearchTerm) ||
-          lec.lecturerCode.toLowerCase().includes(lowerSearchTerm) ||
-          (lec.nidn && lec.nidn.toLowerCase().includes(lowerSearchTerm)) ||
-          (lec.kelompokKeahlian && lec.kelompokKeahlian.toLowerCase().includes(lowerSearchTerm))
-      );
-    }
-    this.currentPage = 1;
-    this.updatePaginatedLecturers();
+    this.searchSubject.next(searchQuery);
   }
 
   onItemsPerPageChange(count: number): void {
     this.itemsPerPage = count;
     this.currentPage = 1;
-    this.updatePaginatedLecturers();
+    this.loadDosen();
   }
 
   onPageChange(page: number): void {
     this.currentPage = page;
-    this.updatePaginatedLecturers();
-  }
-
-  updatePaginatedLecturers(): void {
-    const start = (this.currentPage - 1) * this.itemsPerPage;
-    const end = start + this.itemsPerPage;
-    this.paginatedLecturers = this.filteredLecturers.slice(start, end);
+    this.loadDosen();
   }
 
   onRowClick(lecturer: Lecturer): void {
