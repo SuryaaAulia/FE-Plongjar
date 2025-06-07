@@ -1,0 +1,101 @@
+<div class="dynamic-table-container" [style.maxHeight]="parentMaxHeight">
+  <table [style.minWidth]="tableMinimuWidth || 'auto'">
+    <thead>
+      <tr>
+        <ng-container
+          *ngFor="
+            let colConfig of sortedStickyColumns;
+            trackBy: trackByColumnKey
+          "
+        >
+          <th
+            [ngStyle]="getStickyStylesForColumn(colConfig.key)"
+            class="sticky-header"
+            [class.last-sticky-header]="isLastSticky(colConfig.key)"
+            [ngClass]="[
+              colConfig.customClass || '',
+              colConfig.headerCustomClass || ''
+            ]"
+            [style.width]="colConfig.width"
+            [style.minWidth]="colConfig.minWidth"
+            [style.maxWidth]="colConfig.maxWidth"
+            [title]="colConfig.label"
+          >
+            {{ colConfig.label }}
+          </th>
+        </ng-container>
+        <ng-container
+          *ngFor="let colConfig of nonStickyColumns; trackBy: trackByColumnKey"
+        >
+          <th
+            [ngClass]="[
+              colConfig.customClass || '',
+              colConfig.headerCustomClass || ''
+            ]"
+            [style.width]="colConfig.width"
+            [style.minWidth]="colConfig.minWidth"
+            [style.maxWidth]="colConfig.maxWidth"
+            [title]="colConfig.label"
+          >
+            {{ colConfig.label }}
+          </th>
+        </ng-container>
+      </tr>
+    </thead>
+    <tbody>
+      <ng-container *ngIf="isLoading">
+        <tr>
+          <td [attr.colspan]="columnConfigs.length" class="loading-cell">
+            <app-loading-spinner></app-loading-spinner>
+          </td>
+        </tr>
+      </ng-container>
+      <ng-container *ngIf="!isLoading && data && data.length > 0">
+        <tr *ngFor="let item of data; trackBy: trackByRow">
+          <ng-container
+            *ngFor="
+              let colConfig of sortedStickyColumns;
+              trackBy: trackByColumnKey
+            "
+          >
+            <td
+              [ngStyle]="getStickyStylesForColumn(colConfig.key)"
+              class="sticky-cell"
+              [class.last-sticky-cell]="isLastSticky(colConfig.key)"
+              [ngClass]="[
+                colConfig.customClass || '',
+                colConfig.cellCustomClass || ''
+              ]"
+              [title]="getCellTitle(item, colConfig)"
+            >
+              {{ getCellValue(item, colConfig) }}
+            </td>
+          </ng-container>
+          <ng-container
+            *ngFor="
+              let colConfig of nonStickyColumns;
+              trackBy: trackByColumnKey
+            "
+          >
+            <td
+              [ngClass]="[
+                colConfig.customClass || '',
+                colConfig.cellCustomClass || ''
+              ]"
+              [title]="getCellTitle(item, colConfig)"
+            >
+              {{ getCellValue(item, colConfig) }}
+            </td>
+          </ng-container>
+        </tr>
+      </ng-container>
+      <ng-container *ngIf="!isLoading && (!data || data.length === 0)">
+        <tr>
+          <td [attr.colspan]="columnConfigs.length" class="no-data-message">
+            {{ noDataMessage }}
+          </td>
+        </tr>
+      </ng-container>
+    </tbody>
+  </table>
+</div>

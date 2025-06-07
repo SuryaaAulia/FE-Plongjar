@@ -1,0 +1,183 @@
+$primary-color: #4A90E2;
+$secondary-color: #D9534F;
+$light-gray: #f8f9fa;
+$medium-gray: #dee2e6;
+$dark-gray: #495057;
+$modal-background: #fff;
+$text-color: #212529;
+$border-radius: 0.3rem;
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-container {
+    background-color: $modal-background;
+    border-radius: $border-radius;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    width: 90%;
+    max-width: 500px;
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid $medium-gray;
+
+    h2 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: $text-color;
+    }
+
+    .close-button {
+        background: none;
+        border: none;
+        font-size: 1.75rem;
+        font-weight: bold;
+        color: $dark-gray;
+        cursor: pointer;
+        padding: 0.5rem;
+        line-height: 1;
+
+        &:hover {
+            color: darken($dark-gray, 15%);
+        }
+    }
+}
+
+.modal-body {
+    padding: 1.5rem;
+    color: $text-color;
+    font-size: 1rem;
+
+    p {
+        margin-top: 0;
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+
+        strong,
+        b {
+            font-weight: bold;
+        }
+    }
+
+    .checkbox-container {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+
+        input[type="checkbox"] {
+            margin-right: 0.5rem;
+            width: 1.15rem;
+            height: 1.15rem;
+            accent-color: $primary-color;
+            cursor: pointer;
+        }
+
+        label {
+            font-size: 0.95rem;
+            color: $dark-gray;
+            cursor: pointer;
+        }
+    }
+
+    .form-field.password-field {
+        margin-top: 1rem;
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--primary-blue);
+        }
+
+        input[type="password"] {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            border: 1px solid var(--grey);
+            border-radius: 6px;
+            background-color: var(--primary-white);
+            color: var(--primary-blue);
+            box-sizing: border-box;
+
+            &:focus {
+                border-color: var(--blue);
+                outline: 0;
+                box-shadow: var(--input-focus-box-shadow, 0 0 0 0.25rem rgba(13, 110, 253, 0.25));
+            }
+        }
+    }
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding: 1rem 1.5rem;
+    border-top: 1px solid $medium-gray;
+    background-color: $light-gray;
+
+    .button {
+        padding: 0.65rem 1.25rem;
+        border: none;
+        border-radius: $border-radius;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s ease-in-out, opacity 0.2s ease-in-out;
+        margin-left: 0.75rem;
+
+        &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    }
+
+    .ok-button {
+        background-color: $primary-color;
+        color: white;
+
+        &:hover:not(:disabled) {
+            background-color: darken($primary-color, 10%);
+        }
+    }
+
+    .cancel-button {
+        background-color: $secondary-color;
+        color: white;
+
+        &:hover {
+            background-color: darken($secondary-color, 10%);
+        }
+    }
+}
+
+.underline {
+    text-decoration: underline;
+}

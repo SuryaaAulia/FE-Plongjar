@@ -1,0 +1,63 @@
+<div class="course-page">
+  <div class="filters-container">
+    <div class="filter-group">
+      <label for="program-studi">Program Studi:</label>
+      <select
+        id="program-studi"
+        [value]="selectedProgramStudi"
+        (change)="onProgramStudiChange($event)"
+        class="filter-select"
+      >
+        <option *ngFor="let option of programStudiOptions" [value]="option">
+          {{ option }}
+        </option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label for="tahun-ajaran">Tahun Ajaran:</label>
+      <select
+        id="tahun-ajaran"
+        [value]="selectedTahunAjaran"
+        (change)="onTahunAjaranChange($event)"
+        class="filter-select"
+      >
+        <option *ngFor="let option of tahunAjaranOptions" [value]="option">
+          {{ option }}
+        </option>
+      </select>
+    </div>
+    
+    <div class="filter-group">
+      <label for="semester">Semester:</label>
+      <select
+        id="semester"
+        [value]="selectedSemester"
+        (change)="onSemesterChange($event)"
+        class="filter-select"
+      >
+        <option *ngFor="let option of semesterOptions" [value]="option">
+          {{ option }}
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <div class="courses-grid">
+    <app-plotting-result-card
+      *ngFor="let course of courses; trackBy: trackByCourseId"
+      [course]="course"
+      (showDetails)="onShowCourseDetails($event)"
+      (downloadExcel)="onDownloadCourseExcel($event)"
+    >
+    </app-plotting-result-card>
+  </div>
+
+  <div *ngIf="courses.length === 0" class="empty-state">
+    <div class="empty-state-content">
+      <i class="fas fa-book-open empty-icon"></i>
+      <h3>No courses found</h3>
+      <p>No courses match the selected filters.</p>
+    </div>
+  </div>
+</div>

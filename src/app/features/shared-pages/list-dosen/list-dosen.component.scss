@@ -1,0 +1,45 @@
+.lecturer-table-container {
+  position: relative;
+  overflow: hidden;
+  padding: 2rem;
+  max-width: 100%;
+  margin: 0 auto;
+  box-shadow: 0 0 17.3px rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  background: var(--primary-white);
+
+  .loading-spinner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 2rem;
+    color: var(--secondary-color);
+
+    i {
+      font-size: 1.5rem;
+    }
+  }
+
+  .divider {
+    height: 1px;
+    background-color: var(--grey);
+    margin: 0 -2rem 2rem -2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .lecturer-table-container {
+    padding: 1rem;
+
+    .divider {
+      margin: 0 -1rem 1rem -1rem;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .lecturer-table-container {
+    padding: 0.75rem;
+  }
+}

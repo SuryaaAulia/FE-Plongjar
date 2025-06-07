@@ -1,0 +1,265 @@
+.course-selection-container {
+  position: relative;
+  width: 100%;
+
+  .search-header {
+    display: flex;
+    align-items: center;
+    background-color: var(--primary-white);
+    border: 1px solid var(--grey);
+    border-radius: 10px;
+    padding: 0 8px;
+    position: relative;
+    z-index: 1001;
+
+    .search-input {
+      flex-grow: 1;
+      border: none;
+      outline: none;
+      padding: 10px 5px;
+      font-size: 1em;
+      background-color: transparent;
+    }
+
+    .icon-button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+      color: var(--grey);
+
+      &:hover {
+        color: var(--grey);
+      }
+
+      i {
+        font-size: 1.1em;
+      }
+    }
+
+    .search-icon-magnifier {
+      cursor: default;
+      padding-left: 0;
+    }
+  }
+
+  &.dropdown-is-open {
+    .search-header {
+      border-radius: 10px 10px 0 0;
+      border-bottom-color: transparent;
+    }
+    .dropdown-panel {
+        border-top: 1px solid var(--grey);
+    }
+  }
+
+
+  .dropdown-panel {
+    position: absolute;
+    top: calc(100% - 1px);
+    left: 0;
+    right: 0;
+    background-color: #fff;
+    border: 1px solid var(--grey);
+    border-radius: 0 0 10px 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    opacity: 0;
+    max-height: 0;
+    transform: scaleY(0.95) translateY(-10px);
+    transform-origin: top center;
+    visibility: hidden;
+    transition: opacity 0.2s ease-out,
+                max-height 0.25s ease-out,
+                transform 0.2s ease-out,
+                visibility 0s 0.25s;
+    min-width: 300px;
+
+    &.is-open {
+      opacity: 1;
+      max-height: 450px;
+      transform: scaleY(1) translateY(0);
+      visibility: visible;
+      transition: opacity 0.2s ease-out,
+                  max-height 0.25s ease-out,
+                  transform 0.2s ease-out,
+                  visibility 0s 0s;
+    }
+
+    .content-area {
+      display: flex;
+      padding: 15px;
+      flex-grow: 1;
+
+      .course-list-panel {
+        flex: 2;
+        padding-right: 15px;
+        border-right: 1px solid #eee;
+        max-height: 350px;
+        overflow-y: auto;
+
+        .placeholder-container {
+          text-align: center;
+          color: #757575;
+
+          .placeholder-image-wrapper {
+            margin-bottom: 10px;
+
+            img.placeholder-svg {
+              max-width: 150px;
+              height: auto;
+            }
+          }
+          .placeholder-text {
+            font-size: 0.9em;
+          }
+        }
+
+        .course-list {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+
+          li {
+            padding: 8px 10px;
+            cursor: pointer;
+            border-radius: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+
+            &:hover {
+              background-color: #f0f0f0;
+            }
+            &.selected {
+              background-color: #e0e0e0;
+              font-weight: bold;
+            }
+          }
+        }
+
+        .no-results {
+          padding: 10px;
+          color: #757575;
+          font-style: italic;
+        }
+      }
+
+      .academic-year-panel {
+        flex: 1;
+        padding-left: 15px;
+        max-height: 350px;
+        overflow-y: auto;
+
+        .panel-title {
+          margin-top: 0;
+          margin-bottom: 10px;
+          font-size: 1em;
+          font-weight: bold;
+          color: #333;
+        }
+
+        .academic-year-list {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+
+          li {
+            margin-bottom: 10px;
+
+            label {
+              display: flex;
+              align-items: center;
+              cursor: pointer;
+              font-size: 0.9em;
+
+              input[type="radio"] {
+                margin-right: 8px;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .footer-actions {
+      padding: 10px 15px;
+      text-align: right;
+      border-top: 1px solid #eee;
+      background-color: #f9f9f9;
+
+      .done-button {
+        padding: 8px 20px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.2s ease-out;
+
+
+        &:hover {
+          background-color: #45a049;
+        }
+
+        &:disabled {
+          background-color: #ccc;
+          cursor: not-allowed;
+        }
+      }
+    }
+
+    @media (max-width: 580px) {
+      &.is-open {
+        max-height: 80vh;
+      }
+
+      .content-area {
+        flex-direction: column;
+
+        .course-list-panel {
+          flex: 1;
+          width: 100%;
+          padding-right: 0;
+          border-right: none;
+          margin-bottom: 15px;
+          padding-bottom: 15px;
+          border-bottom: 1px solid #eee;
+          max-height: 250px;
+        }
+
+        .academic-year-panel {
+          flex: 1;
+          width: 100%;
+          padding-left: 0;
+          max-height: 200px;
+        }
+      }
+    }
+
+    @media (max-width: 380px) {
+      min-width: 0;
+      left: 5px;
+      right: 5px;
+
+      .content-area {
+        padding: 10px;
+
+        .course-list-panel {
+          max-height: 200px;
+        }
+
+        .academic-year-panel {
+          max-height: 180px;
+        }
+      }
+
+      .placeholder-container img.placeholder-svg {
+        max-width: 100px;
+      }
+    }
+  }
+}

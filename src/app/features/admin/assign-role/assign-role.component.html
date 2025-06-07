@@ -10,14 +10,13 @@
   <div class="divider"></div>
 
   @if (isLoading) {
-  <div class="loading-spinner">
-    <i class="fas fa-spinner fa-spin"></i> Loading users...
-  </div>
+  <app-loading-spinner></app-loading-spinner>
   } @else { @if (filteredUsers.length === 0) {
-  <div class="no-results">
-    <i class="fas fa-user-slash"></i>
-    <p>No users found matching your search</p>
-  </div>
+  <app-search-not-found
+    [keyword]="currentSearchKeyword"
+    altText="Data tidak ditemukan"
+  >
+  </app-search-not-found>
   } @else {
   <div class="user-grid">
     @for (user of paginatedUsers; track user.id) {
@@ -38,6 +37,7 @@
   >
   </app-pagination>
   } }
+
   <app-add-role-modal
     [show]="showAddRoleModal"
     [availableRoles]="availableRoles"

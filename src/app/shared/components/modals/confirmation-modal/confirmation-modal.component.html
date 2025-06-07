@@ -1,0 +1,48 @@
+<div class="modal-overlay" *ngIf="isVisible" (click)="onBackdropClick($event)">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h2>{{ title }}</h2>
+      <button class="close-button" (click)="onCancel()">×</button>
+    </div>
+    <div class="modal-body">
+      <ng-container *ngIf="mode === 'checkbox'">
+        <p [innerHTML]="message"></p>
+        <div class="checkbox-container">
+          <input
+            type="checkbox"
+            id="confirmationCheckbox"
+            [(ngModel)]="isCheckboxConfirmed"
+          />
+          <label for="confirmationCheckbox">{{ checkboxLabel }}</label>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="mode === 'password'">
+        <p [innerHTML]="passwordPrompt"></p>
+        <div class="form-field password-field">
+          <label for="passwordInput"
+            ><span style="color: var(--red)">*</span>Password</label
+          >
+          <input
+            type="password"
+            id="passwordInput"
+            [(ngModel)]="passwordValue"
+            placeholder="Enter your password"
+          />
+        </div>
+      </ng-container>
+    </div>
+    <div class="modal-footer">
+      <button
+        class="button ok-button"
+        (click)="onConfirm()"
+        [disabled]="isOkDisabled()"
+      >
+        {{ okButtonText }}
+      </button>
+      <button class="button cancel-button" (click)="onCancel()">
+        {{ cancelButtonText }}
+      </button>
+    </div>
+  </div>
+</div>

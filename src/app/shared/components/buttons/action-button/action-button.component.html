@@ -1,0 +1,19 @@
+<button
+  [type]="type"
+  class="action-btn"
+  [class.full-width]="fullWidth"
+  [class.loading]="loading"
+  [ngStyle]="currentButtonStyles"
+  (click)="onButtonClick($event)"
+  [disabled]="isDisabled"
+  [attr.aria-disabled]="isDisabled"
+  [attr.aria-label]="displayText"
+  [attr.aria-busy]="loading"
+>
+  <ng-container *ngIf="shouldShowIcon">
+    <i [ngClass]="displayIconClass" [ngStyle]="getIconStyles()"></i>
+  </ng-container>
+  <span *ngIf="displayText" [class.has-icon]="shouldShowIcon">{{
+    displayText
+  }}</span>
+</button>

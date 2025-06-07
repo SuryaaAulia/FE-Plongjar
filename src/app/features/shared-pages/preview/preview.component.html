@@ -1,0 +1,101 @@
+<div class="controls-and-table-wrapper">
+  <div class="pagination-controls-top">
+    <div class="left-content-area">
+      <span *ngIf="!isKetuaKK" class="role-specific-message-text">
+        <span style="color: var(--red)">*</span>Sesuai dengan tampilan terkini
+        preview plottingan milik Ketua Kelompok Keilmuan
+      </span>
+    </div>
+
+    <div class="page-size-selector">
+      <label for="pageSize">Show</label>
+      <select
+        id="pageSize"
+        [(ngModel)]="pageSize"
+        (change)="onPageSizeChange()"
+        class="page-size-dropdown"
+        aria-label="Select number of items per page"
+      >
+        <option *ngFor="let size of pageSizeOptions" [value]="size">
+          {{ size }}
+        </option>
+      </select>
+      <span>Data</span>
+    </div>
+  </div>
+
+  <app-dynamic-table
+    [data]="paginatedData"
+    [columnConfigs]="mataKuliahColumnConfigs"
+    [tableMinimuWidth]="tableMinimuWidth"
+    [isLoading]="isLoading"
+    [parentMaxHeight]="'70vh'"
+    [noDataMessage]="'Tidak ada data mata kuliah yang tersedia.'"
+  >
+  </app-dynamic-table>
+
+  <div class="bottom-controls-wrapper">
+    <div class="pagination-controls-bottom">
+      <div class="page-navigation">
+        <div class="page-info">
+          <span *ngIf="totalItems > 0">
+            Menampilkan {{ getStartRecord() }} sampai {{ getEndRecord() }} dari
+            {{ totalItems }} entri
+          </span>
+          <span *ngIf="totalItems === 0">Tidak ada entri</span>
+        </div>
+        <div class="pagination-arrow-buttons" *ngIf="totalPages > 0">
+          <button
+            type="button"
+            class="pagination-arrow-btn"
+            [disabled]="currentPage === 1"
+            (click)="goToPreviousPage()"
+            aria-label="Previous Page"
+          >
+            &lt;
+          </button>
+          <span class="current-page-display">{{ currentPage }}</span>
+          <button
+            type="button"
+            class="pagination-arrow-btn"
+            [disabled]="currentPage === totalPages || totalPages === 0"
+            (click)="goToNextPage()"
+            aria-label="Next Page"
+          >
+            &gt;
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-buttons-container">
+      <app-action-button
+        text="Back"
+        backgroundColorVar="var(--red)"
+        [fontSizePx]="16"
+        [paddingScaleFactor]="0.6"
+        type="button"
+        (click)="onBack()"
+      ></app-action-button>
+      <app-action-button
+        *ngIf="isKetuaKK"
+        text="Submit"
+        iconClass="fa fa-paper-plane"
+        backgroundColorVar="var(--green)"
+        [fontSizePx]="16"
+        [paddingScaleFactor]="0.6"
+        type="button"
+        (click)="onSubmit()"
+        [disabled]="paginatedData.length === 0"
+      ></app-action-button>
+    </div>
+  </div>
+</div>
+
+<app-confirmation-modal
+  [isVisible]="isConfirmationModalVisible"
+  [message]="confirmationModalMessage"
+  (confirmed)="handleModalConfirm()"
+  (cancelled)="handleModalCancel()"
+>
+</app-confirmation-modal>

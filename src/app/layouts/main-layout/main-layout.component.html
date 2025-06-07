@@ -1,4 +1,13 @@
-<div class="app-container">
+<div
+  class="app-container"
+  [class.sidenav-open]="!collapsed && screenWidth <= 768"
+>
+  <div
+    class="mobile-overlay"
+    *ngIf="!collapsed && screenWidth <= 768"
+    (click)="toggleSidenav()"
+  ></div>
+
   <app-navbar
     [collapsed]="collapsed"
     [hovering]="hovering"

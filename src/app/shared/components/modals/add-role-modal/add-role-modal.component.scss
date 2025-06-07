@@ -1,0 +1,143 @@
+.modal-wrapper {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    pointer-events: none;
+  }
+  
+  .modal-container {
+    position: absolute;
+    background-color: var(--primary-blue);
+    border-radius: 0.5rem;
+    width: 200px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    pointer-events: auto;
+  }
+  
+  .modal-header {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 0.75rem;
+  
+    h3 {
+      color: white;
+      margin: 0;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+  
+    .close-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 0.875rem;
+      cursor: pointer;
+      padding: 0;
+    }
+  }
+  
+  .search-input {
+    padding: 0 0.75rem 0.75rem;
+    display: flex;
+    position: relative;
+  
+    input {
+      width: 100%;
+      padding: 0.5rem 2rem 0.5rem 0.5rem;
+      border-radius: 0.25rem;
+      border: none;
+      background-color: #313844;
+      color: white;
+      font-size: 0.75rem;
+  
+      &::placeholder {
+        color: #8a8a8a;
+      }
+  
+      &:focus {
+        outline: none;
+      }
+    }
+  
+    .search-btn {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      padding: 0;
+      font-size: 0.75rem;
+    }
+  }
+  
+  .roles-list {
+    max-height: 180px;
+    overflow-y: auto;
+    padding-bottom: 0.5rem;
+  
+    .role-item {
+      display: flex;
+      align-items: center;
+      padding: 0.5rem 0.75rem;
+      cursor: pointer;
+      transition: background-color 0.2s;
+  
+      &:hover {
+        background-color: var(--secondary-blue);
+      }
+  
+      .role-color {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-right: 0.75rem;
+  
+        &.red {
+          background-color: #ff3b30;
+        }
+  
+        &.blue {
+          background-color: #007aff;
+        }
+  
+        &.green {
+          background-color: #34c759;
+        }
+  
+        &.yellow {
+          background-color: #ffcc00;
+        }
+  
+        &.pink {
+          background-color: #ff2d55;
+        }
+      }
+  
+      .role-name {
+        color: white;
+        font-size: 0.8125rem;
+      }
+    }
+  }
+  
+  .roles-list::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  .roles-list::-webkit-scrollbar-track {
+    background: #1a1e23;
+  }
+  
+  .roles-list::-webkit-scrollbar-thumb {
+    background: #313844;
+    border-radius: 2px;
+  }
+  
+  .roles-list::-webkit-scrollbar-thumb:hover {
+    background: #414b59;
+  }

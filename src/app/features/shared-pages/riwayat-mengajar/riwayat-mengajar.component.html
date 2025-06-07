@@ -1,0 +1,45 @@
+<div class="lecturer-table-container container my-4">
+  <div class="mb-3">
+    <app-search-header
+      [title]="
+        'Riwayat Mengajar | ' + (isLoading ? 'Loading...' : lecturerName)
+      "
+      [itemsPerPage]="itemsPerPage"
+      [searchType]="'teaching'"
+      (search)="onSearch($event)"
+      (itemsPerPageChange)="onItemsPerPageChange($event)"
+    >
+    </app-search-header>
+
+    @if (isLoading) {
+    <div class="text-center text-secondary py-4">
+      <i class="fas fa-spinner fa-spin me-2"></i>Loading teaching history...
+    </div>
+    } @if (error && !isLoading) {
+    <div class="alert alert-warning mt-3">{{ error }}</div>
+    } @if (!isLoading) {
+    <app-table
+      [columns]="tableColumns"
+      [data]="paginatedRecords"
+      [isLoading]="isLoading"
+      [showIndex]="true"
+      [currentPage]="currentPage"
+      [itemsPerPage]="itemsPerPage"
+      [noDataMessage]="
+        'Tidak ada data riwayat mengajar ditemukan untuk ' + lecturerName
+      "
+    >
+    </app-table>
+
+    @if (filteredRecords.length > 0) {
+    <app-pagination
+      [currentPage]="currentPage"
+      [itemsPerPage]="itemsPerPage"
+      [totalItems]="filteredRecords.length"
+      (pageChange)="onPageChange($event)"
+    >
+    </app-pagination>
+    } }
+    <button class="back-btn" (click)="goBack()">Back</button>
+  </div>
+</div>

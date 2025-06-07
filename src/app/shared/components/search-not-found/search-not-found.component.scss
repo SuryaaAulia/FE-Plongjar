@@ -1,0 +1,32 @@
+.no-results-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    text-align: center;
+    width: 100%;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+
+.no-results-image {
+    margin-bottom: 1.5rem;
+
+    img {
+        max-width: 300px;
+        height: auto;
+    }
+}
+
+.no-results-message {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--grey-alternative);
+    line-height: 1.6;
+
+    strong {
+        font-weight: var(--font-semibold);
+        color: var(--primary-blue);
+    }
+}

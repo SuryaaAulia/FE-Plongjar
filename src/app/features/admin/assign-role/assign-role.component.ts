@@ -6,6 +6,8 @@ import {
   UserCardComponent,
   PaginationComponent,
   AddRoleModalComponent,
+  LoadingSpinnerComponent,
+  SearchNotFoundComponent
 } from '../../../shared/components/index';
 import { User } from '../../../core/models/user.model';
 
@@ -19,6 +21,8 @@ import { User } from '../../../core/models/user.model';
     UserCardComponent,
     PaginationComponent,
     AddRoleModalComponent,
+    LoadingSpinnerComponent, // Add new component here
+    SearchNotFoundComponent,     // Add new component here
   ],
   templateUrl: './assign-role.component.html',
   styleUrls: ['./assign-role.component.scss'],
@@ -35,11 +39,15 @@ export class AssignRoleComponent implements OnInit {
   selectedUser: User | null = null;
   modalPosition = { top: 0, left: 0 };
 
+  currentSearchKeyword: string = '';
+
   ngOnInit(): void {
     this.loadUsers();
   }
 
   loadUsers(): void {
+    this.isLoading = true;
+    this.currentSearchKeyword = '';
     setTimeout(() => {
       this.users = this.generateMockUsers();
       this.filteredUsers = [...this.users];
@@ -62,9 +70,8 @@ export class AssignRoleComponent implements OnInit {
     const firstNames = ['Surya', 'Suep', 'Ohayoyo', 'Keegan', 'Andi'];
     const lastNames = ['Aulia', '1170', 'Junaidi', 'Ijat'];
     const degrees = ['S.T., M.T.', 'S.Kom., M.Kom.', 'S.Si., M.Si.'];
-    return `${firstNames[Math.floor(Math.random() * firstNames.length)]} ${
-      lastNames[Math.floor(Math.random() * lastNames.length)]
-    }, ${degrees[Math.floor(Math.random() * degrees.length)]}`;
+    return `${firstNames[Math.floor(Math.random() * firstNames.length)]} ${lastNames[Math.floor(Math.random() * lastNames.length)]
+      }, ${degrees[Math.floor(Math.random() * degrees.length)]}`;
   }
 
   onAddRole(user: User, event: MouseEvent): void {
@@ -79,18 +86,14 @@ export class AssignRoleComponent implements OnInit {
     this.showAddRoleModal = true;
     setTimeout(() => {
       const clickHandler = (e: MouseEvent) => {
-        const modalElement = document.querySelector('.modal-container');
-        if (
-          modalElement &&
-          !modalElement.contains(e.target as Node) &&
-          e.target !== target
-        ) {
+        const modalElement = document.querySelector('app-add-role-modal .modal-container');
+        if (modalElement && !modalElement.contains(e.target as Node) && e.target !== target) {
           this.closeModal();
-          window.removeEventListener('click', clickHandler);
+          document.removeEventListener('click', clickHandler, true);
         }
       };
-      window.addEventListener('click', clickHandler);
-    }, 100);
+      document.addEventListener('click', clickHandler, true);
+    }, 0);
   }
 
   onSelectRole(role: string): void {
@@ -104,32 +107,36 @@ export class AssignRoleComponent implements OnInit {
     }
     this.closeModal();
   }
+
   closeModal(): void {
     this.showAddRoleModal = false;
     this.selectedUser = null;
   }
 
   onRemoveRole(user: User, role: string): void {
-    user.jabatanFunctionalAkademik = user.jabatanFunctionalAkademik?.filter(
-      (r) => r !== role
-    );
+    if (user.jabatanFunctionalAkademik) {
+      user.jabatanFunctionalAkademik = user.jabatanFunctionalAkademik.filter(
+        (r) => r !== role
+      );
+    }
   }
 
-  onSearch(searchQuery: { nama: string; kode: string }): void {
-    const { nama, kode } = searchQuery;
+  onSearch(searchQuery: { query1: string; query2: string }): void {
+    const { query1, query2 } = searchQuery;
+
+    this.currentSearchKeyword = query1 || '';
 
     this.filteredUsers = this.users.filter(
       (user) =>
-        (nama
-          ? user.name.toLowerCase().includes(nama.toLowerCase()) ||
-            user.id.includes(nama) ||
-            user.email?.toLowerCase().includes(nama.toLowerCase())
+        (query1
+          ? user.name.toLowerCase().includes(query1.toLowerCase()) ||
+          user.id.includes(query1) ||
+          (user.email && user.email.toLowerCase().includes(query1.toLowerCase()))
           : true) &&
-        (kode
-          ? user.lecturerCode?.toLowerCase().includes(kode.toLowerCase())
+        (query2
+          ? user.lecturerCode?.toLowerCase().includes(query2.toLowerCase())
           : true)
     );
-
     this.currentPage = 1;
   }
 

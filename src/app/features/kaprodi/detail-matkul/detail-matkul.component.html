@@ -1,0 +1,190 @@
+<div class="page-container">
+  <div class="add-matkul-container">
+    <div class="header-section">
+      <h2>Detail Mata Kuliah</h2>
+      <p>Informasi detail dari mata kuliah</p>
+    </div>
+
+    <form [formGroup]="detailMatkulForm">
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="namaMatkul"
+            >Nama Mata Kuliah <span class="required">*</span></label
+          >
+          <input
+            type="text"
+            id="namaMatkul"
+            formControlName="namaMatkul"
+            placeholder="Contoh: PEMROGRAMAN WEB"
+          />
+          <div
+            *ngIf="
+              detailMatkulForm.get('namaMatkul')?.invalid &&
+              (detailMatkulForm.get('namaMatkul')?.dirty ||
+                detailMatkulForm.get('namaMatkul')?.touched)
+            "
+            class="error-message"
+          >
+            Nama Mata Kuliah wajib diisi.
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label for="kodeMatkul"
+            >Kode Mata Kuliah <span class="required">*</span></label
+          >
+          <input
+            type="text"
+            id="kodeMatkul"
+            formControlName="kodeMatkul"
+            placeholder="Contoh: CRI313"
+          />
+          <div
+            *ngIf="
+              detailMatkulForm.get('kodeMatkul')?.invalid &&
+              (detailMatkulForm.get('kodeMatkul')?.dirty ||
+                detailMatkulForm.get('kodeMatkul')?.touched)
+            "
+            class="error-message"
+          >
+            Kode Mata Kuliah wajib diisi.
+          </div>
+        </div>
+
+        <div class="form-field full-width-field">
+          <label for="sks">SKS / Credit <span class="required">*</span></label>
+          <div class="select-wrapper">
+            <select id="sks" formControlName="sks">
+              <option value="" disabled>Pilih Jumlah SKS</option>
+              <option *ngFor="let sksVal of sksOptions" [value]="sksVal">
+                {{ sksVal }} SKS
+              </option>
+            </select>
+            <i class="fas fa-chevron-down select-arrow-icon"></i>
+          </div>
+          <div
+            *ngIf="
+              detailMatkulForm.get('sks')?.invalid &&
+              (detailMatkulForm.get('sks')?.dirty ||
+                detailMatkulForm.get('sks')?.touched)
+            "
+            class="error-message"
+          >
+            Jumlah SKS wajib dipilih.
+          </div>
+        </div>
+
+        <div class="form-field full-width-field">
+          <label for="pic">PIC <span class="required">*</span></label>
+          <div class="select-wrapper">
+            <select id="pic" formControlName="pic">
+              <option value="" disabled>Pilih PIC</option>
+              <option *ngFor="let picOpt of picOptions" [value]="picOpt.value">
+                {{ picOpt.label }}
+              </option>
+            </select>
+            <i class="fas fa-chevron-down select-arrow-icon"></i>
+          </div>
+          <div
+            *ngIf="
+              detailMatkulForm.get('pic')?.invalid &&
+              (detailMatkulForm.get('pic')?.dirty ||
+                detailMatkulForm.get('pic')?.touched)
+            "
+            class="error-message"
+          >
+            PIC wajib dipilih.
+          </div>
+        </div>
+
+        <div class="form-field full-width-field">
+          <label for="statusMatkul"
+            >Status Mata Kuliah <span class="required">*</span></label
+          >
+          <div class="select-wrapper">
+            <select id="statusMatkul" formControlName="statusMatkul">
+              <option value="" disabled>Pilih Status Mata Kuliah</option>
+              <option
+                *ngFor="let statusOpt of statusMatkulOptions"
+                [value]="statusOpt.value"
+              >
+                {{ statusOpt.label }}
+              </option>
+            </select>
+            <i class="fas fa-chevron-down select-arrow-icon"></i>
+          </div>
+          <div
+            *ngIf="
+              detailMatkulForm.get('statusMatkul')?.invalid &&
+              (detailMatkulForm.get('statusMatkul')?.dirty ||
+                detailMatkulForm.get('statusMatkul')?.touched)
+            "
+            class="error-message"
+          >
+            Status Mata Kuliah wajib dipilih.
+          </div>
+        </div>
+
+        <div class="form-field full-width-field">
+          <label for="metodePerkuliahan"
+            >Metode Perkuliahan <span class="required">*</span></label
+          >
+          <div class="select-wrapper">
+            <select id="metodePerkuliahan" formControlName="metodePerkuliahan">
+              <option value="" disabled>Pilih Metode Perkuliahan</option>
+              <option
+                *ngFor="let metodeOpt of metodePerkuliahanOptions"
+                [value]="metodeOpt.value"
+              >
+                {{ metodeOpt.label }}
+              </option>
+            </select>
+            <i class="fas fa-chevron-down select-arrow-icon"></i>
+          </div>
+          <div
+            *ngIf="
+              detailMatkulForm.get('metodePerkuliahan')?.invalid &&
+              (detailMatkulForm.get('metodePerkuliahan')?.dirty ||
+                detailMatkulForm.get('metodePerkuliahan')?.touched)
+            "
+            class="error-message"
+          >
+            Metode Perkuliahan wajib dipilih.
+          </div>
+        </div>
+
+        <div class="form-field full-width-field">
+          <label>Praktikum <span class="required">*</span></label>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" value="true" formControlName="praktikum" /> Ya
+            </label>
+            <label class="radio-label">
+              <input type="radio" value="false" formControlName="praktikum" />
+              Tidak
+            </label>
+          </div>
+          <div
+            *ngIf="
+              detailMatkulForm.get('praktikum')?.invalid &&
+              (detailMatkulForm.get('praktikum')?.dirty ||
+                detailMatkulForm.get('praktikum')?.touched)
+            "
+            class="error-message"
+          >
+            Pilihan Praktikum wajib diisi.
+          </div>
+        </div>
+      </div>
+
+      <app-action-button
+        text="Back"
+        backgroundColorVar="var(--red)"
+        [fontSizePx]="16"
+        [paddingScaleFactor]="0.6"
+        type="button"
+        (click)="goBack()"
+      ></app-action-button>
+    </form>
+  </div>
+</div>

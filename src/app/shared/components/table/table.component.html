@@ -1,0 +1,40 @@
+@if (isLoading) { } @else if (data.length === 0) { } @else {
+<div class="table-responsive">
+  <table class="table table-hover align-middle">
+    <thead class="table">
+      <tr>
+        @if (showIndex) {
+        <th class="col">No.</th>
+        } @for (column of columns; track column.key) {
+        <th [class]="column.width || ''">{{ column.header }}</th>
+        } @if (actionButtons.length > 0) { @for (button of actionButtons; track
+        button.title) {
+        <th class="col">{{ button.title }}</th>
+        } }
+      </tr>
+    </thead>
+    <tbody>
+      @for (item of data; track trackBy($index, item); let i = $index) {
+      <tr>
+        @if (showIndex) {
+        <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
+        } @for (column of columns; track column.key) {
+        <td [class]="column.width || ''">{{ getItemValue(item, column) }}</td>
+        } @if (actionButtons.length > 0) { @for (button of actionButtons; track
+        button.title) {
+        <td>
+          <button
+            class="action-btn"
+            [title]="button.title"
+            (click)="button.onClick(item); $event.stopPropagation()"
+          >
+            <i class="fas {{ button.icon }}"></i>
+          </button>
+        </td>
+        } }
+      </tr>
+      }
+    </tbody>
+  </table>
+</div>
+}

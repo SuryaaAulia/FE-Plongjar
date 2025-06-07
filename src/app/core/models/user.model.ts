@@ -24,9 +24,36 @@ export interface Lecturer {
   lecturerCode: string;
   email?: string;
   jabatanFunctionalAkademik: string[];
-  statusPegawai?: string;
+  statusPegawai: string;
   pendidikanTerakhir?: string;
   department?: string;
   nidn?: string;
+  nip?: string;
   kelompokKeahlian?: string;
+  idJabatanStruktural?: number;
+  idKelompokKeahlian?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface TeachingRecord {
+  id: string;
+  subject: string;
+  pic: string;
+  class_type: 'Online' | 'Onsite';
+  class: string;
+  quota: number;
+  period: string;
+  lecturerName?: string;
+}
+
+export interface Course {
+  id: string;
+  name: string;
+  code: string;
+  sks: number | string;
+  pic: string;
+  statusMatkul: string;
+  metodePerkuliahan: string;
+  praktikum: string;
 }

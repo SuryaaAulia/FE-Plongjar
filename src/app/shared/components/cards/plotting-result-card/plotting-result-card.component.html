@@ -1,0 +1,24 @@
+<app-base-card
+  [title]="course.name"
+  [subtitle]="course.code"
+  [clickable]="true"
+  [footerActionsTemplate]="actionsTemplate"
+>
+</app-base-card>
+
+<ng-template #actionsTemplate>
+  <button
+    class="details-btn"
+    (click)="onShowDetailsClick($event)"
+    title="Show Details Table"
+  >
+    <i class="fas fa-eye"></i>
+  </button>
+  <button
+    class="download-btn"
+    (click)="onDownloadExcelClick($event)"
+    title="Download Excel"
+  >
+    <i class="fas fa-file-excel"></i>
+  </button>
+</ng-template>

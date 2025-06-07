@@ -7,6 +7,8 @@ import {
   UserCardComponent,
   PaginationComponent,
   AddRoleModalComponent,
+  LoadingSpinnerComponent,
+  SearchNotFoundComponent
 } from '../../../shared/components/index';
 import { User } from '../../../core/models/user.model';
 
@@ -20,6 +22,8 @@ import { User } from '../../../core/models/user.model';
     UserCardComponent,
     PaginationComponent,
     AddRoleModalComponent,
+    LoadingSpinnerComponent,
+    SearchNotFoundComponent,
   ],
   templateUrl: './manage-role.component.html',
   styleUrls: ['./manage-role.component.scss'],
@@ -37,23 +41,20 @@ export class ManageRoleComponent implements OnInit {
   selectedUser: User | null = null;
   modalPosition = { top: 0, left: 0 };
 
-  constructor(private router: Router) {}
+  currentSearchKeyword: string = '';
+
+  constructor(private router: Router) { }
 
   ngOnInit(): void {
     this.loadUsers();
   }
 
-  getShowingTo(): number {
-    return Math.min(
-      this.currentPage * this.itemsPerPage,
-      this.filteredUsers.length
-    );
-  }
-
   loadUsers(): void {
+    this.isLoading = true;
+    this.currentSearchKeyword = '';
     setTimeout(() => {
       this.users = this.generateMockUsers();
-      this.filteredUsers = [...this.users];
+      this.applyFilters();
       this.isLoading = false;
     }, 1000);
   }
@@ -65,42 +66,33 @@ export class ManageRoleComponent implements OnInit {
       name: this.generateRandomName(),
       department: departments[Math.floor(Math.random() * departments.length)],
       lecturerCode: `D${7547 + i}`,
-      jabatanFunctionalAkademik: [],
+      jabatanFunctionalAkademik: this.generateRandomRolesForUser(),
       email: `user${i + 1}@university.edu`,
-      roles: this.generateRandomRoles(),
     }));
   }
 
   private generateRandomName(): string {
     const firstNames = ['Bambang', 'Siti', 'Ahmad', 'Dewi', 'Rudi', 'Hakim'];
     const lastNames = [
-      'Pamungkas',
-      'Wahyuni',
-      'Santoso',
-      'Kurniawan',
-      'Burhanuddin',
+      'Pamungkas', 'Wahyuni', 'Santoso', 'Kurniawan', 'Burhanuddin',
     ];
     const degrees = [
-      'S.T., M.T.',
-      'S.Kom., M.Kom.',
-      'S.Si., M.Si.',
-      'S.T., M.Kom.',
+      'S.T., M.T.', 'S.Kom., M.Kom.', 'S.Si., M.Si.', 'S.T., M.Kom.',
     ];
-    return `${firstNames[Math.floor(Math.random() * firstNames.length)]} ${
-      lastNames[Math.floor(Math.random() * lastNames.length)]
-    }, ${degrees[Math.floor(Math.random() * degrees.length)]}`;
+    return `${firstNames[Math.floor(Math.random() * firstNames.length)]} ${lastNames[Math.floor(Math.random() * lastNames.length)]
+      }, ${degrees[Math.floor(Math.random() * degrees.length)]}`;
   }
 
-  private generateRandomRoles(): string[] {
-    const numRoles = Math.floor(Math.random() * 2);
-    if (numRoles === 0) return [];
-
-    return [
-      this.availableRoles[
-        Math.floor(Math.random() * this.availableRoles.length)
-      ],
-    ];
+  private generateRandomRolesForUser(): string[] {
+    const rolesToAssign: string[] = [];
+    const numberOfRoles = Math.floor(Math.random() * 3);
+    const shuffledRoles = [...this.availableRoles].sort(() => 0.5 - Math.random());
+    for (let i = 0; i < numberOfRoles; i++) {
+      rolesToAssign.push(shuffledRoles[i]);
+    }
+    return rolesToAssign;
   }
+
 
   onSelectRole(role: string): void {
     if (this.selectedUser) {
@@ -109,10 +101,10 @@ export class ManageRoleComponent implements OnInit {
       }
       if (!this.selectedUser.jabatanFunctionalAkademik.includes(role)) {
         this.selectedUser.jabatanFunctionalAkademik.push(role);
+        this.applyFilters();
       }
     }
     this.closeModal();
-    this.applyFilters();
   }
 
   closeModal(): void {
@@ -121,10 +113,12 @@ export class ManageRoleComponent implements OnInit {
   }
 
   onRemoveRole(user: User, role: string): void {
-    user.jabatanFunctionalAkademik = user.jabatanFunctionalAkademik?.filter(
-      (r) => r !== role
-    );
-    this.applyFilters();
+    if (user.jabatanFunctionalAkademik) {
+      user.jabatanFunctionalAkademik = user.jabatanFunctionalAkademik.filter(
+        (r) => r !== role
+      );
+      this.applyFilters();
+    }
   }
 
   filterByRole(role: string | null): void {
@@ -133,43 +127,32 @@ export class ManageRoleComponent implements OnInit {
     this.currentPage = 1;
   }
 
-  applyFilters(): void {
+  applyFilters(searchTerm: string = this.currentSearchKeyword): void {
+    let tempUsers = [...this.users];
+
     if (this.activeRoleFilter) {
-      this.filteredUsers = this.users.filter(
+      tempUsers = tempUsers.filter(
         (user) =>
           user.jabatanFunctionalAkademik &&
           user.jabatanFunctionalAkademik.includes(this.activeRoleFilter!)
       );
-    } else {
-      this.filteredUsers = [...this.users];
     }
+
+    if (searchTerm) {
+      const lowerSearchTerm = searchTerm.toLowerCase();
+      tempUsers = tempUsers.filter(
+        (user) =>
+          user.name.toLowerCase().includes(lowerSearchTerm) ||
+          user.id.includes(searchTerm) || // ID might not need toLowerCase
+          (user.email && user.email.toLowerCase().includes(lowerSearchTerm))
+      );
+    }
+    this.filteredUsers = tempUsers;
   }
 
-  onSearch(searchQuery: { nama: string; kode: string }): void {
-    const { nama, kode } = searchQuery;
-
-    let filtered = this.users;
-
-    if (this.activeRoleFilter) {
-      filtered = filtered.filter(
-        (user) =>
-          user.jabatanFunctionalAkademik &&
-          user.jabatanFunctionalAkademik.includes(this.activeRoleFilter!)
-      );
-    }
-
-    this.filteredUsers = filtered.filter(
-      (user) =>
-        (nama
-          ? user.name.toLowerCase().includes(nama.toLowerCase()) ||
-            user.id.includes(nama) ||
-            user.email?.toLowerCase().includes(nama.toLowerCase())
-          : true) &&
-        (kode
-          ? user.lecturerCode?.toLowerCase().includes(kode.toLowerCase())
-          : true)
-    );
-
+  onSearch(searchQuery: { query1: string; query2: string }): void {
+    this.currentSearchKeyword = searchQuery.query1 || '';
+    this.applyFilters(this.currentSearchKeyword);
     this.currentPage = 1;
   }
 
@@ -180,10 +163,6 @@ export class ManageRoleComponent implements OnInit {
 
   onPageChange(page: number): void {
     this.currentPage = page;
-  }
-
-  navigateToRolePermission(role: string): void {
-    console.log(`Navigate to permissions for ${role}`);
   }
 
   get paginatedUsers(): User[] {

@@ -1,0 +1,18 @@
+<div class="base-card" [class.clickable]="clickable" (click)="onCardClick()">
+  <div class="card-header">
+    <div class="card-title-section">
+      <div class="card-title">{{ title }}</div>
+      <div class="card-subtitle" *ngIf="subtitle">{{ subtitle }}</div>
+      <div class="card-content" *ngIf="contentTemplate">
+        <ng-container *ngTemplateOutlet="contentTemplate"></ng-container>
+      </div>
+    </div>
+    <div class="card-header-actions" *ngIf="headerActionsTemplate">
+      <ng-container *ngTemplateOutlet="headerActionsTemplate"></ng-container>
+    </div>
+  </div>
+
+  <div class="card-footer" *ngIf="footerActionsTemplate">
+    <ng-container *ngTemplateOutlet="footerActionsTemplate"></ng-container>
+  </div>
+</div>

@@ -1,0 +1,35 @@
+@import '../base-card/base-card.component.scss';
+
+.course-pic {
+    font-weight: var(--font-normal);
+    color: var(--primary-blue);
+    font-size: var(--text-base);
+    margin: 0 0 0.25rem 0;
+}
+
+.edit-btn, .delete-btn {
+  @extend .card-action-btn;
+  width: 2rem;
+  height: 2rem;
+  font-size: var(--text-lg);
+}
+
+.edit-btn {
+  i {
+    color: var(--blue);
+  }
+
+  &:hover {
+    background-color: rgba(var(--rgb-blue, 0, 0, 255), 0.1);
+  }
+}
+
+.delete-btn {
+  i {
+    color: var(--red);
+  }
+
+  &:hover {
+    background-color: rgba(var(--rgb-red, 255, 0, 0), 0.1);
+  }
+}
