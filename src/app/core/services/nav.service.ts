@@ -17,6 +17,16 @@ export class NavService {
           { label: 'Dosen', routerLink: '/ketua-kk/list-dosen' },
         ],
       },
+      {
+        label: 'Jabatan',
+        icon: 'sitemap',
+        routerLink: '',
+        children: [
+          { label: 'Add Jabatan', routerLink: '' },
+          { label: 'Assign', routerLink: '' },
+        ],
+      },
+      { label: 'Tahun Ajaran', icon: 'calendar-days', routerLink: '' },
       { label: 'Switch App', icon: 'dashboard', routerLink: '/switch-app' },
     ],
     ketua_kk: [
