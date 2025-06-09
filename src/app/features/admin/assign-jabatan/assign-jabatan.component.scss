@@ -1,0 +1,103 @@
+// Main container for the component, lays out header and content vertically.
+.assign-jabatan-container {
+  display: flex;
+  flex-direction: column;
+  // Ensures the layout takes up the full height of its container.
+  height: 100%;
+}
+
+// Wrapper for the header section to enforce full width.
+.full-width-header {
+  width: 100%;
+  flex-shrink: 0; // Prevents the header from shrinking.
+}
+
+// Padding for the app-search-header component.
+.component-header {
+  padding: 1.5rem;
+}
+
+// A 1px line to visually separate the header from the main content.
+.horizontal-divider {
+  height: 1px;
+  background-color: #e2e8f0; // Light grey color.
+  width: 100%;
+  margin: 0;
+}
+
+// Container for the sidebar and main content, arranged horizontally.
+.content-area {
+  display: flex;
+  flex: 1; // Allows this area to grow and fill available space.
+  overflow: hidden; // Prevents content from overflowing the container.
+}
+
+.sidebar-container {
+  display: flex;
+  position: relative;
+  height: 100%;
+  flex-shrink: 0;
+}
+
+.jabatan-list-sidebar {
+  width: 220px;
+  padding: 1.5rem;
+  background-color: #fff;
+  overflow-y: auto;
+}
+
+.vertical-divider {
+  width: 1px;
+  background-color: #e2e8f0;
+  height: 100%;
+}
+.main-content {
+  flex: 1;
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+.jabatan-filter-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.jabatan-filter-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid var(--black, #333);
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+  background-color: var(--primary-blue, #007bff);
+  color: var(--primary-white, #fff);
+  font-weight: 500;
+
+  &:hover {
+    color: var(--black, #333);
+    background-color: var(--secondary-white, #f8f9fa);
+  }
+
+  // Active state for the currently selected filter.
+  &.active {
+    color: var(--black, #333);
+    background-color: var(--secondary-white, #f8f9fa);
+  }
+}
+
+.user-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  margin-bottom: 2rem;
+
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}

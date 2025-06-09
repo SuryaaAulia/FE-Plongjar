@@ -1,0 +1,96 @@
+.add-jabatan-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 2rem 1rem;
+}
+
+.form-card {
+    background-color: var(--primary-white);
+    border-radius: 0.75rem;
+    box-shadow: 0 0 17.3px rgba(0, 0, 0, 0.3);
+    width: 100%;
+    max-width: 600px;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.form-header {
+    text-align: start;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+
+    .form-title {
+        font-size: var(--text-2xl);
+        font-weight: var(--font-bold, 700);
+        color: var(--primary-blue);
+        margin: 0 0 0.5rem 0;
+        line-height: 1.3;
+    }
+
+    .form-subtitle {
+        font-size: var(--text-sm);
+        color: var(--grey-alternative);
+        margin: 0;
+        line-height: 1.5;
+    }
+}
+
+.jabatan-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 1rem;
+    padding-top: 1.5rem;
+
+    app-action-button {
+        min-width: 120px;
+
+        &:hover {
+            transform: translateY(-1px);
+        }
+    }
+}
+
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    border-radius: 0.75rem;
+}
+
+@media (max-width: 768px) {
+    .add-jabatan-container {
+        padding: 1rem 0.5rem;
+        align-items: stretch;
+    }
+
+    .form-card {
+        padding: 1.5rem;
+    }
+
+    .form-actions {
+        flex-direction: column;
+        gap: 0.75rem;
+
+        app-action-button {
+            width: 100%;
+            min-width: auto;
+        }
+    }
+}

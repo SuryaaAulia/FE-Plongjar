@@ -61,10 +61,6 @@
     [totalItems]="filteredCourses.length"
     (pageChange)="onPageChange($event)"
   ></app-pagination>
-  <div class="pagination-summary">
-    Menampilkan {{ displayedStartIndex }} sampai {{ displayedEndIndex }} dari
-    {{ filteredCourses.length }} entri
-  </div>
   } }
 
   <app-confirmation-modal

@@ -4,7 +4,6 @@
     <h2>Login</h2>
   </div>
 
-  <!-- Error Message Display -->
   <div *ngIf="errorMessage" class="alert alert-error">
     <i class="fas fa-exclamation-circle"></i>
     <span>{{ errorMessage }}</span>
@@ -13,97 +12,34 @@
     </button>
   </div>
 
-  <form (ngSubmit)="onSubmit(loginForm)" #loginForm="ngForm" novalidate>
-    <div class="form-field">
-      <label for="email">Email</label>
-      <div class="input-group">
-        <span class="input-group-icon">
-          <i class="fas fa-user"></i>
-        </span>
-        <input
-          type="email"
-          id="email"
-          placeholder="Email"
-          [(ngModel)]="email"
-          name="email"
-          required
-          email
-          #emailInput="ngModel"
-          [class.invalid-input]="
-            emailInput.invalid && (emailInput.dirty || emailInput.touched)
-          "
-          [disabled]="isLoading"
-          (input)="clearError()"
-        />
-      </div>
-      <div
-        *ngIf="emailInput.invalid && (emailInput.dirty || emailInput.touched)"
-        class="error-message"
-      >
-        <span *ngIf="emailInput.errors?.['required']">Email is required</span>
-        <span *ngIf="emailInput.errors?.['email']"
-          >Please enter a valid email</span
-        >
-      </div>
-    </div>
+  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
+    <app-form-input
+      label="Email"
+      type="email"
+      placeholder="Email"
+      formControlName="email"
+      [control]="emailControl"
+      [required]="true"
+      [showIcon]="true"
+      (inputChange)="clearError()"
+    ></app-form-input>
 
-    <div class="form-field">
-      <label for="password">Password</label>
-      <div class="input-group">
-        <span class="input-group-icon">
-          <i class="fas fa-lock"></i>
-        </span>
-        <input
-          [type]="showPassword ? 'text' : 'password'"
-          id="password"
-          placeholder="Password"
-          [(ngModel)]="password"
-          name="password"
-          required
-          minlength="6"
-          #passwordInput="ngModel"
-          [class.invalid-input]="
-            passwordInput.invalid &&
-            (passwordInput.dirty || passwordInput.touched)
-          "
-          [disabled]="isLoading"
-          (input)="clearError()"
-        />
-        <button
-          type="button"
-          class="password-toggle"
-          (click)="togglePasswordVisibility()"
-          aria-label="Toggle password visibility"
-          [disabled]="isLoading"
-        >
-          <i
-            class="fas"
-            [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"
-          ></i>
-        </button>
-      </div>
-      <div
-        *ngIf="
-          passwordInput.invalid &&
-          (passwordInput.dirty || passwordInput.touched)
-        "
-        class="error-message"
-      >
-        <span *ngIf="passwordInput.errors?.['required']"
-          >Password is required</span
-        >
-        <span *ngIf="passwordInput.errors?.['minlength']"
-          >Password must be at least 6 characters</span
-        >
-      </div>
-    </div>
+    <app-form-input
+      label="Password"
+      type="password"
+      placeholder="Password"
+      formControlName="password"
+      [control]="passwordControl"
+      [required]="true"
+      [showIcon]="true"
+      (inputChange)="clearError()"
+    ></app-form-input>
 
     <div class="options">
       <label class="checkbox-container">
         <input
           type="checkbox"
-          [(ngModel)]="rememberMe"
-          name="rememberMe"
+          formControlName="rememberMe"
           [disabled]="isLoading"
         />
         <span class="checkmark"></span>

@@ -134,16 +134,21 @@ export class AuthService {
     }
 
     logout(): void {
-        this.apiService.logout().subscribe({
-            next: () => console.log('Logout successful'),
-            error: (error) => console.error('Logout error:', error)
-        });
+        const token = localStorage.getItem(this.TOKEN_KEY);
 
         localStorage.removeItem(this.TOKEN_KEY);
         localStorage.removeItem(this.USER_KEY);
-
         this.currentUserSubject.next(null);
-
+        if (token) {
+            this.apiService.logout().subscribe({
+                next: () => {
+                    console.log('Logout API call successful');
+                },
+                error: (error) => {
+                    console.warn('Logout API call failed (this is usually fine):', error);
+                }
+            });
+        }
         this.router.navigate(['/auth/login']);
     }
 

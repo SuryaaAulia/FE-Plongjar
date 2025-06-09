@@ -1,0 +1,116 @@
+<div class="container">
+  <header class="header-section">
+    <h2>Buat Tahun Ajaran Baru</h2>
+    <p>Isi form untuk menambahkan tahun ajaran baru</p>
+  </header>
+
+  <form
+    [formGroup]="tahunAjaranForm"
+    (ngSubmit)="tambahTahunAjaran()"
+    class="form-section"
+  >
+    <div class="form-grid">
+      <div>
+        <app-form-input
+          label="Dari Tahun"
+          type="select"
+          placeholder="Masukan tahun mulai"
+          formControlName="dariTahun"
+          [control]="getControl('dariTahun')"
+          [options]="tahunOptions"
+          [required]="true"
+        ></app-form-input>
+      </div>
+
+      <div>
+        <app-form-input
+          label="Sampai Tahun"
+          type="select"
+          placeholder="Masukan tahun selesai"
+          formControlName="sampaiTahun"
+          [control]="getControl('sampaiTahun')"
+          [options]="tahunOptions"
+          [required]="true"
+        ></app-form-input>
+      </div>
+
+      <div class="button-container">
+        <app-action-button
+          text="Tambah"
+          iconClass="fas fa-plus"
+          type="submit"
+          [disabled]="tahunAjaranForm.invalid"
+        ></app-action-button>
+      </div>
+    </div>
+  </form>
+
+  <section class="daftar-section">
+    <h3>Daftar Tahun Ajaran ({{ daftarTahunAjaran.length }})</h3>
+    <p class="section-description">
+      <span style="color: var(--red)">*</span> Pilih salah satu status aktif
+      Tahun Ajaran
+    </p>
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th class="col-no">No</th>
+            <th class="col-tahun">Tahun Ajaran</th>
+            <th class="col-semester">Semester</th>
+            <th class="col-status">Status Aktif</th>
+            <th class="col-action">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let ajaran of daftarTahunAjaran; let i = index">
+            <td class="col-no">{{ i + 1 }}</td>
+            <td class="col-tahun">{{ ajaran.tahunAjaran }}</td>
+            <td class="col-semester">
+              <select
+                [(ngModel)]="ajaran.semester"
+                [ngModelOptions]="{ standalone: true }"
+                class="semester-select"
+              >
+                <option value="Ganjil">Ganjil</option>
+                <option value="Genap">Genap</option>
+              </select>
+            </td>
+            <td class="col-status">
+              <label class="toggle-switch">
+                <input
+                  type="radio"
+                  name="statusAktif"
+                  [checked]="ajaran.statusAktif"
+                  (change)="setAktif(i)"
+                />
+                <span class="slider round"></span>
+              </label>
+            </td>
+            <td class="col-action">
+              <app-action-button
+                iconClass="fas fa-trash-alt"
+                backgroundColorVar="var(--red)"
+                [fontSizePx]="14"
+                [paddingScaleFactor]="0.5"
+                (buttonClick)="hapusTahunAjaran(i)"
+                title="Hapus Tahun Ajaran"
+              ></app-action-button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer class="footer-submit-section">
+    <app-action-button
+      text="Simpan"
+      backgroundColorVar="var(--primary-blue)"
+      [fontSizePx]="16"
+      [paddingScaleFactor]="0.6"
+      (buttonClick)="simpanTahunAjaran()"
+      [disabled]="daftarTahunAjaran.length === 0"
+    ></app-action-button>
+  </footer>
+</div>

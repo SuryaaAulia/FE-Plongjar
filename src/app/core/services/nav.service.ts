@@ -15,6 +15,16 @@ export class NavService {
           { label: 'Manage Role', routerLink: '/admin/manage-role' },
         ],
       },
+      {
+        label: 'Jabatan',
+        icon: 'sitemap',
+        routerLink: '',
+        children: [
+          { label: 'Add Jabatan', routerLink: '/admin/tambah-jabatan' },
+          { label: 'Assign', routerLink: '/admin/assign-jabatan' },
+        ],
+      },
+      { label: 'Tahun Ajaran', icon: 'calendar-days', routerLink: '/admin/tahun-ajaran' },
       { label: 'Switch App', icon: 'dashboard', routerLink: '/switch-app' },
     ],
     ketua_kk: [
@@ -47,7 +57,7 @@ export class NavService {
         icon: 'table-list',
         routerLink: '',
         children: [
-          { label: 'Start Plotting', routerLink: '/ketua-kk/plotting' },
+          { label: 'Start Plotting', routerLink: '/ketua-prodi/plotting' },
           { label: 'Preview', routerLink: '/ketua-prodi/preview' },
           { label: 'Hasil', routerLink: '/ketua-prodi/hasil-plotting' },
         ],

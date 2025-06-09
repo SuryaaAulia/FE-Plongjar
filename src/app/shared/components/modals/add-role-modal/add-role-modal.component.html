@@ -3,16 +3,22 @@
     class="modal-container"
     [style.top.px]="position.top"
     [style.left.px]="position.left"
+    [style.transform]="
+      'translate(' + dragOffset.x + 'px, ' + dragOffset.y + 'px)'
+    "
   >
     <div class="modal-header">
+      <div class="drag-handle" (mousedown)="onDragStart($event)">
+        <i class="fas fa-ellipsis-h"></i>
+      </div>
       <button class="close-btn" (click)="onClose()">
-        <i class="fa fa-times"></i>
+        <i class="fas fa-times"></i>
       </button>
     </div>
     <div class="search-input">
       <input type="text" placeholder="Search Role" />
       <button class="search-btn">
-        <i class="fa fa-search"></i>
+        <i class="fas fa-search"></i>
       </button>
     </div>
     <div class="roles-list">

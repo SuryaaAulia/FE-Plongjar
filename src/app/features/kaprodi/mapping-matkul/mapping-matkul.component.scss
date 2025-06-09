@@ -1,9 +1,9 @@
 .mapping-container {
   padding: 2rem 2.5rem;
   margin: 0 auto;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 17.3px rgba(0, 0, 0, 0.3);
   border-radius: 8px;
-  background: var(--primary-white, #ffffff);
+  background: var(--primary-white);
   width: 100%;
   max-width: 900px;
 }
@@ -13,22 +13,22 @@
   margin-bottom: 2rem;
 
   h2 {
-    font-size: 1.75rem;
-    color: var(--primary-dark, #212A3E);
-    font-weight: var(--font-semibold, 600);
+    font-size: var(--text-2xl);
+    color: var(--primary-blue);
+    font-weight: var(--font-semibold);
     margin-bottom: 0.5rem;
   }
 
   p {
-    font-size: 1rem;
-    color: var(--text-secondary-color, #6c757d);
+    font-size: var(--text-lg);
+    color: var(--grey-alternative);
   }
 }
 
 .form-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1.5rem;
+  gap: 1rem;
 
   @media (min-width: 768px) {
     grid-template-columns: 1fr 1fr;
@@ -36,7 +36,6 @@
   }
 
   &.top-filters {
-    margin-bottom: 2rem;
     @media (min-width: 768px) {
       grid-template-columns: 1fr max-content;
     }
@@ -47,85 +46,26 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-
-  label {
-    font-size: 0.875rem;
-    font-weight: var(--font-medium, 500);
-    color: var(--text-primary-color, #212A3E);
-    margin-bottom: 0.5rem;
-
-    .required {
-      color: var(--danger-color, #dc3545);
-      margin-right: 0.25rem;
-    }
-  }
-
-  input[type="text"],
-  input[type="number"],
-  select {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    font-size: 1rem;
-    border: 1px solid var(--border-color, #ced4da);
-    border-radius: 6px;
-    background-color: var(--input-bg, #ffffff);
-    color: var(--text-primary-color, #333);
-    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-
-    &:focus {
-      border-color: var(--input-focus-border-color, #86b7fe);
-      outline: 0;
-      box-shadow: var(--input-focus-box-shadow, 0 0 0 0.25rem rgba(13, 110, 253, 0.25));
-    }
-
-    &::placeholder {
-      color: var(--text-placeholder-color, #adb5bd);
-    }
-  }
-
-  .format-hint {
-    font-size: 0.75rem;
-    color: var(--text-secondary-color, #6c757d);
-    margin-top: 0.25rem;
-  }
 }
 
-.select-wrapper {
-  position: relative;
-  width: 100%;
-
-  select {
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    padding-right: 2.5rem;
-  }
-
-  .select-arrow-icon {
-    position: absolute;
-    top: 50%;
-    right: 1rem;
-    transform: translateY(-50%);
-    pointer-events: none;
-    color: var(--text-secondary-color, #6c757d);
-    font-size: 0.8em;
-  }
+.format-hint {
+  font-size: var(--text-xs);
+  color: var(--grey-alternative);
 }
 
 .tambah-kelas-section {
   margin-top: 1.5rem;
   margin-bottom: 2rem;
   padding-top: 1.5rem;
-  border-top: 1px solid var(--border-color, #e0e0e0);
+  border-top: 1px solid var(--grey);
 
   h3 {
-    font-size: 1.25rem;
-    font-weight: var(--font-semibold, 600);
-    color: var(--text-primary-color, #333);
+    font-size: var(--text-xl);
+    font-weight: var(--font-semibold);
+    color: var(--primary-color);
     margin-bottom: 1rem;
   }
 }
-
 
 .tambah-kelas-grid {
   display: grid;
@@ -135,11 +75,44 @@
 
   @media (max-width: 767px) {
     grid-template-columns: 1fr;
+
     .tambah-kelas-button-container {
       margin-top: 0.5rem;
+
       app-action-button {
         width: 100%;
       }
+    }
+  }
+
+  >div:first-child {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    margin-bottom: 0;
+
+    app-form-input {
+      margin-bottom: 0;
+
+      ::ng-deep {
+
+        .form-group,
+        .input-group,
+        .form-control-wrapper,
+        div {
+          margin-bottom: 0;
+        }
+      }
+    }
+
+    .format-hint {
+      margin-top: 0;
+      margin-bottom: 0;
+      padding-top: 0;
+      font-size: var(--text-xs);
+      color: var(--grey-alternative);
+      line-height: 1.2;
+      transform: translateY(0.25rem);
     }
   }
 }
@@ -147,7 +120,7 @@
 .tambah-kelas-button-container {
   display: flex;
   align-items: flex-end;
-  padding-top: 1.625rem;
+  padding-top: calc(0.875rem + 1.15em);
 }
 
 .no-data-placeholder {
@@ -155,7 +128,7 @@
   padding: 3rem 1rem;
   border-radius: 8px;
   margin: 2rem 0;
-  background-color: var(--background-light, #f9f9f9);
+  background-color: #f9f9f9;
 
   .placeholder-image {
     max-width: 250px;
@@ -165,28 +138,30 @@
 
   p {
     font-size: 1rem;
-    color: var(--text-secondary-color, #6c757d);
-    font-weight: var(--font-medium, 500);
+    color: var(--grey-alternative);
+    font-weight: var(--font-medium);
   }
 }
 
 .daftar-kelas-section {
   margin-top: 1.5rem;
   padding-top: 1rem;
-  border-top: 1px solid var(--border-color, #e0e0e0);
-  
+  border-top: 1px solid var(--grey);
+
   h3 {
-    font-size: 1.25rem;
-    font-weight: var(--font-semibold, 600);
-    color: var(--text-primary-color, #333);
+    font-size: var(--text-xl);
+    font-weight: var(--font-semibold);
+    color: var(--grey-alternative);
     margin-bottom: 1rem;
   }
 }
 
 .table-container {
-  border: 1px solid var(--table-border-color, #dee2e6);
+  border: 1px solid var(--grey);
   border-radius: 6px;
   overflow: hidden;
+  max-height: 380px;
+  overflow-y: auto;
 }
 
 .daftar-kelas-table {
@@ -194,45 +169,67 @@
   border-collapse: collapse;
 
   thead {
-    background-color: var(--table-header-bg, #212A3E);
+    background-color: var(--primary-blue);
     color: white;
   }
 
-  th, td {
+  thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background-color: var(--primary-blue);
+    color: white;
+  }
+
+  th,
+  td {
     padding: 0.75rem 1rem;
     text-align: left;
-    border-bottom: 1px solid var(--table-border-color, #dee2e6);
+    border-bottom: 1px solid var(--grey);
     vertical-align: middle;
   }
 
   th {
-    font-size: 0.875rem;
-    font-weight: var(--font-semibold, 600);
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
   }
 
   td {
-    font-size: 0.9rem;
-    color: var(--text-primary-color, #333);
+    font-size: var(--text-base);
+    color: var(--primary-blue);
   }
 
-  .col-no { width: 5%; text-align: center; }
-  .col-nama-kelas { width: 35%; }
-  .col-kuota { width: 20%; text-align: center; }
-  .col-team-teaching { width: 20%; text-align: center; }
-  .col-action { width: 20%; text-align: center; }
+  .col-no {
+    width: 5%;
+    text-align: center;
+  }
+
+  .col-nama-kelas {
+    width: 35%;
+  }
+
+  .col-kuota {
+    width: 20%;
+    text-align: center;
+  }
+
+  .col-team-teaching {
+    width: 20%;
+    text-align: center;
+  }
+
+  .col-action {
+    width: 20%;
+    text-align: center;
+  }
 
   .kuota-input {
     width: 70px;
     padding: 0.375rem 0.5rem;
-    font-size: 0.9rem;
+    font-size: var(--text-base);
     text-align: center;
-    border: 1px solid var(--border-color, #ced4da);
+    border: 1px solid var(--grey);
     border-radius: 4px;
-    &:focus {
-      border-color: var(--input-focus-border-color, #86b7fe);
-      outline: 0;
-      box-shadow: var(--input-focus-box-shadow, 0 0 0 0.2rem rgba(13, 110, 253, 0.25));
-    }
   }
 }
 
@@ -256,7 +253,7 @@
     right: 0;
     bottom: 0;
     background-color: #ccc;
-    transition: .4s;
+    transition: 0.4s;
   }
 
   .slider:before {
@@ -267,18 +264,18 @@
     left: 3px;
     bottom: 3px;
     background-color: white;
-    transition: .4s;
+    transition: 0.4s;
   }
 
-  input:checked + .slider {
-    background-color: var(--primary-blue, #2196F3);
+  input:checked+.slider {
+    background-color: var(--primary-blue);
   }
 
-  input:focus + .slider {
-    box-shadow: 0 0 1px var(--primary-blue, #2196F3);
+  input:focus+.slider {
+    box-shadow: 0 0 1px var(--primary-blue);
   }
 
-  input:checked + .slider:before {
+  input:checked+.slider:before {
     transform: translateX(20px);
   }
 
@@ -297,16 +294,10 @@
   align-items: center;
   margin-top: 2rem;
   padding-top: 1.5rem;
-  border-top: 1px solid var(--border-color, #e0e0e0);
+  border-top: 1px solid var(--grey);
 
   .data-summary {
     font-size: 0.9rem;
-    color: var(--text-secondary-color, #6c757d);
+    color: var(--grey-alternative);
   }
-}
-
-.error-message {
-  font-size: 0.75rem;
-  color: var(--danger-color, #dc3545);
-  margin-top: 0.25rem;
 }

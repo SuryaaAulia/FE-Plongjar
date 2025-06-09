@@ -1,0 +1,71 @@
+<div class="form-field">
+  <label *ngIf="label" [for]="id" class="field-label">
+    <span *ngIf="required" class="required-indicator">{{
+      requiredIndicator
+    }}</span>
+    {{ label }}
+  </label>
+
+  <div class="input-group">
+    <span *ngIf="shouldShowIcon" class="input-group-icon">
+      <i [ngClass]="iconClass"></i>
+    </span>
+
+    <ng-container *ngIf="type !== 'select'; else selectTemplate">
+      <input
+        [type]="inputType"
+        [id]="id"
+        [name]="name"
+        [placeholder]="placeholder"
+        [value]="value"
+        [disabled]="disabled"
+        [readonly]="readonly"
+        [class]="inputClasses"
+        [style.padding]="inputPadding"
+        (input)="onInput($event)"
+        (focus)="onFocus($event)"
+        (blur)="onBlur($event)"
+        autocomplete="off"
+      />
+    </ng-container>
+
+    <ng-template #selectTemplate>
+      <select
+        [id]="id"
+        [name]="name"
+        [disabled]="disabled"
+        [class]="inputClasses"
+        [value]="value"
+        (change)="onInput($event)"
+        (focus)="onFocus($event)"
+        (blur)="onBlur($event)"
+      >
+        <option value="" disabled selected>
+          {{ placeholder || "Choose an option" }}
+        </option>
+        <option *ngFor="let option of options" [value]="option.value">
+          {{ option.label }}
+        </option>
+      </select>
+    </ng-template>
+
+    <button
+      *ngIf="shouldShowPasswordToggle"
+      type="button"
+      class="password-toggle"
+      (click)="togglePasswordVisibility()"
+      [disabled]="disabled"
+      [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+    >
+      <i class="fas" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+    </button>
+
+    <span *ngIf="type === 'select'" class="select-arrow">
+      <i class="fas fa-chevron-down"></i>
+    </span>
+  </div>
+
+  <div *ngIf="hasError && errorMessage" class="error-message">
+    {{ errorMessage }}
+  </div>
+</div>

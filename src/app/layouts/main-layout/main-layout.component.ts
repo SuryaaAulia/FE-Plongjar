@@ -18,7 +18,7 @@ import { takeUntil, switchMap } from 'rxjs/operators';
 export class MainLayoutComponent implements OnInit, OnDestroy {
   menuItems$!: Observable<NavItem[]>;
   screenWidth = 0;
-  collapsed = true;
+  collapsed = false;
   hovering = false;
   currentUser$!: Observable<any>;
   private destroy$ = new Subject<void>();

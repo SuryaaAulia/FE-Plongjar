@@ -1,4 +1,9 @@
-<div class="base-card" [class.clickable]="clickable" (click)="onCardClick()">
+<div
+  class="base-card"
+  [class.clickable]="clickable"
+  [class.selected]="isSelected"
+  (click)="onCardClick()"
+>
   <div class="card-header">
     <div class="card-title-section">
       <div class="card-title">{{ title }}</div>

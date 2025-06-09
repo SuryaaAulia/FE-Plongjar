@@ -1,0 +1,43 @@
+<app-base-card
+  [title]="lecturer.name"
+  [subtitle]="lecturer.lecturerCode"
+  [contentTemplate]="lecturerContent"
+  [footerActionsTemplate]="footerActions"
+>
+</app-base-card>
+
+<ng-template #lecturerContent>
+  <div class="lecturer-nip" *ngIf="lecturer.nip">{{ lecturer.nip }}</div>
+  <div class="lecturer-nidn" *ngIf="lecturer.nidn">
+    NIDN: {{ lecturer.nidn }}
+  </div>
+</ng-template>
+
+<ng-template #footerActions>
+  <div class="assign-jabatan-footer">
+    <div *ngIf="showDropdown" class="jabatan-selection">
+      <app-form-input
+        type="select"
+        placeholder="Pilih Jabatan"
+        [options]="formattedJabatanOptions"
+        [(ngModel)]="selectedJabatanId"
+        (ngModelChange)="onJabatanChange()"
+      ></app-form-input>
+    </div>
+
+    <div
+      *ngIf="!showDropdown && selectedJabatan"
+      class="selected-jabatan-display"
+    >
+      <span class="selected-jabatan-name">{{ selectedJabatan.name }}</span>
+      <button
+        class="remove-btn"
+        (click)="onRemoveJabatan()"
+        title="Remove Jabatan"
+        type="button"
+      >
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  </div>
+</ng-template>
