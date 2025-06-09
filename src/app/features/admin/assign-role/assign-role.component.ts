@@ -10,7 +10,6 @@ import {
   SearchNotFoundComponent
 } from '../../../shared/components/index';
 import { User } from '../../../core/models/user.model';
-
 @Component({
   selector: 'app-assign-role',
   standalone: true,
@@ -21,8 +20,8 @@ import { User } from '../../../core/models/user.model';
     UserCardComponent,
     PaginationComponent,
     AddRoleModalComponent,
-    LoadingSpinnerComponent, // Add new component here
-    SearchNotFoundComponent,     // Add new component here
+    LoadingSpinnerComponent,
+    SearchNotFoundComponent,
   ],
   templateUrl: './assign-role.component.html',
   styleUrls: ['./assign-role.component.scss'],
@@ -33,6 +32,7 @@ export class AssignRoleComponent implements OnInit {
   currentPage = 1;
   itemsPerPage = 9;
   isLoading = true;
+  selectedUserId: string | null = null;
   availableRoles = ['Kaur Lab', 'Ket. KK', 'Kaprodi', 'LAA', 'Admin'];
 
   showAddRoleModal = false;
@@ -79,6 +79,7 @@ export class AssignRoleComponent implements OnInit {
     const rect = target.getBoundingClientRect();
 
     this.selectedUser = user;
+    this.selectedUserId = user.id;
     this.modalPosition = {
       top: rect.bottom + window.scrollY + 5,
       left: rect.left + window.scrollX - 180,
@@ -111,6 +112,7 @@ export class AssignRoleComponent implements OnInit {
   closeModal(): void {
     this.showAddRoleModal = false;
     this.selectedUser = null;
+    this.selectedUserId = null;
   }
 
   onRemoveRole(user: User, role: string): void {

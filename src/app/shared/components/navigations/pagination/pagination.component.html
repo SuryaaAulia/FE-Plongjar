@@ -1,7 +1,8 @@
 <div class="pagination" *ngIf="shouldShowPagination || totalItems > 0">
   <div class="pagination-info">
     <span *ngIf="totalItems > 0">
-      Showing {{ showingFrom }} to {{ showingTo }} of {{ totalItems }} entries
+      Menampilan {{ showingFrom }} sampai {{ showingTo }} dari
+      {{ totalItems }} entri
       <span *ngIf="searchKeyword.trim()" class="search-info">
         for search "<strong>{{ searchKeyword }}</strong
         >"
@@ -62,6 +63,6 @@
     class="pagination-controls"
     *ngIf="!shouldShowPagination && totalItems > 0"
   >
-    <span class="single-page-info">Page 1 of 1</span>
+    <span class="single-page-info">Halaman 1 dari 1</span>
   </div>
 </div>

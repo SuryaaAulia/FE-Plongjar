@@ -1,14 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule as NgFormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule,
+  FormsModule as NgFormsModule,
+  AbstractControl
+} from '@angular/forms';
 import { Router } from '@angular/router';
-import { ActionButtonComponent } from '../../../shared/components/index';
-
-interface SelectOption {
-  value: string | number;
-  label: string;
-}
-
+import { ActionButtonComponent, FormInputComponent, SelectOption } from '../../../shared/components/index';
 interface MataKuliahOption {
   id: string;
   nama: string;
@@ -28,7 +29,8 @@ interface KelasEntry {
     CommonModule,
     ReactiveFormsModule,
     NgFormsModule,
-    ActionButtonComponent
+    ActionButtonComponent,
+    FormInputComponent
   ],
   templateUrl: './mapping-matkul.component.html',
   styleUrls: ['./mapping-matkul.component.scss']
@@ -38,13 +40,14 @@ export class MappingMatkulComponent implements OnInit {
   daftarKelas: KelasEntry[] = [];
   private kelasCounter: number = 0;
   showTable: boolean = false;
+  formattedMataKuliahOptions: SelectOption[] = [];
 
-  // Placeholder options - fetch from a service in a real app
   mataKuliahOptions: MataKuliahOption[] = [
     { id: 'mk001', nama: 'CCK41BB3-DEVOPS' },
     { id: 'mk002', nama: 'PEMROGRAMAN WEB LANJUT' },
     { id: 'mk003', nama: 'STATISTIKA INDUSTRI JAWA JAWA STATISTIKA JAWA JAWA' },
   ];
+
   tahunAjaranOptions: SelectOption[] = [
     { value: '2024/2025-ganjil', label: '2024/2025 Ganjil' },
     { value: '2024/2025-genap', label: '2024/2025 Genap' },
@@ -60,62 +63,55 @@ export class MappingMatkulComponent implements OnInit {
       prefixNamaKelas: ['', Validators.required],
       kuotaDefault: [40, [Validators.required, Validators.min(1)]]
     });
+    this.formattedMataKuliahOptions = this.mataKuliahOptions.map(mk => ({
+      value: mk.id,
+      label: mk.nama
+    }));
   }
-
-  // Check if all required fields are filled before enabling the Tambah Kelas button
+  getControl(name: string): AbstractControl | null {
+    return this.mappingForm.get(name);
+  }
   get isTambahKelasDisabled(): boolean {
-    return this.mappingForm.invalid ||
-      !this.mappingForm.get('mataKuliah')?.value ||
-      !this.mappingForm.get('tahunAjaran')?.value ||
-      !this.mappingForm.get('prefixNamaKelas')?.value ||
-      !this.mappingForm.get('kuotaDefault')?.value;
+    return this.mappingForm.invalid;
   }
-
   tambahKelas(): void {
-    if (this.isTambahKelasDisabled) {
-      // Mark all fields as touched to show validation errors
-      Object.keys(this.mappingForm.controls).forEach(key => {
-        this.mappingForm.get(key)?.markAsTouched();
-      });
+    if (this.mappingForm.invalid) {
+      this.mappingForm.markAllAsTouched();
       return;
     }
 
     const prefix = this.mappingForm.get('prefixNamaKelas')?.value;
     const kuota = this.mappingForm.get('kuotaDefault')?.value;
 
-    if (prefix && kuota && kuota >= 1) {
-      this.kelasCounter++;
-      const newKelas: KelasEntry = {
-        id: crypto.randomUUID(),
-        namaKelas: `${prefix}${String(this.kelasCounter).padStart(2, '0')}`,
-        kuota: Number(kuota),
-        teamTeaching: false
-      };
-      this.daftarKelas.push(newKelas);
-      this.showTable = true; // Show the table after adding a class
-    }
+    this.kelasCounter++;
+    const newKelas: KelasEntry = {
+      id: crypto.randomUUID(),
+      namaKelas: `${prefix}${String(this.kelasCounter).padStart(2, '0')}`,
+      kuota: Number(kuota),
+      teamTeaching: false
+    };
+    this.daftarKelas.push(newKelas);
+    this.showTable = true;
   }
-
   hapusKelas(index: number): void {
     if (index >= 0 && index < this.daftarKelas.length) {
       this.daftarKelas.splice(index, 1);
       if (this.daftarKelas.length === 0) {
         this.kelasCounter = 0;
-        this.showTable = false; // Hide the table when no classes are left
+        this.showTable = false;
       }
     }
   }
 
   get isSubmitMappingDisabled(): boolean {
-    return this.daftarKelas.length === 0 || this.mappingForm.invalid;
+    return this.daftarKelas.length === 0 ||
+      !!this.mappingForm.get('mataKuliah')?.invalid ||
+      !!this.mappingForm.get('tahunAjaran')?.invalid;
   }
 
   submitMapping(): void {
     if (this.isSubmitMappingDisabled) {
-      // Mark all fields as touched to show validation errors
-      Object.keys(this.mappingForm.controls).forEach(key => {
-        this.mappingForm.get(key)?.markAsTouched();
-      });
+      this.mappingForm.markAllAsTouched();
       return;
     }
 
@@ -129,8 +125,7 @@ export class MappingMatkulComponent implements OnInit {
       }))
     };
 
-    console.log('Submitting Mapping Data:', finalMappingData);
-    // Here, you would call a service to send data to your backend
-    alert('Mapping Kelas berhasil disubmit! (Data di console)');
+    console.log('Submitting Final Mapping Data:', finalMappingData);
+    alert('Mapping Kelas berhasil disubmit! (Data di-log ke console)');
   }
 }

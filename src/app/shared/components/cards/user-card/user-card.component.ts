@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { User } from '../../../../core/models/user.model';
 import { RoleTagComponent } from '../../role-tag/role-tag.component';
 import { BaseCardComponent } from '../base-card/base-card.component';
-
 @Component({
   selector: 'app-user-card',
   standalone: true,
@@ -13,6 +12,7 @@ import { BaseCardComponent } from '../base-card/base-card.component';
 })
 export class UserCardComponent {
   @Input() user!: User;
+  @Input() isSelected: boolean = false;
   @Output() removeRole = new EventEmitter<string>();
   @Output() addRole = new EventEmitter<MouseEvent>();
 

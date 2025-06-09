@@ -46,6 +46,27 @@ export const routes: Routes = [
                 (m) => m.ManageRoleComponent
               ),
           },
+          {
+            path: 'assign-jabatan',
+            loadComponent: () =>
+              import('./features/admin/assign-jabatan/assign-jabatan.component').then(
+                (m) => m.AssignJabatanComponent
+              ),
+          },
+          {
+            path: 'tambah-jabatan',
+            loadComponent: () =>
+              import('./features/admin/tambah-jabatan/tambah-jabatan.component').then(
+                (m) => m.TambahJabatanComponent
+              ),
+          },
+          {
+            path: 'tahun-ajaran',
+            loadComponent: () =>
+              import('./features/admin/manage-tahun-ajaran/manage-tahun-ajaran.component').then(
+                (m) => m.ManageTahunAjaranComponent
+              ),
+          },
         ]
       },
       {
@@ -139,6 +160,13 @@ export const routes: Routes = [
               import(
                 './features/shared-pages/detail-dosen/detail-dosen.component'
               ).then((m) => m.DetailDosenComponent),
+          },
+          {
+            path: 'plotting',
+            loadComponent: () =>
+              import(
+                './features/shared-pages/plotting/plotting.component'
+              ).then((m) => m.PlottingComponent),
           },
           {
             path: 'hasil-plotting',

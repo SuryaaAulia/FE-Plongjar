@@ -1,0 +1,53 @@
+<div class="add-jabatan-container">
+  <div class="form-card">
+    <div class="form-header">
+      <h1 class="form-title">Tambah Jabatan Struktural</h1>
+      <p class="form-subtitle">
+        Isi form untuk menambahkan jabatan struktural baru
+      </p>
+    </div>
+
+    <form
+      [formGroup]="jabatanForm"
+      (ngSubmit)="onSubmit()"
+      class="jabatan-form"
+    >
+      <app-form-input
+        label="Nama Jabatan"
+        type="text"
+        placeholder="Contoh: Dekan Fakultas"
+        formControlName="nama"
+        [control]="namaControl"
+        [required]="true"
+      ></app-form-input>
+
+      <app-form-input
+        label="Maksimal SKS"
+        type="select"
+        placeholder="Pilih Maksimal SKS"
+        formControlName="maksimal_sks"
+        [control]="sksControl"
+        [options]="sksOptions"
+        [required]="true"
+      ></app-form-input>
+
+      <div class="form-actions">
+        <app-action-button
+          text="Submit"
+          iconClass="fa fa-paper-plane"
+          [loading]="isSubmitting"
+          loadingText="Menyimpan..."
+          [disabled]="!canSubmit"
+          type="submit"
+          backgroundColorVar="var(--primary-blue)"
+          textColorVar="var(--primary-white)"
+          [fontSizePx]="16"
+        ></app-action-button>
+      </div>
+    </form>
+
+    <div class="loading-overlay" *ngIf="isLoading">
+      <app-loading-spinner></app-loading-spinner>
+    </div>
+  </div>
+</div>

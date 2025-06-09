@@ -12,6 +12,7 @@ export class BaseCardComponent {
   @Input() title: string = '';
   @Input() subtitle: string = '';
   @Input() clickable: boolean = false;
+  @Input() isSelected: boolean = false;
   @Input() headerActionsTemplate?: TemplateRef<any>;
   @Input() contentTemplate?: TemplateRef<any>;
   @Input() footerActionsTemplate?: TemplateRef<any>;

@@ -4,6 +4,7 @@ import {
   Input,
   Output,
   ElementRef,
+  HostListener,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
@@ -29,11 +30,43 @@ export class AddRoleModalComponent {
     Admin: 'pink',
   };
 
+  // Drag functionality
+  isDragging = false;
+  dragOffset = { x: 0, y: 0 };
+  dragStart = { x: 0, y: 0 };
+
   onClose(): void {
     this.close.emit();
   }
 
   onSelectRole(role: string): void {
     this.selectRole.emit(role);
+  }
+
+  onDragStart(event: MouseEvent): void {
+    event.preventDefault();
+    this.isDragging = true;
+    this.dragStart = {
+      x: event.clientX - this.dragOffset.x,
+      y: event.clientY - this.dragOffset.y,
+    };
+  }
+
+  @HostListener('document:mousemove', ['$event'])
+  onDragMove(event: MouseEvent): void {
+    if (!this.isDragging) return;
+
+    event.preventDefault();
+    this.dragOffset = {
+      x: event.clientX - this.dragStart.x,
+      y: event.clientY - this.dragStart.y,
+    };
+  }
+
+  @HostListener('document:mouseup', ['$event'])
+  onDragEnd(event: MouseEvent): void {
+    if (!this.isDragging) return;
+
+    this.isDragging = false;
   }
 }

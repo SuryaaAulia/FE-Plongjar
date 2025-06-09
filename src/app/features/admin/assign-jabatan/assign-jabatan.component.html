@@ -1,0 +1,72 @@
+<div class="assign-jabatan-container">
+  <div class="full-width-header">
+    <div class="component-header">
+      <app-search-header
+        title="Jabatan"
+        [itemsPerPage]="itemsPerPage"
+        [pageSizeOptions]="[5, 9, 15, 30, 50]"
+        placeholder1="Nama/NIP"
+        placeholder2="Kode Dosen"
+        (search)="onSearch($event)"
+        (itemsPerPageChange)="onItemsPerPageChange($event)"
+      ></app-search-header>
+    </div>
+    <div class="horizontal-divider"></div>
+  </div>
+
+  <div class="content-area">
+    <div class="sidebar-container">
+      <div class="jabatan-list-sidebar">
+        <div class="jabatan-filter-list">
+          <div
+            class="jabatan-filter-item"
+            [class.active]="activeFilter === 'Tanpa Jabatan'"
+            (click)="onFilterChange('Tanpa Jabatan')"
+          >
+            <span>Tanpa Jabatan</span>
+          </div>
+          <div
+            *ngFor="let jabatan of availableJabatan"
+            class="jabatan-filter-item"
+            [class.active]="activeFilter === jabatan"
+            (click)="onFilterChange(jabatan)"
+          >
+            <span>{{ jabatan }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="vertical-divider"></div>
+    </div>
+
+    <div class="main-content">
+      <app-loading-spinner *ngIf="isLoading"></app-loading-spinner>
+
+      <ng-container *ngIf="!isLoading">
+        <app-search-not-found
+          *ngIf="filteredLecturerList.length === 0"
+          [keyword]="combinedSearchKeyword"
+        ></app-search-not-found>
+
+        <div class="user-grid" *ngIf="filteredLecturerList.length > 0">
+          <app-assign-jabatan-card
+            *ngFor="
+              let lecturer of paginatedLecturerList;
+              trackBy: trackByLecturerId
+            "
+            [lecturer]="lecturer"
+            [jabatanOptions]="jabatanOptions"
+            (assign)="onJabatanAssign($event)"
+          ></app-assign-jabatan-card>
+        </div>
+
+        <app-pagination
+          *ngIf="filteredLecturerList.length > 0"
+          [currentPage]="currentPage"
+          [itemsPerPage]="itemsPerPage"
+          [totalItems]="filteredLecturerList.length"
+          (pageChange)="onPageChange($event)"
+        ></app-pagination>
+      </ng-container>
+    </div>
+  </div>
+</div>

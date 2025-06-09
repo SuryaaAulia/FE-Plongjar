@@ -12,3 +12,4 @@ export * from './navigations/index';
 export * from './modals/index';
 export * from './loading-spinner/loading-spinner.component';
 export * from './search-not-found/search-not-found.component';
+export * from './form-input/form-input.component';

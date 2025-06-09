@@ -6,150 +6,70 @@
     </div>
     <form [formGroup]="addMatkulForm" (ngSubmit)="onSubmit()">
       <div class="form-grid">
-        <div class="form-field">
-          <label for="namaMatkul">
-            Nama Mata Kuliah <span class="required">*</span>
-          </label>
-          <input
-            type="text"
-            id="namaMatkul"
-            formControlName="namaMatkul"
-            placeholder="Contoh: PEMROGRAMAN WEB"
-          />
-          <div
-            *ngIf="
-              addMatkulForm.get('namaMatkul')?.invalid &&
-              (addMatkulForm.get('namaMatkul')?.dirty ||
-                addMatkulForm.get('namaMatkul')?.touched)
-            "
-            class="error-message"
-          >
-            Nama Mata Kuliah wajib diisi.
-          </div>
+        <app-form-input
+          label="Nama Mata Kuliah"
+          placeholder="Contoh: PEMROGRAMAN WEB"
+          formControlName="namaMatkul"
+          [control]="getControl('namaMatkul')"
+          [required]="true"
+        ></app-form-input>
+
+        <app-form-input
+          label="Kode Mata Kuliah"
+          placeholder="Contoh: CRI313"
+          formControlName="kodeMatkul"
+          [control]="getControl('kodeMatkul')"
+          [required]="true"
+        ></app-form-input>
+
+        <div class="full-width-field">
+          <app-form-input
+            label="SKS / Credit"
+            type="select"
+            placeholder="Pilih Jumlah SKS"
+            formControlName="sks"
+            [control]="getControl('sks')"
+            [options]="sksOptions"
+            [required]="true"
+          ></app-form-input>
         </div>
-        <div class="form-field">
-          <label for="kodeMatkul">
-            Kode Mata Kuliah <span class="required">*</span>
-          </label>
-          <input
-            type="text"
-            id="kodeMatkul"
-            formControlName="kodeMatkul"
-            placeholder="Contoh: CRI313"
-          />
-          <div
-            *ngIf="
-              addMatkulForm.get('kodeMatkul')?.invalid &&
-              (addMatkulForm.get('kodeMatkul')?.dirty ||
-                addMatkulForm.get('kodeMatkul')?.touched)
-            "
-            class="error-message"
-          >
-            Kode Mata Kuliah wajib diisi.
-          </div>
+
+        <div class="full-width-field">
+          <app-form-input
+            label="PIC"
+            type="select"
+            placeholder="Pilih PIC"
+            formControlName="pic"
+            [control]="getControl('pic')"
+            [options]="picOptions"
+            [required]="true"
+          ></app-form-input>
         </div>
-        <div class="form-field full-width-field">
-          <label for="sks">SKS / Credit <span class="required">*</span></label>
-          <div class="select-wrapper">
-            <select id="sks" formControlName="sks">
-              <option value="" disabled selected>Pilih Jumlah SKS</option>
-              <option *ngFor="let sksVal of sksOptions" [value]="sksVal">
-                {{ sksVal }} SKS
-              </option>
-            </select>
-            <i class="fas fa-chevron-down select-arrow-icon"></i>
-          </div>
-          <div
-            *ngIf="
-              addMatkulForm.get('sks')?.invalid &&
-              (addMatkulForm.get('sks')?.dirty ||
-                addMatkulForm.get('sks')?.touched)
-            "
-            class="error-message"
-          >
-            Jumlah SKS wajib dipilih.
-          </div>
+
+        <div class="full-width-field">
+          <app-form-input
+            label="Status Mata Kuliah"
+            type="select"
+            placeholder="Pilih Status Mata Kuliah"
+            formControlName="statusMatkul"
+            [control]="getControl('statusMatkul')"
+            [options]="statusMatkulOptions"
+            [required]="true"
+          ></app-form-input>
         </div>
-        <div class="form-field full-width-field">
-          <label for="pic">PIC <span class="required">*</span></label>
-          <div class="select-wrapper">
-            <select id="pic" formControlName="pic">
-              <option value="" disabled selected>Pilih PIC</option>
-              <option *ngFor="let picOpt of picOptions" [value]="picOpt.value">
-                {{ picOpt.label }}
-              </option>
-            </select>
-            <i class="fas fa-chevron-down select-arrow-icon"></i>
-          </div>
-          <div
-            *ngIf="
-              addMatkulForm.get('pic')?.invalid &&
-              (addMatkulForm.get('pic')?.dirty ||
-                addMatkulForm.get('pic')?.touched)
-            "
-            class="error-message"
-          >
-            PIC wajib dipilih.
-          </div>
+
+        <div class="full-width-field">
+          <app-form-input
+            label="Metode Perkuliahan"
+            type="select"
+            placeholder="Pilih Metode Perkuliahan"
+            formControlName="metodePerkuliahan"
+            [control]="getControl('metodePerkuliahan')"
+            [options]="metodePerkuliahanOptions"
+            [required]="true"
+          ></app-form-input>
         </div>
-        <div class="form-field full-width-field">
-          <label for="statusMatkul"
-            >Status Mata Kuliah <span class="required">*</span></label
-          >
-          <div class="select-wrapper">
-            <select id="statusMatkul" formControlName="statusMatkul">
-              <option value="" disabled selected>
-                Pilih Status Mata Kuliah
-              </option>
-              <option
-                *ngFor="let statusOpt of statusMatkulOptions"
-                [value]="statusOpt.value"
-              >
-                {{ statusOpt.label }}
-              </option>
-            </select>
-            <i class="fas fa-chevron-down select-arrow-icon"></i>
-          </div>
-          <div
-            *ngIf="
-              addMatkulForm.get('statusMatkul')?.invalid &&
-              (addMatkulForm.get('statusMatkul')?.dirty ||
-                addMatkulForm.get('statusMatkul')?.touched)
-            "
-            class="error-message"
-          >
-            Status Mata Kuliah wajib dipilih.
-          </div>
-        </div>
-        <div class="form-field full-width-field">
-          <label for="metodePerkuliahan"
-            >Metode Perkuliahan <span class="required">*</span></label
-          >
-          <div class="select-wrapper">
-            <select id="metodePerkuliahan" formControlName="metodePerkuliahan">
-              <option value="" disabled selected>
-                Pilih Metode Perkuliahan
-              </option>
-              <option
-                *ngFor="let metodeOpt of metodePerkuliahanOptions"
-                [value]="metodeOpt.value"
-              >
-                {{ metodeOpt.label }}
-              </option>
-            </select>
-            <i class="fas fa-chevron-down select-arrow-icon"></i>
-          </div>
-          <div
-            *ngIf="
-              addMatkulForm.get('metodePerkuliahan')?.invalid &&
-              (addMatkulForm.get('metodePerkuliahan')?.dirty ||
-                addMatkulForm.get('metodePerkuliahan')?.touched)
-            "
-            class="error-message"
-          >
-            Metode Perkuliahan wajib dipilih.
-          </div>
-        </div>
+
         <div class="form-field full-width-field">
           <label>Praktikum <span class="required">*</span></label>
           <div class="radio-group">
@@ -163,9 +83,9 @@
           </div>
           <div
             *ngIf="
-              addMatkulForm.get('praktikum')?.invalid &&
-              (addMatkulForm.get('praktikum')?.dirty ||
-                addMatkulForm.get('praktikum')?.touched)
+              getControl('praktikum')?.invalid &&
+              (getControl('praktikum')?.dirty ||
+                getControl('praktikum')?.touched)
             "
             class="error-message"
           >
@@ -173,13 +93,12 @@
           </div>
         </div>
       </div>
+
       <div class="submit-button-container" style="gap: 1rem">
         @if (isEditMode) {
         <app-action-button
           text="Back"
           backgroundColorVar="var(--red)"
-          [fontSizePx]="16"
-          [paddingScaleFactor]="0.6"
           type="button"
           (click)="goBack()"
         ></app-action-button>
@@ -187,8 +106,6 @@
         <app-action-button
           [text]="submitButtonText"
           backgroundColorVar="var(--primary-blue)"
-          [fontSizePx]="16"
-          [paddingScaleFactor]="0.6"
           type="submit"
           [disabled]="addMatkulForm.invalid"
         ></app-action-button>
