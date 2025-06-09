@@ -128,13 +128,13 @@ export class AssignJabatanComponent implements OnInit, OnDestroy {
     this.lecturerList = Array.from(
       { length: 200 },
       (_, index): Lecturer => ({
-        id: (index + 1).toString(),
+        id: (index + 1),
         name: 'Bambang Pamungkas, S.T., M.T.',
         lecturerCode: 'BPS',
         email: `bambang${index}@example.com`,
         jabatanFunctionalAkademik: index % 4 === 0 ? ['Lektor'] : [],
         statusPegawai: 'Tetap',
-        pendidikanTerakhir: 'S2',
+        pendidikanTerakhir: ['S2'],
         nip: `653879${47 + index}`,
         nidn: `001234567${index.toString().padStart(2, '0')}`,
         kelompokKeahlian: 'Software Engineering',
@@ -268,7 +268,7 @@ export class AssignJabatanComponent implements OnInit, OnDestroy {
     return [this.searchQuery1, this.searchQuery2].filter(Boolean).join(', ');
   }
 
-  trackByLecturerId(index: number, lecturer: Lecturer): string {
+  trackByLecturerId(index: number, lecturer: Lecturer): number {
     return lecturer.id;
   }
 }

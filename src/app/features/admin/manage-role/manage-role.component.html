@@ -14,13 +14,6 @@
     <div class="sidebar-container">
       <div class="role-list-sidebar">
         <div class="role-filter-list">
-          <div
-            class="role-filter-item"
-            [class.active]="activeRoleFilter === null"
-            (click)="filterByRole(null)"
-          >
-            <span>Semua Role</span>
-          </div>
           @for(role of availableRoles; track role) {
           <div
             class="role-filter-item"
@@ -58,8 +51,7 @@
         [totalItems]="filteredUsers.length"
         (pageChange)="onPageChange($event)"
       ></app-pagination>
-      }
-      }
+      } }
     </div>
   </div>
 </div>
