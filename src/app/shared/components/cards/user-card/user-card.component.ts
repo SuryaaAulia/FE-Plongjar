@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { User } from '../../../../core/models/user.model';
 import { RoleTagComponent } from '../../role-tag/role-tag.component';
 import { BaseCardComponent } from '../base-card/base-card.component';
+import { RoleService } from '../../../../core/services/admin/role.service';
 @Component({
   selector: 'app-user-card',
   standalone: true,
@@ -13,11 +14,15 @@ import { BaseCardComponent } from '../base-card/base-card.component';
 export class UserCardComponent {
   @Input() user!: User;
   @Input() isSelected: boolean = false;
-  @Output() removeRole = new EventEmitter<string>();
+  @Input() showAddButton: boolean = true;
+  @Input() showRemoveButton: boolean = true;
+  @Input() roleService!: RoleService;
+
+  @Output() removeRole = new EventEmitter<void>();
   @Output() addRole = new EventEmitter<MouseEvent>();
 
-  onRemoveRole(role: string): void {
-    this.removeRole.emit(role);
+  onRemoveRole(): void {
+    this.removeRole.emit();
   }
 
   onAddRole(event: MouseEvent): void {
@@ -30,5 +35,9 @@ export class UserCardComponent {
       .map((n) => n[0])
       .join('')
       .toUpperCase();
+  }
+
+  get displayId(): string {
+    return this.user.nip || this.user.id.toString();
   }
 }

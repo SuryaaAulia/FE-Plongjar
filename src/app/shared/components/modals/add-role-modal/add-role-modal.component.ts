@@ -30,7 +30,6 @@ export class AddRoleModalComponent {
     Admin: 'pink',
   };
 
-  // Drag functionality
   isDragging = false;
   dragOffset = { x: 0, y: 0 };
   dragStart = { x: 0, y: 0 };

@@ -33,7 +33,7 @@
 .card-title {
     font-weight: var(--font-semibold);
     color: var(--primary-blue);
-    font-size: var(--text-base, 1rem);
+    font-size: var(--text-xl);
     margin-bottom: 0.25rem;
     line-height: 1.4;
     word-wrap: break-word;
@@ -57,7 +57,7 @@
 }
 
 .card-footer {
-    margin-top: auto;
+    margin-top: 2.5rem;
     padding-top: 0.75rem;
     display: flex;
     align-items: center;
@@ -90,7 +90,7 @@
     }
 
     .card-title {
-        font-size: var(--text-sm, 0.875rem);
+        font-size: var(--text-sm);
     }
 
     .card-header-actions {

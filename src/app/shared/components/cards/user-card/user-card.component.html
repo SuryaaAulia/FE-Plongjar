@@ -1,26 +1,34 @@
 <app-base-card
   [title]="user.name"
-  [subtitle]="user.lecturerCode"
   [contentTemplate]="contentTemplate"
   [footerActionsTemplate]="footerTemplate"
   [isSelected]="isSelected"
 >
   <ng-template #contentTemplate>
-    <div class="user-id">{{ user.id }}</div>
+    <div class="user-id">{{ displayId }}</div>
   </ng-template>
-
   <ng-template #footerTemplate>
     <div class="card-actions">
-      <ng-container *ngIf="user.jabatanFunctionalAkademik.length > 0">
-        <app-role-tag
-          *ngFor="let role of user.jabatanFunctionalAkademik"
-          [roleName]="role"
-          (remove)="onRemoveRole(role)"
-        >
-        </app-role-tag>
-      </ng-container>
-      <button class="add-btn" (click)="onAddRole($event)" title="Add Role">
+      <app-role-tag
+        *ngIf="user.role"
+        [role]="user.role"
+        [roleService]="roleService"
+      ></app-role-tag>
+      <button
+        *ngIf="showAddButton && !user.role"
+        class="add-btn"
+        (click)="onAddRole($event)"
+        title="Add Role"
+      >
         <i class="fa fa-plus"></i>
+      </button>
+      <button
+        *ngIf="showRemoveButton && user.role"
+        class="remove-btn"
+        (click)="onRemoveRole()"
+        title="Remove Role"
+      >
+        <i class="fa fa-times"></i>
       </button>
     </div>
   </ng-template>

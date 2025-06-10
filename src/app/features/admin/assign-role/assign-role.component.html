@@ -22,9 +22,8 @@
     @for (user of paginatedUsers; track user.id) {
     <app-user-card
       [user]="user"
-      [isSelected]="selectedUserId === user.id"
+      [isSelected]="user.id === selectedUserId"
       (addRole)="onAddRole(user, $event)"
-      (removeRole)="onRemoveRole(user, $event)"
     >
     </app-user-card>
     }

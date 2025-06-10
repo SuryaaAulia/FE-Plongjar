@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { takeUntil, finalize } from 'rxjs/operators';
 import {
   SearchHeaderComponent,
   UserCardComponent,
@@ -9,7 +11,9 @@ import {
   LoadingSpinnerComponent,
   SearchNotFoundComponent
 } from '../../../shared/components/index';
-import { User } from '../../../core/models/user.model';
+import { User, Role } from '../../../core/models/user.model';
+import { RoleService, UserWithRoles, RoleAssignment } from '../../../core/services/admin/role.service';
+
 @Component({
   selector: 'app-assign-role',
   standalone: true,
@@ -26,65 +30,90 @@ import { User } from '../../../core/models/user.model';
   templateUrl: './assign-role.component.html',
   styleUrls: ['./assign-role.component.scss'],
 })
-export class AssignRoleComponent implements OnInit {
-  users: User[] = [];
+export class AssignRoleComponent implements OnInit, OnDestroy {
+  users: UserWithRoles[] = [];
   filteredUsers: User[] = [];
   currentPage = 1;
   itemsPerPage = 9;
   isLoading = true;
-  selectedUserId: string | null = null;
-  availableRoles = ['Kaur Lab', 'Ket. KK', 'Kaprodi', 'LAA', 'Admin'];
+  selectedUserId: number | null = null;
+
+  availableRoles: string[] = [];
+  roles: Role[] = [];
 
   showAddRoleModal = false;
-  selectedUser: User | null = null;
+  selectedUser: UserWithRoles | null = null;
   modalPosition = { top: 0, left: 0 };
 
   currentSearchKeyword: string = '';
 
+  private destroy$ = new Subject<void>();
+
+  constructor(public roleService: RoleService) { }
+
   ngOnInit(): void {
-    this.loadUsers();
+    this.loadData();
   }
 
-  loadUsers(): void {
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private loadData(): void {
     this.isLoading = true;
-    this.currentSearchKeyword = '';
-    setTimeout(() => {
-      this.users = this.generateMockUsers();
-      this.filteredUsers = [...this.users];
-      this.isLoading = false;
-    }, 1000);
+
+    this.roleService.getAllRoles()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (roles) => {
+          this.roles = roles;
+          this.availableRoles = roles.map(role =>
+            this.roleService.getRoleDisplayName(role.name)
+          );
+          this.loadUsersWithRoles();
+        },
+        error: (error) => {
+          console.error('Error loading roles:', error);
+          this.isLoading = false;
+        }
+      });
   }
 
-  private generateMockUsers(): User[] {
-    const lecturerCode = ['BPS', 'TI', 'SI', 'DKV'];
-    return Array.from({ length: 50 }, (_, i) => ({
-      id: `6538${7547 + i}`,
-      name: this.generateRandomName(),
-      lecturerCode: lecturerCode[i % lecturerCode.length],
-      jabatanFunctionalAkademik: [],
-      email: `user${i + 1}@university.edu`,
-    }));
+  private loadUsersWithRoles(): void {
+    this.roleService.getAllUnassignedUsers()
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoading = false)
+      )
+      .subscribe({
+        next: (users) => {
+          this.users = users;
+          this.filteredUsers = this.transformUsersForDisplay(this.users);
+        },
+        error: (error) => {
+          console.error('Error loading unassigned users:', error);
+          this.isLoading = false;
+        }
+      });
   }
-
-  private generateRandomName(): string {
-    const firstNames = ['Surya', 'Suep', 'Ohayoyo', 'Keegan', 'Andi'];
-    const lastNames = ['Aulia', '1170', 'Junaidi', 'Ijat'];
-    const degrees = ['S.T., M.T.', 'S.Kom., M.Kom.', 'S.Si., M.Si.'];
-    return `${firstNames[Math.floor(Math.random() * firstNames.length)]} ${lastNames[Math.floor(Math.random() * lastNames.length)]
-      }, ${degrees[Math.floor(Math.random() * degrees.length)]}`;
+  private transformUsersForDisplay(users: UserWithRoles[]): User[] {
+    return this.roleService.transformUsersForDisplay(users);
   }
 
   onAddRole(user: User, event: MouseEvent): void {
     const target = event.currentTarget as HTMLElement;
     const rect = target.getBoundingClientRect();
 
-    this.selectedUser = user;
+    const originalUser = this.users.find(u => u.id === user.id);
+    this.selectedUser = originalUser || null;
     this.selectedUserId = user.id;
     this.modalPosition = {
       top: rect.bottom + window.scrollY + 5,
       left: rect.left + window.scrollX - 180,
     };
     this.showAddRoleModal = true;
+
     setTimeout(() => {
       const clickHandler = (e: MouseEvent) => {
         const modalElement = document.querySelector('app-add-role-modal .modal-container');
@@ -97,16 +126,61 @@ export class AssignRoleComponent implements OnInit {
     }, 0);
   }
 
-  onSelectRole(role: string): void {
-    if (this.selectedUser) {
-      if (!this.selectedUser.jabatanFunctionalAkademik) {
-        this.selectedUser.jabatanFunctionalAkademik = [];
-      }
-      if (!this.selectedUser.jabatanFunctionalAkademik.includes(role)) {
-        this.selectedUser.jabatanFunctionalAkademik.push(role);
-      }
+  onSelectRole(displayName: string): void {
+    if (!this.selectedUser) return;
+
+    const actualRoleName = this.roleService.getRoleByDisplayName(displayName);
+    if (!actualRoleName) {
+      console.error('Could not find role for display name:', displayName);
+      return;
     }
-    this.closeModal();
+
+    const role = this.roles.find(r => r.name === actualRoleName);
+    if (!role) {
+      console.error('Could not find role:', actualRoleName);
+      return;
+    }
+
+    const roleableInfo = this.roleService.getRoleableInfo(role.id, role.name);
+
+    let roleableId: number;
+    let roleableType: string;
+
+    if (roleableInfo) {
+      roleableId = roleableInfo.id;
+      roleableType = roleableInfo.type;
+    } else {
+      roleableId = this.selectedUser.id;
+      roleableType = 'App\\Models\\User';
+    }
+
+    const assignment: RoleAssignment = {
+      user_id: this.selectedUser.id,
+      role_id: role.id,
+      roleable_id: roleableId,
+      roleable_type: roleableType,
+    };
+
+    this.isLoading = true;
+    this.roleService
+      .assignRole(assignment)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          this.isLoading = false;
+          this.closeModal();
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          console.log('Role assigned successfully:', response);
+          this.loadData();
+        },
+        error: (error) => {
+          console.error('Error assigning role:', error);
+          alert('Failed to assign role. Please try again.');
+        },
+      });
   }
 
   closeModal(): void {
@@ -115,12 +189,34 @@ export class AssignRoleComponent implements OnInit {
     this.selectedUserId = null;
   }
 
-  onRemoveRole(user: User, role: string): void {
-    if (user.jabatanFunctionalAkademik) {
-      user.jabatanFunctionalAkademik = user.jabatanFunctionalAkademik.filter(
-        (r) => r !== role
-      );
+  onRemoveRole(user: User): void {
+    if (!user.role) {
+      console.error('User has no role to remove');
+      return;
     }
+
+    const roleDisplayName = this.roleService.getRoleDisplayName(user.role.name);
+
+    if (!confirm(`Are you sure you want to remove the ${roleDisplayName} role from ${user.name}?`)) {
+      return;
+    }
+
+    this.isLoading = true;
+    this.roleService.revokeRole(user.id, user.role.id)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoading = false)
+      )
+      .subscribe({
+        next: (response) => {
+          console.log('Role revoked successfully:', response);
+          this.loadData();
+        },
+        error: (error) => {
+          console.error('Error revoking role:', error);
+          alert('Failed to remove role. Please try again.');
+        }
+      });
   }
 
   onSearch(searchQuery: { query1: string; query2: string }): void {
@@ -128,15 +224,18 @@ export class AssignRoleComponent implements OnInit {
 
     this.currentSearchKeyword = query1 || '';
 
-    this.filteredUsers = this.users.filter(
+    const displayUsers = this.transformUsersForDisplay(this.users);
+
+    this.filteredUsers = displayUsers.filter(
       (user) =>
         (query1
           ? user.name.toLowerCase().includes(query1.toLowerCase()) ||
-          user.id.includes(query1) ||
+          user.id.toString().includes(query1) ||
+          user.nip?.toLowerCase().includes(query1.toLowerCase()) ||
           (user.email && user.email.toLowerCase().includes(query1.toLowerCase()))
           : true) &&
         (query2
-          ? user.lecturerCode?.toLowerCase().includes(query2.toLowerCase())
+          ? (user as any).lecturerCode?.toLowerCase().includes(query2.toLowerCase())
           : true)
     );
     this.currentPage = 1;

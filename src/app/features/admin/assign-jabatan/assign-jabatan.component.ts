@@ -44,7 +44,7 @@ export class AssignJabatanComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   availableJabatan = [
-    'Dosen',
+    'Dekan',
     'Wakil Dekan',
     'Sekprodi',
     'Ketua',
@@ -60,7 +60,6 @@ export class AssignJabatanComponent implements OnInit, OnDestroy {
   totalItems = 0;
 
   constructor(
-    private apiService: ApiService,
     private dosenService: DosenService
   ) { }
 
@@ -87,14 +86,11 @@ export class AssignJabatanComponent implements OnInit, OnDestroy {
         next: (response) => {
           if (response.success && response.data?.data) {
             this.mapResponseToLecturers(response.data.data);
-          } else {
-            this.loadMockData();
           }
           this.applyFiltersAndSearch();
         },
         error: (error) => {
-          console.error('Error loading lecturer data, loading mock data:', error);
-          this.loadMockData();
+          console.error('Error loading lecturer data:', error);
           this.applyFiltersAndSearch();
         },
       });
@@ -120,24 +116,6 @@ export class AssignJabatanComponent implements OnInit, OnDestroy {
         idKelompokKeahlian: item.id_kelompok_keahlian,
         createdAt: item.created_at,
         updatedAt: item.updated_at,
-      })
-    );
-  }
-
-  private loadMockData(): void {
-    this.lecturerList = Array.from(
-      { length: 200 },
-      (_, index): Lecturer => ({
-        id: (index + 1),
-        name: 'Bambang Pamungkas, S.T., M.T.',
-        lecturerCode: 'BPS',
-        email: `bambang${index}@example.com`,
-        jabatanFunctionalAkademik: index % 4 === 0 ? ['Lektor'] : [],
-        statusPegawai: 'Tetap',
-        pendidikanTerakhir: ['S2'],
-        nip: `653879${47 + index}`,
-        nidn: `001234567${index.toString().padStart(2, '0')}`,
-        kelompokKeahlian: 'Software Engineering',
       })
     );
   }

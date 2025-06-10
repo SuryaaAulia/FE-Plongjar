@@ -1,16 +1,15 @@
-export interface User {
-  id: string;
+export interface Role {
+  id: number;
   name: string;
-  lecturerCode: string;
-  email: string;
-  jabatanFunctionalAkademik: string[];
-  statusPegawai?: string;
-  pendidikanTerakhir?: string;
-  department?: string;
-  nidn?: string;
-  kelompokKeahlian?: string;
 }
 
+export interface User {
+  id: number;
+  name: string;
+  email: string;
+  nip: string;
+  role?: Role;
+}
 export interface PaginatedUsers {
   users: User[];
   total: number;

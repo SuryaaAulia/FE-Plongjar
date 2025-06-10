@@ -1,5 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Role } from '../../../core/models/user.model';
+import { RoleService } from '../../../core/services/admin/role.service';
 
 @Component({
   selector: 'app-role-tag',
@@ -9,19 +11,18 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./role-tag.component.scss'],
 })
 export class RoleTagComponent {
-  @Input() roleName!: string;
+  @Input() role!: Role;
+  @Input() roleService!: RoleService;
 
   get roleIcon(): string {
     return 'fa-circle';
   }
 
+  get displayName(): string {
+    return this.roleService.getRoleDisplayName(this.role.name);
+  }
+
   getCircleColor(): string {
-    const role = this.roleName.toLowerCase();
-    if (role.includes('kaur lab')) return 'var(--red)';
-    if (role.includes('ket. kk')) return 'var(--blue)';
-    if (role.includes('kaprodi')) return 'var(--green)';
-    if (role.includes('laa')) return 'var(--yellow)';
-    if (role.includes('admin')) return 'var(--purple)';
-    return 'var(--grey)';
+    return this.roleService.getRoleColor(this.role.name);
   }
 }

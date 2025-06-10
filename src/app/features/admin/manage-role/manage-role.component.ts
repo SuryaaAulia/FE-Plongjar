@@ -1,16 +1,18 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Subject } from 'rxjs';
+import { takeUntil, finalize } from 'rxjs/operators';
 import {
   SearchHeaderComponent,
   UserCardComponent,
   PaginationComponent,
-  AddRoleModalComponent,
   LoadingSpinnerComponent,
   SearchNotFoundComponent
 } from '../../../shared/components/index';
-import { User } from '../../../core/models/user.model';
+import { User, Role } from '../../../core/models/user.model';
+import { RoleService, UserWithRoles } from '../../../core/services/admin/role.service';
 
 @Component({
   selector: 'app-manage-role',
@@ -21,133 +23,188 @@ import { User } from '../../../core/models/user.model';
     SearchHeaderComponent,
     UserCardComponent,
     PaginationComponent,
-    AddRoleModalComponent,
     LoadingSpinnerComponent,
     SearchNotFoundComponent,
   ],
   templateUrl: './manage-role.component.html',
   styleUrls: ['./manage-role.component.scss'],
 })
-export class ManageRoleComponent implements OnInit {
-  users: User[] = [];
+export class ManageRoleComponent implements OnInit, OnDestroy {
+  users: UserWithRoles[] = [];
   filteredUsers: User[] = [];
   currentPage = 1;
   itemsPerPage = 9;
   isLoading = true;
-  availableRoles = ['Kaur Lab', 'Ket. KK', 'Kaprodi', 'LAA', 'Admin'];
-  activeRoleFilter: string | null = null;
 
-  showAddRoleModal = false;
-  selectedUser: User | null = null;
-  modalPosition = { top: 0, left: 0 };
+  availableRoles: string[] = [];
+  roles: Role[] = [];
+  activeRoleFilter: string | null = null;
+  activeRoleId: number | null = null;
 
   currentSearchKeyword: string = '';
 
-  constructor(private router: Router) { }
+  private destroy$ = new Subject<void>();
+
+  constructor(
+    private router: Router,
+    public roleService: RoleService
+  ) { }
 
   ngOnInit(): void {
-    this.loadUsers();
+    this.loadRoles();
   }
 
-  loadUsers(): void {
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private loadRoles(): void {
     this.isLoading = true;
-    this.currentSearchKeyword = '';
-    setTimeout(() => {
-      this.users = this.generateMockUsers();
-      this.applyFilters();
-      this.isLoading = false;
-    }, 1000);
+
+    this.roleService.getAllRoles()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (roles) => {
+          this.roles = roles;
+          this.availableRoles = roles.map(role =>
+            this.roleService.getRoleDisplayName(role.name)
+          );
+          if (roles.length > 0) {
+            this.filterByRole(this.availableRoles[0]);
+          } else {
+            this.isLoading = false;
+          }
+        },
+        error: (error) => {
+          console.error('Error loading roles:', error);
+          this.isLoading = false;
+        }
+      });
   }
 
-  private generateMockUsers(): User[] {
-    const departments = ['BPS', 'TI', 'SI', 'DKV', 'HBN'];
-    return Array.from({ length: 50 }, (_, i) => ({
-      id: `6538${7547 + i}`,
-      name: this.generateRandomName(),
-      department: departments[Math.floor(Math.random() * departments.length)],
-      lecturerCode: `D${7547 + i}`,
-      jabatanFunctionalAkademik: this.generateRandomRolesForUser(),
-      email: `user${i + 1}@university.edu`,
-    }));
+  private loadUsersByRole(roleId: number): void {
+    this.isLoading = true;
+
+    this.roleService.getAllUsersByRole(roleId)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoading = false)
+      )
+      .subscribe({
+        next: (users) => {
+          this.validateSingleRole(users);
+
+          this.users = users;
+          this.applyFilters();
+        },
+        error: (error) => {
+          console.error('Error loading users by role:', error);
+          this.users = [];
+          this.filteredUsers = [];
+        }
+      });
   }
 
-  private generateRandomName(): string {
-    const firstNames = ['Bambang', 'Siti', 'Ahmad', 'Dewi', 'Rudi', 'Hakim'];
-    const lastNames = [
-      'Pamungkas', 'Wahyuni', 'Santoso', 'Kurniawan', 'Burhanuddin',
-    ];
-    const degrees = [
-      'S.T., M.T.', 'S.Kom., M.Kom.', 'S.Si., M.Si.', 'S.T., M.Kom.',
-    ];
-    return `${firstNames[Math.floor(Math.random() * firstNames.length)]} ${lastNames[Math.floor(Math.random() * lastNames.length)]
-      }, ${degrees[Math.floor(Math.random() * degrees.length)]}`;
-  }
-
-  private generateRandomRolesForUser(): string[] {
-    const rolesToAssign: string[] = [];
-    const numberOfRoles = Math.floor(Math.random() * 3);
-    const shuffledRoles = [...this.availableRoles].sort(() => 0.5 - Math.random());
-    for (let i = 0; i < numberOfRoles; i++) {
-      rolesToAssign.push(shuffledRoles[i]);
-    }
-    return rolesToAssign;
-  }
-
-
-  onSelectRole(role: string): void {
-    if (this.selectedUser) {
-      if (!this.selectedUser.jabatanFunctionalAkademik) {
-        this.selectedUser.jabatanFunctionalAkademik = [];
+  private validateSingleRole(users: UserWithRoles[]): void {
+    users.forEach(user => {
+      if (user.roles && user.roles.length > 1) {
+        console.warn(`User ${user.name} (ID: ${user.id}) has multiple roles:`, user.roles);
+        console.warn('Only the first role will be displayed');
       }
-      if (!this.selectedUser.jabatanFunctionalAkademik.includes(role)) {
-        this.selectedUser.jabatanFunctionalAkademik.push(role);
-        this.applyFilters();
+    });
+  }
+
+  private transformUsersForDisplay(users: UserWithRoles[]): User[] {
+    return users.map(user => {
+      let userRole: Role | undefined;
+
+      if (user.roles && user.roles.length > 0) {
+        userRole = user.roles[0];
       }
+
+      console.log('Transforming user:', user.name);
+      console.log('User has role:', userRole ? userRole.name : 'No role');
+
+      return {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        nip: user.nip,
+        role: userRole
+      } as User;
+    });
+  }
+
+  filterByRole(displayName: string | null): void {
+    if (!displayName) return;
+
+    this.activeRoleFilter = displayName;
+
+    const actualRoleName = this.roleService.getRoleByDisplayName(displayName);
+    if (!actualRoleName) {
+      console.error('Could not find role for display name:', displayName);
+      return;
     }
-    this.closeModal();
-  }
 
-  closeModal(): void {
-    this.showAddRoleModal = false;
-    this.selectedUser = null;
-  }
-
-  onRemoveRole(user: User, role: string): void {
-    if (user.jabatanFunctionalAkademik) {
-      user.jabatanFunctionalAkademik = user.jabatanFunctionalAkademik.filter(
-        (r) => r !== role
-      );
-      this.applyFilters();
+    const role = this.roles.find(r => r.name === actualRoleName);
+    if (!role) {
+      console.error('Could not find role:', actualRoleName);
+      return;
     }
-  }
 
-  filterByRole(role: string | null): void {
-    this.activeRoleFilter = role;
-    this.applyFilters();
+    this.activeRoleId = role.id;
     this.currentPage = 1;
+    this.loadUsersByRole(role.id);
   }
 
   applyFilters(searchTerm: string = this.currentSearchKeyword): void {
-    let tempUsers = [...this.users];
-
-    if (this.activeRoleFilter) {
-      tempUsers = tempUsers.filter(
-        (user) =>
-          user.jabatanFunctionalAkademik &&
-          user.jabatanFunctionalAkademik.includes(this.activeRoleFilter!)
-      );
-    }
+    const displayUsers = this.transformUsersForDisplay(this.users);
+    let tempUsers = [...displayUsers];
 
     if (searchTerm) {
       const lowerSearchTerm = searchTerm.toLowerCase();
       tempUsers = tempUsers.filter(
         (user) =>
           user.name.toLowerCase().includes(lowerSearchTerm) ||
-          user.id.includes(searchTerm) || // ID might not need toLowerCase
+          user.id.toString().includes(searchTerm) ||
+          user.nip?.toLowerCase().includes(lowerSearchTerm) ||
           (user.email && user.email.toLowerCase().includes(lowerSearchTerm))
       );
     }
+
     this.filteredUsers = tempUsers;
+  }
+
+  onRemoveRole(user: User): void {
+    if (!user.role) {
+      console.error('User has no role to remove');
+      return;
+    }
+
+    const roleDisplayName = this.roleService.getRoleDisplayName(user.role.name);
+
+    if (!confirm(`Are you sure you want to remove the ${roleDisplayName} role from ${user.name}?`)) {
+      return;
+    }
+
+    this.isLoading = true;
+    this.roleService.revokeRole(user.id, user.role.id)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoading = false)
+      )
+      .subscribe({
+        next: (response) => {
+          if (this.activeRoleId) {
+            this.loadUsersByRole(this.activeRoleId);
+          }
+        },
+        error: (error) => {
+          console.error('Error revoking role:', error);
+          alert('Failed to remove role. Please try again.');
+        }
+      });
   }
 
   onSearch(searchQuery: { query1: string; query2: string }): void {
