@@ -76,33 +76,6 @@ export class TambahJabatanComponent implements OnInit, OnDestroy {
     return this.jabatanForm.get('maksimal_sks');
   }
 
-  onSubmit(): void {
-    if (this.jabatanForm.valid && !this.isSubmitting) {
-      this.submitJabatan();
-    } else {
-      this.jabatanForm.markAllAsTouched();
-    }
-  }
-
-  private submitJabatan(): void {
-    this.isSubmitting = true;
-    const formValue = this.jabatanForm.value;
-    const jabatanData: JabatanStruktural = {
-      nama: formValue.nama.trim(),
-      maksimal_sks: parseInt(formValue.maksimal_sks, 10)
-    };
-
-    this.apiService.createJabatanStruktural(jabatanData)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (response) => this.handleSubmitSuccess(response),
-        error: (error) => this.handleSubmitError(error),
-        complete: () => {
-          this.isSubmitting = false;
-        }
-      });
-  }
-
   private handleSubmitSuccess(response: any): void {
     console.log('Jabatan structural created successfully:', response);
     alert('Jabatan structural berhasil ditambahkan!');

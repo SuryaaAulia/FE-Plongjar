@@ -73,18 +73,9 @@ export class Endpoint {
                 delete: `${API}/masterdata/koordinator-matakuliah/${context?.id || ':id'}`,
             },
 
-            tahun_ajaran: {
-                resource: `${API}/masterdata/tahunajarans`,
-                show: `${API}/masterdata/tahunajarans/${context?.id || ':id'}`,
-                update: `${API}/masterdata/tahunajarans/${context?.id || ':id'}`,
-                delete: `${API}/masterdata/tahunajarans/${context?.id || ':id'}`,
-            },
-
             jabatan_struktural: {
-                resource: `${API}/masterdata/jabatanstruktural`,
-                show: `${API}/masterdata/jabatanstruktural/${context?.id || ':id'}`,
-                update: `${API}/masterdata/jabatanstruktural/${context?.id || ':id'}`,
-                delete: `${API}/masterdata/jabatanstruktural/${context?.id || ':id'}`,
+                show: `${API}/masterdata/jabatanstruktural`,
+                create: `${API}/masterdata/`,
             },
         };
 

@@ -251,29 +251,15 @@ export class ApiService {
     }
 
     getAllJabatanStruktural(): Observable<any> {
-        const url = this.endpoint.getUrl('jabatan_struktural', 'resource');
+        const url = this.endpoint.getUrl('jabatan_struktural', 'show');
         return this.http.get(url!);
     }
 
     createJabatanStruktural(data: any): Observable<any> {
-        const url = this.endpoint.getUrl('jabatan_struktural', 'resource');
+        const url = this.endpoint.getUrl('jabatan_struktural', 'create');
         return this.http.post(url!, data);
     }
 
-    getJabatanStrukturalById(id: number): Observable<any> {
-        const url = this.endpoint.getUrl('jabatan_struktural', 'show', { id });
-        return this.http.get(url!);
-    }
-
-    updateJabatanStruktural(id: number, data: any): Observable<any> {
-        const url = this.endpoint.getUrl('jabatan_struktural', 'update', { id });
-        return this.http.put(url!, data);
-    }
-
-    deleteJabatanStruktural(id: number): Observable<any> {
-        const url = this.endpoint.getUrl('jabatan_struktural', 'delete', { id });
-        return this.http.delete(url!);
-    }
     get(namespace: string, key: string, context?: any): Observable<any> {
         const url = this.endpoint.getUrl(namespace as any, key as any, context);
         if (!url) {
