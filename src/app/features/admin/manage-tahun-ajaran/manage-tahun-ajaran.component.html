@@ -63,7 +63,7 @@
   </form>
 
   <section class="daftar-section">
-    <h3>Daftar Tahun Ajaran (Total: {{ daftarTahunAjaran.length }})</h3>
+    <h3>Daftar Tahun Ajaran ({{ daftarTahunAjaran.length }})</h3>
     <p class="section-description">
       <span style="color: var(--red)">*</span> Pilih satu tahun ajaran untuk
       diaktifkan. Perubahan akan langsung tersimpan.
@@ -80,6 +80,12 @@
           </tr>
         </thead>
         <tbody>
+          <tr *ngIf="isLoading">
+            <td colspan="5" style="text-align: center; padding: 2rem">
+              <app-loading-spinner></app-loading-spinner>
+            </td>
+          </tr>
+
           <tr *ngFor="let ajaran of daftarTahunAjaran; let i = index">
             <td class="col-no">{{ i + 1 }}</td>
             <td class="col-tahun">{{ ajaran.tahun_ajaran }}</td>
@@ -110,7 +116,8 @@
               ></app-action-button>
             </td>
           </tr>
-          <tr *ngIf="daftarTahunAjaran.length === 0">
+
+          <tr *ngIf="!isLoading && daftarTahunAjaran.length === 0">
             <td colspan="5" style="text-align: center; padding: 2rem">
               Tidak ada data tahun ajaran. Silakan tambahkan satu.
             </td>

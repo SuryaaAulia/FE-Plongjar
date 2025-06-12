@@ -1,9 +1,9 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { ActionButtonComponent, FormInputComponent, SelectOption } from '../../../shared/components/index';
+import { ActionButtonComponent, FormInputComponent, SelectOption, LoadingSpinnerComponent } from '../../../shared/components/index';
 import { TahunAjaran, TahunAjaranService } from '../../../core/services/admin/tahun-ajaran.service';
 
 @Component({
@@ -14,6 +14,7 @@ import { TahunAjaran, TahunAjaranService } from '../../../core/services/admin/ta
     ReactiveFormsModule,
     ActionButtonComponent,
     FormInputComponent,
+    LoadingSpinnerComponent
   ],
   templateUrl: './manage-tahun-ajaran.component.html',
   styleUrls: ['./manage-tahun-ajaran.component.scss']
@@ -26,6 +27,7 @@ export class ManageTahunAjaranComponent implements OnInit, OnDestroy {
   tahunOptions: SelectOption[] = [];
   sampaiTahunOptions: SelectOption[] = [];
   semesterOptions: SelectOption[] = [];
+  isLoading: boolean = false;
 
   private destroy$ = new Subject<void>();
 
@@ -72,6 +74,8 @@ export class ManageTahunAjaranComponent implements OnInit, OnDestroy {
   }
 
   private loadTahunAjaranData(): void {
+    this.isLoading = true;
+
     this.tahunAjaranService.getAllTahunAjaran()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -86,10 +90,12 @@ export class ManageTahunAjaranComponent implements OnInit, OnDestroy {
             });
             this.updateStatusInList();
           }
+          this.isLoading = false;
         },
         error: (err) => {
           console.error('Failed to load tahun ajaran list', err);
           alert('Error: Gagal memuat daftar tahun ajaran.');
+          this.isLoading = false;
         }
       });
 
