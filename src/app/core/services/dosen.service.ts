@@ -1,15 +1,10 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, throwError } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { HttpParams } from '@angular/common/http';
+import { KelompokKeahlian } from '../models/user.model';
 
-export interface KelompokKeahlian {
-    id: number;
-    nama: string;
-    roleable_type: string;
-    unit_type: string;
-}
 export interface DosenResponse {
     id: number;
     name: string;
@@ -24,6 +19,7 @@ export interface DosenResponse {
     id_kelompok_keahlian?: number;
     kelompok_keahlian?: KelompokKeahlian;
 }
+
 export interface DosenDetailResponse {
     id: number;
     nama_dosen: string;
@@ -65,78 +61,219 @@ export interface DosenListParams {
     search?: string;
 }
 
+export interface JabatanStrukturalResponse {
+    id: number;
+    nama_jabatan: string;
+    deskripsi?: string;
+}
+
+export interface BebanSksResponse {
+    id_dosen: number;
+    nama_dosen: string;
+    total_sks: number;
+    detail_pengajaran: any[];
+}
+
+export interface RiwayatPengajaranResponse {
+    id_dosen: number;
+    nama_dosen: string;
+    riwayat: any[];
+}
+
 @Injectable({
     providedIn: 'root'
 })
 export class DosenService {
 
-    constructor(
-        private apiService: ApiService
-    ) { }
+    constructor(private apiService: ApiService) { }
 
     getAllDosen(params: DosenListParams = {}): Observable<DosenListResponse> {
         let httpParams = new HttpParams();
 
-        if (params.page) {
-            httpParams = httpParams.set('page', params.page.toString());
-        }
+        if (params.page) httpParams = httpParams.set('page', params.page.toString());
+        if (params.per_page) httpParams = httpParams.set('per_page', params.per_page.toString());
+        if (params.search && params.search.trim()) httpParams = httpParams.set('search', params.search.trim());
 
-        if (params.per_page) {
-            httpParams = httpParams.set('per_page', params.per_page.toString());
-        }
-
-        if (params.search && params.search.trim()) {
-            httpParams = httpParams.set('search', params.search.trim());
-        }
-        return this.apiService.getAllDosen(httpParams)
-            .pipe(
-                map((response: any) => {
-                    return this.transformResponse(response);
-                }),
-            );
+        return this.apiService.getAllDosen(httpParams).pipe(
+            map(response => this.transformResponse(response)),
+            catchError(error => this.handleError(error))
+        );
     }
 
-    private transformResponse(response: any): DosenListResponse {
-        if (response && response.success) {
-            return response as DosenListResponse;
-        }
-        return {
-            success: true,
-            message: response.message || 'Data retrieved successfully',
-            data: response.data || response
-        };
+    getAllDosenByKK(kkId: number): Observable<DosenListResponse> {
+        return this.apiService.getDosenByKK(kkId).pipe(
+            map(response => this.transformResponse(response)),
+            catchError(error => this.handleError(error))
+        );
+    }
+
+    getAllDosenByKKAlt(kkId: number): Observable<DosenListResponse> {
+        return this.apiService.getDosenByKKAlt(kkId).pipe(
+            map(response => this.transformResponse(response)),
+            catchError(error => this.handleError(error))
+        );
+    }
+
+    getDosenTanpaJabatanStruktural(): Observable<DosenListResponse> {
+        return this.apiService.getDosenTanpaJabatan().pipe(
+            map(response => this.transformResponse(response)),
+            catchError(error => this.handleError(error))
+        );
+    }
+
+    getDosenDenganJabatanStruktural(): Observable<DosenListResponse> {
+        return this.apiService.getDosenDenganJabatan().pipe(
+            map(response => this.transformResponse(response)),
+            catchError(error => this.handleError(error))
+        );
+    }
+
+    getDosenByJabatanStruktural(jabatanId: number): Observable<DosenListResponse> {
+        return this.apiService.getDosenByJabatan(jabatanId).pipe(
+            map(response => this.transformResponse(response)),
+            catchError(error => this.handleError(error))
+        );
+    }
+
+    createDosen(dosenData: any): Observable<any> {
+        return this.apiService.createDosen(dosenData).pipe(
+            catchError(error => this.handleError(error))
+        );
+    }
+
+    updateDosen(id: number, dosenData: any): Observable<any> {
+        return this.apiService.updateDosen(id, dosenData).pipe(
+            catchError(error => this.handleError(error))
+        );
+    }
+
+    deleteDosen(id: number): Observable<any> {
+        return this.apiService.deleteDosen(id).pipe(
+            catchError(error => this.handleError(error))
+        );
+    }
+
+    assignJabatanStruktural(data: { id_dosen: number; id_jabatan_struktural: number }): Observable<any> {
+        return this.apiService.assignJabatanDosen(data).pipe(
+            catchError(error => this.handleError(error))
+        );
+    }
+
+    revokeJabatanStruktural(data: { id_dosen: number }): Observable<any> {
+        return this.apiService.revokeJabatanDosen(data).pipe(
+            catchError(error => this.handleError(error))
+        );
+    }
+
+    getLaporanBebanSksDosen(tahunAjaranId: number): Observable<any> {
+        return this.apiService.getLaporanBebanSksDosen(tahunAjaranId).pipe(
+            catchError(error => this.handleError(error))
+        );
+    }
+
+    getRiwayatPengajaran(dosenId: number): Observable<any> {
+        return this.apiService.getRiwayatPengajaran(dosenId).pipe(
+            catchError(error => this.handleError(error))
+        );
+    }
+
+    getBebanSksDosenAktif(dosenId: number): Observable<any> {
+        return this.apiService.getBebanSksDosenAktif(dosenId).pipe(
+            catchError(error => this.handleError(error))
+        );
     }
 
     getDosenById(id: number): Observable<{ success: boolean; message: string; data: DosenDetailResponse }> {
-        return this.apiService.getDosenDetail(id)
-            .pipe(
-                map((response: any) => {
-                    console.log('DosenService: Raw API getDosenDetail response:', response);
-                    if (response.success && response.data) {
-                        if (response.data.id !== undefined && response.data.id !== null || response.data.kode_dosen) {
-                            console.log('DosenService: Successfully found data for detail (ID/Kode Dosen available).');
-                            return {
-                                success: true,
-                                message: 'Dosen detail found',
-                                data: response.data as DosenDetailResponse
-                            };
-                        } else {
-                            console.warn('DosenService: API response.data for detail is missing identifier (id or kode_dosen):', response.data);
-                            return {
-                                success: false,
-                                message: 'Dosen detail data is incomplete (missing identifier).',
-                                data: null as any
-                            };
-                        }
-                    } else {
-                        console.warn('DosenService: API response indicates failure or missing data for detail:', response);
+        return this.apiService.getDosenDetail(id).pipe(
+            map(response => {
+                if (response && (response.success || response.data)) {
+                    const data = response.data || response;
+                    if (data.id !== undefined || data.kode_dosen) {
                         return {
-                            success: false,
-                            message: response.message || 'Dosen detail not found or API error',
-                            data: null as any
+                            success: true,
+                            message: 'Dosen detail found',
+                            data: data as DosenDetailResponse
                         };
                     }
-                })
-            );
+                }
+                return {
+                    success: false,
+                    message: response?.message || 'Dosen detail not found',
+                    data: null as any
+                };
+            }),
+            catchError(error => this.handleError(error))
+        );
+    }
+
+    private transformResponse(response: any): DosenListResponse {
+        if (response && response.success !== undefined) {
+            return response as DosenListResponse;
+        } else if (response && response.data) {
+            return {
+                success: true,
+                message: 'Data retrieved successfully',
+                data: response.data
+            };
+        } else if (response && Array.isArray(response)) {
+            return {
+                success: true,
+                message: 'Data retrieved successfully',
+                data: {
+                    data: response,
+                    current_page: 1,
+                    first_page_url: '',
+                    from: 1,
+                    last_page: 1,
+                    links: [],
+                    next_page_url: null,
+                    path: '',
+                    per_page: response.length,
+                    prev_page_url: null,
+                    to: response.length,
+                    total: response.length
+                }
+            };
+        } else if (response && response.current_page !== undefined) {
+            return {
+                success: true,
+                message: 'Data retrieved successfully',
+                data: response
+            };
+        } else {
+            return {
+                success: false,
+                message: 'Unexpected response structure',
+                data: {
+                    data: [],
+                    current_page: 1,
+                    first_page_url: '',
+                    from: 0,
+                    last_page: 1,
+                    links: [],
+                    next_page_url: null,
+                    path: '',
+                    per_page: 10,
+                    prev_page_url: null,
+                    to: 0,
+                    total: 0
+                }
+            };
+        }
+    }
+
+    private handleError(error: any): Observable<any> {
+        let errorMessage = 'An error occurred';
+        if (error.error instanceof ErrorEvent) {
+            errorMessage = error.error.message;
+        } else {
+            errorMessage = error.error?.message || error.message || `Error Code: ${error.status}`;
+        }
+
+        return throwError(() => ({
+            success: false,
+            message: errorMessage,
+            data: null
+        }));
     }
 }

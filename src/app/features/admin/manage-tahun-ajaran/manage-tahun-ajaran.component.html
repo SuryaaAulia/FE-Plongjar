@@ -1,7 +1,7 @@
 <div class="container">
   <header class="header-section">
-    <h2>Buat Tahun Ajaran Baru</h2>
-    <p>Isi form untuk menambahkan tahun ajaran baru</p>
+    <h2>Manajemen Tahun Ajaran</h2>
+    <p>Buat, hapus, dan atur tahun ajaran yang aktif untuk sistem.</p>
   </header>
 
   <form
@@ -10,46 +10,63 @@
     class="form-section"
   >
     <div class="form-grid">
-      <div>
+      <div class="form-group">
+        <label for="dariTahun" class="required">
+          <span style="color: var(--red)">* </span>Mulai Tahun Ajaran</label
+        >
         <app-form-input
-          label="Dari Tahun"
           type="select"
-          placeholder="Masukan tahun mulai"
+          id="dariTahun"
+          placeholder="Pilih tahun mulai"
           formControlName="dariTahun"
           [control]="getControl('dariTahun')"
           [options]="tahunOptions"
-          [required]="true"
         ></app-form-input>
       </div>
 
-      <div>
+      <div class="form-group">
+        <label for="sampaiTahun" class="required">
+          <span style="color: var(--red)">* </span>Selesai Tahun Ajaran</label
+        >
         <app-form-input
-          label="Sampai Tahun"
           type="select"
-          placeholder="Masukan tahun selesai"
+          id="sampaiTahun"
+          placeholder="Pilih tahun selesai"
           formControlName="sampaiTahun"
           [control]="getControl('sampaiTahun')"
-          [options]="tahunOptions"
-          [required]="true"
+          [options]="sampaiTahunOptions"
         ></app-form-input>
       </div>
 
-      <div class="button-container">
-        <app-action-button
-          text="Tambah"
-          iconClass="fas fa-plus"
-          type="submit"
-          [disabled]="tahunAjaranForm.invalid"
-        ></app-action-button>
+      <div class="form-group">
+        <label for="semester" class="required">
+          <span style="color: var(--red)">* </span> Semester</label
+        >
+        <app-form-input
+          type="select"
+          id="semester"
+          placeholder="Pilih semester"
+          formControlName="semester"
+          [control]="getControl('semester')"
+          [options]="semesterOptions"
+        ></app-form-input>
       </div>
+    </div>
+    <div class="button-container">
+      <app-action-button
+        text="Tambah"
+        iconClass="fas fa-plus"
+        type="submit"
+        [disabled]="tahunAjaranForm.invalid"
+      ></app-action-button>
     </div>
   </form>
 
   <section class="daftar-section">
-    <h3>Daftar Tahun Ajaran ({{ daftarTahunAjaran.length }})</h3>
+    <h3>Daftar Tahun Ajaran (Total: {{ daftarTahunAjaran.length }})</h3>
     <p class="section-description">
-      <span style="color: var(--red)">*</span> Pilih salah satu status aktif
-      Tahun Ajaran
+      <span style="color: var(--red)">*</span> Pilih satu tahun ajaran untuk
+      diaktifkan. Perubahan akan langsung tersimpan.
     </p>
     <div class="table-container">
       <table class="data-table">
@@ -59,32 +76,26 @@
             <th class="col-tahun">Tahun Ajaran</th>
             <th class="col-semester">Semester</th>
             <th class="col-status">Status Aktif</th>
-            <th class="col-action">Action</th>
+            <th class="col-action">Aksi</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let ajaran of daftarTahunAjaran; let i = index">
             <td class="col-no">{{ i + 1 }}</td>
-            <td class="col-tahun">{{ ajaran.tahunAjaran }}</td>
-            <td class="col-semester">
-              <select
-                [(ngModel)]="ajaran.semester"
-                [ngModelOptions]="{ standalone: true }"
-                class="semester-select"
-              >
-                <option value="Ganjil">Ganjil</option>
-                <option value="Genap">Genap</option>
-              </select>
+            <td class="col-tahun">{{ ajaran.tahun_ajaran }}</td>
+            <td class="col-semester" style="text-transform: capitalize">
+              {{ ajaran.semester }}
             </td>
             <td class="col-status">
               <label class="toggle-switch">
                 <input
                   type="radio"
                   name="statusAktif"
-                  [checked]="ajaran.statusAktif"
-                  (change)="setAktif(i)"
+                  [value]="ajaran.id"
+                  [checked]="ajaran.status === 1"
+                  (change)="setAktif(ajaran)"
                 />
-                <span class="slider round"></span>
+                <span class="slider"></span>
               </label>
             </td>
             <td class="col-action">
@@ -93,24 +104,19 @@
                 backgroundColorVar="var(--red)"
                 [fontSizePx]="14"
                 [paddingScaleFactor]="0.5"
-                (buttonClick)="hapusTahunAjaran(i)"
+                (buttonClick)="hapusTahunAjaran(ajaran)"
                 title="Hapus Tahun Ajaran"
+                [disabled]="ajaran.status === 1"
               ></app-action-button>
+            </td>
+          </tr>
+          <tr *ngIf="daftarTahunAjaran.length === 0">
+            <td colspan="5" style="text-align: center; padding: 2rem">
+              Tidak ada data tahun ajaran. Silakan tambahkan satu.
             </td>
           </tr>
         </tbody>
       </table>
     </div>
   </section>
-
-  <footer class="footer-submit-section">
-    <app-action-button
-      text="Simpan"
-      backgroundColorVar="var(--primary-blue)"
-      [fontSizePx]="16"
-      [paddingScaleFactor]="0.6"
-      (buttonClick)="simpanTahunAjaran()"
-      [disabled]="daftarTahunAjaran.length === 0"
-    ></app-action-button>
-  </footer>
 </div>

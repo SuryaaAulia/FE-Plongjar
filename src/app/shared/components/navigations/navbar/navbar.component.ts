@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { AuthService, AuthUser } from '../../../../core/services/auth.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { TahunAjaranService } from '../../../../core/services/admin/tahun-ajaran.service';
 
 @Component({
   selector: 'app-navbar',
@@ -22,13 +23,16 @@ export class NavbarComponent implements OnInit, OnDestroy {
   userDisplayName: string = '';
   isDropdownOpen: boolean = false;
   isMobile: boolean = false;
+  activeTahunAjaranString: string = 'Memuat...';
 
   private destroy$ = new Subject<void>();
 
-  constructor(private authService: AuthService) { }
+  constructor(
+    private authService: AuthService,
+    private tahunAjaranService: TahunAjaranService
+  ) { }
 
   ngOnInit(): void {
-    // Subscribe to current user changes
     this.authService.currentUser$.pipe(
       takeUntil(this.destroy$)
     ).subscribe(user => {
@@ -36,7 +40,17 @@ export class NavbarComponent implements OnInit, OnDestroy {
       this.updateUserInfo();
     });
 
-    // Check if mobile on init
+    this.tahunAjaranService.activeTahunAjaran$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(active => {
+        if (active) {
+          const semester = active.semester.charAt(0).toUpperCase() + active.semester.slice(1);
+          this.activeTahunAjaranString = `Tahun Ajaran ${active.tahun_ajaran} | Semester ${semester}`;
+        } else {
+          this.activeTahunAjaranString = 'Tahun Ajaran Belum Diatur';
+        }
+      });
+
     this.checkIfMobile();
   }
 
@@ -45,7 +59,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // Close dropdown when clicking outside and check screen size
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: Event): void {
     const target = event.target as HTMLElement;
@@ -59,20 +72,15 @@ export class NavbarComponent implements OnInit, OnDestroy {
   @HostListener('window:resize', ['$event'])
   onResize(event: any): void {
     this.checkIfMobile();
-    // Emit mobile state to parent
-    this.toggleSidenav.emit();
   }
 
   private checkIfMobile(): void {
+    const wasMobile = this.isMobile;
     this.isMobile = window.innerWidth <= 990;
-    // If switching to mobile, ensure sidebar is hidden
-    if (this.isMobile) {
+    if (this.isMobile && !wasMobile) {
       this.collapsed = true;
+      this.onToggleSidenav();
     }
-  }
-
-  get shouldShowToggleButton(): boolean {
-    return true; // Always show toggle button
   }
 
   onToggleSidenav(): void {
@@ -95,25 +103,20 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   private generateInitials(fullName: string): string {
     if (!fullName) return '';
-
     const names = fullName.trim().split(' ');
-
     if (names.length === 1) {
-      // Single name: take first 2 letters
       return names[0].substring(0, 2).toUpperCase();
     } else if (names.length >= 2) {
-      // Multiple names: take first letter of first and last name
       const firstName = names[0];
       const lastName = names[names.length - 1];
       return (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
     }
-
     return '';
   }
 
   logout(event: Event): void {
-    event.stopPropagation(); // Prevent event bubbling
-    this.isDropdownOpen = false; // Close dropdown
+    event.stopPropagation();
+    this.isDropdownOpen = false;
     this.authService.logout();
   }
 }

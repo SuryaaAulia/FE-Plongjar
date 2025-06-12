@@ -1,5 +1,3 @@
-// src/app/core/config/endpoint.ts
-
 import { environment } from "../../../environments/environment";
 
 const API = environment.apiUrl;
@@ -22,6 +20,7 @@ export class Endpoint {
                 get_all_user_by_role: `${API}/roles/getAllUserByRole/${context?.roleId || ':roleId'}`,
                 assign_role: `${API}/roles/assignRole`,
                 revoke_role: `${API}/roles/revokeRole`,
+                assign_scoped_role: `${API}/roles/assign-scoped-role`,
             },
 
             pic: {
@@ -33,12 +32,20 @@ export class Endpoint {
                 add: `${API}/masterdata/addDosenData`,
                 get_all: `${API}/masterdata/getAllDosen`,
                 get_by_kk: `${API}/masterdata/getAllDosen/${context?.kkId || ':kkId'}`,
+                get_by_kk_alt: `${API}/masterdata/dosens/by-kelompok-keahlian/${context?.kkId || ':kkId'}`,
+                get_tanpa_jabatan: `${API}/masterdata/dosens/tanpa-jabatan-struktural`,
+                get_dengan_jabatan: `${API}/masterdata/dosens/dengan-jabatan-struktural`,
+                get_by_jabatan: `${API}/masterdata/dosens/by-jabatan-struktural/${context?.jabatanId || ':jabatanId'}`,
                 get_detail: `${API}/masterdata/getDosenDetail/${context?.dosenId || ':dosenId'}`,
                 assign_jabatan: `${API}/masterdata/assignjabatantodosen`,
                 revoke_jabatan: `${API}/masterdata/revokejabatandosen`,
+                resource: `${API}/masterdata/dosens`,
                 show: `${API}/masterdata/dosens/${context?.id || ':id'}`,
                 update: `${API}/masterdata/dosens/${context?.id || ':id'}`,
                 delete: `${API}/masterdata/dosens/${context?.id || ':id'}`,
+                laporan_beban_sks: `${API}/plottingan-pengajaran/dosen/laporan-beban-sks/tahun-ajaran/${context?.tahunAjaranId || ':tahunAjaranId'}`,
+                riwayat_pengajaran: `${API}/plottingan-pengajaran/dosen/${context?.dosenId || ':dosenId'}/riwayat-pengajaran`,
+                beban_sks_aktif: `${API}/plottingan-pengajaran/dosen/${context?.dosenId || ':dosenId'}/beban-sks-aktif`,
             },
 
             matakuliah: {
@@ -51,6 +58,10 @@ export class Endpoint {
 
             program_studi: {
                 get_all: `${API}/masterdata/programstudi`,
+                resource: `${API}/masterdata/program-studi`,
+                show: `${API}/masterdata/program-studi/${context?.id || ':id'}`,
+                update: `${API}/masterdata/program-studi/${context?.id || ':id'}`,
+                delete: `${API}/masterdata/program-studi/${context?.id || ':id'}`,
             },
 
             kelompok_keahlian: {
@@ -61,6 +72,8 @@ export class Endpoint {
                 resource: `${API}/masterdata/mappingkelasmatakuliahs`,
                 get_by_matkul_id: `${API}/masterdata/getmappingkelasmatkulbyidmatkul/${context?.matkulId || ':matkulId'}`,
                 get_by_matakuliah: `${API}/masterdata/mappingkelasmatakuliahs/by-matakuliah/${context?.matkulId || ':matkulId'}`,
+                get_by_matkul_tahun_prodi: `${API}/masterdata/mapping-kelas-matakuliah/matakuliah/${context?.matkulId || ':matkulId'}/tahun-ajaran/${context?.tahunAjaranId || ':tahunAjaranId'}/program-studi/${context?.prodiId || ':prodiId'}`,
+                get_by_matkul_tahun: `${API}/masterdata/mapping-kelas-matakuliah/by-matakuliah/${context?.matkulId || ':matkulId'}/tahun-ajaran/${context?.tahunAjaranId || ':tahunAjaranId'}`,
                 show: `${API}/masterdata/mappingkelasmatakuliahs/${context?.id || ':id'}`,
                 update: `${API}/masterdata/mappingkelasmatakuliahs/${context?.id || ':id'}`,
                 delete: `${API}/masterdata/mappingkelasmatakuliahs/${context?.id || ':id'}`,
@@ -68,14 +81,36 @@ export class Endpoint {
 
             koordinator_matakuliah: {
                 resource: `${API}/masterdata/koordinator-matakuliah`,
+                assign_by_prodi: `${API}/masterdata/koordinator-matakuliah/assign-by-program-studi`,
                 show: `${API}/masterdata/koordinator-matakuliah/${context?.id || ':id'}`,
                 update: `${API}/masterdata/koordinator-matakuliah/${context?.id || ':id'}`,
                 delete: `${API}/masterdata/koordinator-matakuliah/${context?.id || ':id'}`,
             },
 
+            tahun_ajaran: {
+                resource: `${API}/masterdata/tahunajarans`,
+                get_active: `${API}/masterdata/tahun-ajaran/aktif`,
+                set_active: `${API}/masterdata/tahun-ajaran/${context?.id || ':id'}/set-active`,
+                create: `${API}/masterdata/tahunajarans/${context?.id || ':id'}`,
+                delete: `${API}/masterdata/tahunajarans/${context?.id || ':id'}`,
+            },
+
             jabatan_struktural: {
-                show: `${API}/masterdata/jabatanstruktural`,
-                create: `${API}/masterdata/`,
+                resource: `${API}/masterdata/jabatanstruktural`,
+                show: `${API}/masterdata/jabatanstruktural/${context?.id || ':id'}`,
+                update: `${API}/masterdata/jabatanstruktural/${context?.id || ':id'}`,
+                delete: `${API}/masterdata/jabatanstruktural/${context?.id || ':id'}`,
+            },
+
+            plottingan_pengajaran: {
+                resource: `${API}/plottingan-pengajaran/start-plottingan-pengajaran`,
+                get_hasil: `${API}/plottingan-pengajaran/get-hasil-plottingan-pengajaran/${context?.tahunAjaranId || ':tahunAjaranId'}`,
+                get_hasil_by_prodi: `${API}/plottingan-pengajaran/tahun-ajaran/${context?.tahunAjaranId || ':tahunAjaranId'}/program-studi/${context?.prodiId || ':prodiId'}`,
+                export: `${API}/plottingan-pengajaran/export/tahun-ajaran/${context?.tahunAjaranId || ':tahunAjaranId'}`,
+                export_by_prodi: `${API}/plottingan-pengajaran/export/tahun-ajaran/${context?.tahunAjaranId || ':tahunAjaranId'}/program-studi/${context?.prodiId || ':prodiId'}`,
+                show: `${API}/plottingan-pengajaran/start-plottingan-pengajaran/${context?.id || ':id'}`,
+                update: `${API}/plottingan-pengajaran/start-plottingan-pengajaran/${context?.id || ':id'}`,
+                delete: `${API}/plottingan-pengajaran/start-plottingan-pengajaran/${context?.id || ':id'}`,
             },
         };
 

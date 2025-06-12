@@ -1,17 +1,15 @@
-@import '../base-card/base-card.component.scss';
+:host{
+    --margin-top: 0.5rem;
+    --padding-top: 0rem;
+}
 
-.lecturer-nip,
-.lecturer-nidn {
+.lecturer-nip {
     font-weight: var(--font-normal);
     color: var(--primary-blue);
-    font-size: var(--text-base);
+    font-size: var(--text-sm);
     margin: 0 0 0.25rem 0;
 }
 
-.lecturer-nidn {
-    font-size: var(--text-sm);
-    color: var(--grey-alternative);
-}
 
 .assign-jabatan-footer {
     display: flex;
@@ -32,11 +30,10 @@
         justify-content: space-between;
         padding: 0.75rem 1rem;
         gap: 0.75rem;
-        background-color: #f8f9fa;
+        background-color: var(--grey);
         border-radius: 0.5rem;
-        border: 1px solid #e9ecef;
+        border: 1px solid var(--grey);
         min-height: 2.5rem;
-        animation: slideInFromRight 0.3s ease-out;
 
         .selected-jabatan-name {
             font-size: var(--text-base);
@@ -49,11 +46,11 @@
         .remove-btn {
             width: 1.75rem;
             height: 1.75rem;
-            background-color: #6c757d;
+            background-color: var(--primary-blue);
             color: white;
             border: none;
             border-radius: 50%;
-            font-size: 0.875rem;
+            font-size: var(--text-sm);
             padding: 0;
             display: flex;
             align-items: center;
@@ -63,7 +60,7 @@
             flex-shrink: 0;
 
             &:hover {
-                background-color: #dc3545;
+                background-color: var(--red);
                 transform: scale(1.05);
             }
 
@@ -72,13 +69,13 @@
             }
 
             &:focus {
-                outline: 2px solid var(--primary-blue, #007bff);
+                outline: 2px solid var(--primary-blue);
                 outline-offset: 2px;
             }
 
             i {
                 pointer-events: none;
-                font-size: 0.75rem;
+                font-size: var(--text-xs);
             }
         }
     }
@@ -100,10 +97,10 @@
             .remove-btn {
                 width: 2rem;
                 height: 2rem;
-                font-size: 1rem;
+                font-size: var(--text-base);
                 
                 i {
-                    font-size: 0.875rem;
+                    font-size: var(--text-sm);
                 }
             }
         }

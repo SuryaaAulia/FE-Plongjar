@@ -76,7 +76,6 @@ export class DynamicTableComponent implements OnChanges {
       if (widthMatch && widthMatch[1]) {
         currentLeft += parseInt(widthMatch[1], 10);
       } else {
-        // Handle non-pixel width
       }
     }
   }

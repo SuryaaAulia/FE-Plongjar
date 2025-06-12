@@ -162,8 +162,5 @@ export class HasilPlottingComponent implements OnInit {
 
   onDownloadExcel(): void {
     console.log('Download Excel button clicked. Implement download service call.');
-    // Placeholder for actual download logic
-    // Example:
-    // this.downloadService.downloadExcel(this.mataKuliahData).subscribe(...);
   }
 }

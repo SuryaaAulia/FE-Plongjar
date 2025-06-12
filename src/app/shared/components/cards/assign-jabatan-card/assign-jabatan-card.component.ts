@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BaseCardComponent } from '../base-card/base-card.component';
@@ -23,15 +23,9 @@ export interface JabatanOption {
   templateUrl: './assign-jabatan-card.component.html',
   styleUrls: ['./assign-jabatan-card.component.scss']
 })
-export class AssignJabatanCardComponent implements OnInit {
+export class AssignJabatanCardComponent implements OnInit, OnChanges {
   @Input() lecturer!: Lecturer;
-  @Input() jabatanOptions: JabatanOption[] = [
-    { id: 1, name: 'Asisten Ahli', value: 'asisten_ahli' },
-    { id: 2, name: 'Lektor', value: 'lektor' },
-    { id: 3, name: 'Lektor Kepala', value: 'lektor_kepala' },
-    { id: 4, name: 'Guru Besar', value: 'guru_besar' },
-    { id: 5, name: 'Tenaga Pengajar', value: 'tenaga_pengajar' }
-  ];
+  @Input() jabatanOptions: JabatanOption[] = [];
 
   @Output() assign = new EventEmitter<{ lecturer: Lecturer, jabatan: JabatanOption | null }>();
 
@@ -40,47 +34,44 @@ export class AssignJabatanCardComponent implements OnInit {
   showDropdown: boolean = true;
 
   ngOnInit(): void {
-    console.log('Initializing component for lecturer:', this.lecturer.name);
     this.initializeJabatanState();
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['jabatanOptions'] && !changes['jabatanOptions'].firstChange) {
+      this.initializeJabatanState();
+    }
+  }
+
   private initializeJabatanState(): void {
-    const currentJabatanName = this.lecturer.jabatanFunctionalAkademik &&
-      this.lecturer.jabatanFunctionalAkademik.length > 0
-      ? this.lecturer.jabatanFunctionalAkademik[0]
-      : null;
+    const currentJabatanId = this.lecturer.idJabatanStruktural;
 
-    console.log('Current jabatan for lecturer:', currentJabatanName);
-
-    if (currentJabatanName) {
+    if (currentJabatanId && this.jabatanOptions.length > 0) {
       const matchedJabatan = this.jabatanOptions.find(option =>
-        option.name.toLowerCase().trim() === currentJabatanName.toLowerCase().trim()
+        option.id === currentJabatanId
       );
 
       if (matchedJabatan) {
-        console.log('Found matching jabatan:', matchedJabatan);
         this.selectedJabatan = matchedJabatan;
         this.selectedJabatanId = matchedJabatan.id;
         this.showDropdown = false;
       } else {
-        console.log('No matching jabatan found, showing dropdown');
         this.resetToDropdown();
       }
     } else {
-      console.log('No current jabatan, showing dropdown');
       this.resetToDropdown();
     }
   }
 
   get formattedJabatanOptions(): SelectOption[] {
-    return this.jabatanOptions.map(option => ({
+    const options = this.jabatanOptions.map(option => ({
       value: option.id,
       label: option.name
     }));
+    return options;
   }
 
   onJabatanChange(): void {
-    console.log('Jabatan changed, selectedJabatanId:', this.selectedJabatanId);
 
     if (!this.selectedJabatanId) {
       this.resetToDropdown();
@@ -88,11 +79,11 @@ export class AssignJabatanCardComponent implements OnInit {
     }
 
     const newSelectedJabatan = this.jabatanOptions.find(option =>
-      option.id === this.selectedJabatanId
+      option.id === Number(this.selectedJabatanId)
     );
 
+
     if (newSelectedJabatan) {
-      console.log('New jabatan selected:', newSelectedJabatan);
 
       this.selectedJabatan = newSelectedJabatan;
       this.showDropdown = false;
@@ -102,16 +93,12 @@ export class AssignJabatanCardComponent implements OnInit {
         jabatan: newSelectedJabatan
       });
 
-      console.log('Assignment emitted, showDropdown:', this.showDropdown);
-      console.log('selectedJabatan:', this.selectedJabatan);
     } else {
-      console.error('Could not find jabatan with id:', this.selectedJabatanId);
       this.resetToDropdown();
     }
   }
 
   onRemoveJabatan(): void {
-    console.log('Removing jabatan assignment');
 
     this.assign.emit({
       lecturer: this.lecturer,
@@ -125,6 +112,5 @@ export class AssignJabatanCardComponent implements OnInit {
     this.selectedJabatanId = null;
     this.selectedJabatan = null;
     this.showDropdown = true;
-    console.log('Component reset to dropdown state');
   }
 }

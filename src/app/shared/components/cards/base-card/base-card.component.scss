@@ -33,7 +33,7 @@
 .card-title {
     font-weight: var(--font-semibold);
     color: var(--primary-blue);
-    font-size: var(--text-xl);
+    font-size: var(--text-lg);
     margin-bottom: 0.25rem;
     line-height: 1.4;
     word-wrap: break-word;
@@ -42,7 +42,7 @@
 .card-subtitle {
     font-weight: var(--font-normal);
     color: var(--primary-blue);
-    font-size: var(--text-base);
+    font-size: var(--text-sm);
     margin: 0 0 0.25rem 0;
 }
 
@@ -57,8 +57,8 @@
 }
 
 .card-footer {
-    margin-top: 2.5rem;
-    padding-top: 0.75rem;
+    margin-top: var(--margin-top, 1.5rem);
+    padding-top: var(--padding-top, 0.75rem);
     display: flex;
     align-items: center;
     justify-content: flex-end;
@@ -68,7 +68,7 @@
 .card-action-btn {
     background: none;
     border: none;
-    color: var(--text-muted, #6c757d);
+    color: var(--grey-alternative);
     cursor: pointer;
     padding: 0.25rem;
     font-size: 0.8rem;

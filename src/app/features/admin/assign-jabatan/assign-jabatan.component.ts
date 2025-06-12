@@ -1,18 +1,23 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Subject, from, Observable } from 'rxjs';
-import { takeUntil, finalize } from 'rxjs/operators';
-import { ApiService } from '../../../core/services/api.service';
+import { Observable, Subject, of } from 'rxjs';
+import { takeUntil, finalize, catchError } from 'rxjs/operators';
 import { DosenService } from '../../../core/services/dosen.service';
-import { Lecturer } from '../../../core/models/user.model';
+import { JabatanService } from '../../../core/services/admin/jabatan.service';
+import { Lecturer, JabatanStruktural } from '../../../core/models/user.model';
 import {
   SearchHeaderComponent,
   PaginationComponent,
   LoadingSpinnerComponent,
   SearchNotFoundComponent,
   AssignJabatanCardComponent,
-  JabatanOption,
 } from '../../../shared/components/index';
+
+export interface JabatanOption {
+  id: number;
+  name: string;
+  value: string;
+}
 
 @Component({
   selector: 'app-assign-jabatan',
@@ -32,25 +37,14 @@ export class AssignJabatanComponent implements OnInit, OnDestroy {
   lecturerList: Lecturer[] = [];
   filteredLecturerList: Lecturer[] = [];
   paginatedLecturerList: Lecturer[] = [];
-  jabatanOptions: JabatanOption[] = [
-    { id: 1, name: 'Asisten Ahli', value: 'asisten_ahli' },
-    { id: 2, name: 'Lektor', value: 'lektor' },
-    { id: 3, name: 'Lektor Kepala', value: 'lektor_kepala' },
-    { id: 4, name: 'Guru Besar', value: 'guru_besar' },
-    { id: 5, name: 'Tenaga Pengajar', value: 'tenaga_pengajar' },
-  ];
+  jabatanOptions: JabatanOption[] = [];
+  jabatanList: JabatanStruktural[] = [];
 
   isLoading = true;
+  errorMessage = '';
   private destroy$ = new Subject<void>();
 
-  availableJabatan = [
-    'Dekan',
-    'Wakil Dekan',
-    'Sekprodi',
-    'Ketua',
-    'Kaprodi',
-    'Direktur',
-  ];
+  availableJabatan: string[] = [];
   activeFilter: string | null = 'Tanpa Jabatan';
   searchQuery1 = '';
   searchQuery2 = '';
@@ -60,11 +54,12 @@ export class AssignJabatanComponent implements OnInit, OnDestroy {
   totalItems = 0;
 
   constructor(
-    private dosenService: DosenService
+    private dosenService: DosenService,
+    private jabatanService: JabatanService
   ) { }
 
   ngOnInit(): void {
-    this.loadLecturerData();
+    this.loadInitialData();
   }
 
   ngOnDestroy(): void {
@@ -72,112 +67,153 @@ export class AssignJabatanComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  loadLecturerData(): void {
+  private loadInitialData(): void {
     this.isLoading = true;
-    this.dosenService
-      .getAllDosen()
+    this.errorMessage = '';
+
+    this.jabatanService.getAllJabatanStruktural()
       .pipe(
         takeUntil(this.destroy$),
-        finalize(() => {
-          this.isLoading = false;
-        })
+        catchError(() => of([] as JabatanStruktural[]))
       )
-      .subscribe({
-        next: (response) => {
-          if (response.success && response.data?.data) {
-            this.mapResponseToLecturers(response.data.data);
-          }
-          this.applyFiltersAndSearch();
-        },
-        error: (error) => {
-          console.error('Error loading lecturer data:', error);
-          this.applyFiltersAndSearch();
-        },
+      .subscribe(jabatanResponse => {
+        this.jabatanList = jabatanResponse || [];
+
+        if (this.jabatanList.length) {
+          this.jabatanOptions = this.jabatanList.map(j => ({
+            id: j.id,
+            name: j.nama,
+            value: j.nama.toLowerCase().replace(/\s+/g, '_')
+          }));
+          this.availableJabatan = this.jabatanList.map(j => j.nama).sort();
+        }
+
+        this.loadDosenByFilter();
       });
   }
 
-  private mapResponseToLecturers(data: any[]): void {
-    this.lecturerList = data.map(
-      (item: any): Lecturer => ({
-        id: item.id.toString(),
-        name: item.name,
-        lecturerCode: item.lecturer_code,
-        email: item.email,
-        jabatanFunctionalAkademik: item.jabatan_fungsional_akademik
-          ? [item.jabatan_fungsional_akademik]
-          : [],
-        statusPegawai: item.status_pegawai,
-        pendidikanTerakhir: item.pendidikan_terakhir,
-        department: item.department,
-        nidn: item.nidn,
-        nip: item.nip,
-        kelompokKeahlian: item.kelompok_keahlian?.nama,
-        idJabatanStruktural: item.id_jabatan_struktural,
-        idKelompokKeahlian: item.id_kelompok_keahlian,
-        createdAt: item.created_at,
-        updatedAt: item.updated_at,
-      })
-    );
+  private loadDosenByFilter(): void {
+    this.isLoading = true;
+    let dosenObservable: Observable<any>;
+
+    const hasSearch = this.searchQuery1.trim() || this.searchQuery2.trim();
+    const searchQuery = [this.searchQuery1, this.searchQuery2]
+      .map(q => q.trim())
+      .filter(q => q.length > 0)
+      .join(' ');
+
+    const isTanpaJabatan = this.activeFilter === 'Tanpa Jabatan';
+    const selectedJabatan = this.jabatanList.find(j => j.nama === this.activeFilter);
+
+    if (hasSearch) {
+      dosenObservable = this.dosenService.getAllDosen({
+        page: 1,
+        per_page: 200,
+        search: searchQuery
+      });
+    } else if (isTanpaJabatan) {
+      dosenObservable = this.dosenService.getDosenTanpaJabatanStruktural();
+    } else if (selectedJabatan) {
+      dosenObservable = this.dosenService.getDosenByJabatanStruktural(selectedJabatan.id);
+    } else {
+      dosenObservable = this.dosenService.getAllDosen({ page: 1, per_page: 200 });
+    }
+
+    dosenObservable
+      .pipe(
+        takeUntil(this.destroy$),
+        catchError(() => of({ data: { data: [] }, success: false })),
+        finalize(() => (this.isLoading = false))
+      )
+      .subscribe(response => {
+        const data = this.extractDosenData(response);
+        const mappedLecturers = this.mapResponseToLecturers(data);
+
+        this.lecturerList = hasSearch
+          ? this.filterByJabatan(mappedLecturers)
+          : mappedLecturers;
+
+        this.filteredLecturerList = [...this.lecturerList];
+        this.totalItems = this.filteredLecturerList.length;
+        this.updatePagination();
+      });
   }
 
-  private applyFiltersAndSearch(): void {
-    let filtered = [...this.lecturerList];
 
-    if (this.activeFilter) {
-      if (this.activeFilter === 'Tanpa Jabatan') {
-        filtered = filtered.filter(lecturer =>
-          !lecturer.jabatanFunctionalAkademik ||
-          lecturer.jabatanFunctionalAkademik.length === 0
-        );
-      } else {
-        filtered = filtered.filter(lecturer =>
-          lecturer.jabatanFunctionalAkademik?.some(jabatan =>
-            jabatan.toLowerCase().includes(this.activeFilter!.toLowerCase())
-          )
-        );
-      }
+
+  private extractDosenData(response: any): any[] {
+    if (response.success && Array.isArray(response.data?.data)) {
+      return response.data.data;
+    } else if (Array.isArray(response.data)) {
+      return response.data;
+    } else if (Array.isArray(response)) {
+      return response;
+    }
+    return [];
+  }
+
+  private mapResponseToLecturers(data: any[]): Lecturer[] {
+    return data.map((item: any) => ({
+      id: item.id,
+      name: item.name || item.nama || item.nama_dosen || '',
+      lecturerCode: item.lecturer_code || item.lecturerCode || item.kode_dosen || '',
+      nip: item.nip || null,
+      nidn: item.nidn || null,
+      email: item.email || '',
+      jabatanFungsionalAkademik: item.jabatan_fungsional_akademik || item.jabatanFungsionalAkademik || item.jfa || '',
+      statusPegawai: item.status_pegawai || item.statusPegawai || item.status || '',
+      pendidikanTerakhir: item.pendidikan_terakhir || item.pendidikanTerakhir || item.pendidikan || '',
+      kelompokKeahlian: item.kelompok_keahlian || item.kelompokKeahlian || null,
+      idJabatanStruktural: item.id_jabatan_struktural || item.idJabatanStruktural || null,
+      idKelompokKeahlian: item.id_kelompok_keahlian || item.idKelompokKeahlian || null,
+    }));
+  }
+
+  private filterByJabatan(lecturers: Lecturer[]): Lecturer[] {
+    if (!this.activeFilter) {
+      return lecturers;
     }
 
-    if (this.searchQuery1 || this.searchQuery2) {
-      filtered = filtered.filter((lecturer) => {
-        const nameNipMatch =
-          !this.searchQuery1 ||
-          lecturer.name.toLowerCase().includes(this.searchQuery1) ||
-          lecturer.nip?.toLowerCase().includes(this.searchQuery1) ||
-          lecturer.nidn?.toLowerCase().includes(this.searchQuery1);
-        const codeMatch =
-          !this.searchQuery2 ||
-          lecturer.lecturerCode.toLowerCase().includes(this.searchQuery2);
-        return nameNipMatch && codeMatch;
-      });
+    if (this.activeFilter === 'Tanpa Jabatan') {
+      return lecturers.filter(lecturer =>
+        !lecturer.idJabatanStruktural ||
+        lecturer.idJabatanStruktural === null ||
+        lecturer.idJabatanStruktural === undefined
+      );
     }
 
-    this.filteredLecturerList = filtered;
-    this.totalItems = filtered.length;
-    this.updatePagination();
+    const selectedJabatan = this.jabatanList.find(j => j.nama === this.activeFilter);
+    if (selectedJabatan) {
+      return lecturers.filter(lecturer =>
+        lecturer.idJabatanStruktural === selectedJabatan.id
+      );
+    }
+
+    return [];
   }
 
   private updatePagination(): void {
-    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    const endIndex = startIndex + this.itemsPerPage;
-    this.paginatedLecturerList = this.filteredLecturerList.slice(startIndex, endIndex);
+    const start = (this.currentPage - 1) * this.itemsPerPage;
+    this.paginatedLecturerList = this.filteredLecturerList.slice(start, start + this.itemsPerPage);
   }
 
-  onSearch(searchData: { query1: string; query2: string }): void {
-    this.searchQuery1 = searchData.query1.toLowerCase().trim();
-    this.searchQuery2 = searchData.query2.toLowerCase().trim();
+  onSearch({ query1, query2 }: { query1: string; query2: string }): void {
+    this.searchQuery1 = query1.trim();
+    this.searchQuery2 = query2.trim();
     this.currentPage = 1;
-    this.applyFiltersAndSearch();
+    this.loadDosenByFilter();
   }
 
   onFilterChange(filter: string | null): void {
     this.activeFilter = filter;
     this.currentPage = 1;
-    this.applyFiltersAndSearch();
+    this.searchQuery1 = '';
+    this.searchQuery2 = '';
+    this.loadDosenByFilter();
   }
 
-  onItemsPerPageChange(newSize: number): void {
-    this.itemsPerPage = newSize;
+  onItemsPerPageChange(size: number): void {
+    this.itemsPerPage = size;
     this.currentPage = 1;
     this.updatePagination();
   }
@@ -187,66 +223,62 @@ export class AssignJabatanComponent implements OnInit, OnDestroy {
     this.updatePagination();
   }
 
-  onJabatanAssign(event: { lecturer: Lecturer; jabatan: JabatanOption | null }): void {
-    console.log('Jabatan assignment event received:', event);
-    if (event.jabatan) {
-      this.assignJabatanToLecturer(event.lecturer, event.jabatan);
+  onJabatanAssign({ lecturer, jabatan }: { lecturer: Lecturer; jabatan: JabatanOption | null }): void {
+    if (jabatan) {
+      this.assignJabatan(lecturer, jabatan);
     } else {
-      this.removeJabatanFromLecturer(event.lecturer);
+      this.removeJabatan(lecturer);
     }
   }
 
-  private assignJabatanToLecturer(lecturer: Lecturer, jabatan: JabatanOption): void {
+  private assignJabatan(lecturer: Lecturer, jabatan: JabatanOption): void {
     this.isLoading = true;
-    this.simulateAssignJabatan({ id: lecturer.id, jabatanId: jabatan.id })
+
+    this.dosenService.assignJabatanStruktural({
+      id_dosen: lecturer.id,
+      id_jabatan_struktural: jabatan.id
+    })
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => (this.isLoading = false))
       )
       .subscribe({
-        next: () => {
-          const lecturerInList = this.lecturerList.find(l => l.id === lecturer.id);
-          if (lecturerInList) {
-            lecturerInList.jabatanFunctionalAkademik = [jabatan.name];
-          }
-          this.applyFiltersAndSearch();
+        next: res => {
+          if (res.success) this.loadDosenByFilter();
         },
-        error: (err) => console.error(`Failed to assign jabatan:`, err),
+        error: () => this.errorMessage = 'Failed to assign position'
       });
   }
 
-  private removeJabatanFromLecturer(lecturer: Lecturer): void {
+  private removeJabatan(lecturer: Lecturer): void {
     this.isLoading = true;
-    this.simulateRemoveJabatan({ id: lecturer.id })
+
+    this.dosenService.revokeJabatanStruktural({ id_dosen: lecturer.id })
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => (this.isLoading = false))
       )
       .subscribe({
-        next: () => {
-          const lecturerInList = this.lecturerList.find(l => l.id === lecturer.id);
-          if (lecturerInList) {
-            lecturerInList.jabatanFunctionalAkademik = [];
-          }
-          this.applyFiltersAndSearch();
+        next: res => {
+          if (res.success) this.loadDosenByFilter();
         },
-        error: (err) => console.error(`Failed to remove jabatan:`, err)
+        error: () => this.errorMessage = 'Failed to remove position'
       });
-  }
-
-  private simulateAssignJabatan(data: any): Observable<{ success: boolean }> {
-    return from(new Promise<{ success: boolean }>(resolve => setTimeout(() => resolve({ success: true }), 500)));
-  }
-
-  private simulateRemoveJabatan(data: any): Observable<{ success: boolean }> {
-    return from(new Promise<{ success: boolean }>(resolve => setTimeout(() => resolve({ success: true }), 500)));
   }
 
   get combinedSearchKeyword(): string {
     return [this.searchQuery1, this.searchQuery2].filter(Boolean).join(', ');
   }
 
-  trackByLecturerId(index: number, lecturer: Lecturer): number {
+  showAllData(): void {
+    this.activeFilter = null;
+    this.searchQuery1 = '';
+    this.searchQuery2 = '';
+    this.currentPage = 1;
+    this.loadDosenByFilter();
+  }
+
+  trackByLecturerId(_: number, lecturer: Lecturer): number {
     return lecturer.id;
   }
 }

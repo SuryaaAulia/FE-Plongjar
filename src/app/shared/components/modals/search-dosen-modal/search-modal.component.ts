@@ -22,16 +22,16 @@ export class SearchModalComponent {
   private fullFilteredResults: Lecturer[] = [];
 
   allLecturers: Lecturer[] = [
-    { id: 1, name: 'Bambang Pamungkas Prayoga', lecturerCode: 'BPP', jabatanFunctionalAkademik: ['Lektor'], email: 'bpp@example.com', statusPegawai: 'Tetap' },
-    { id: 2, name: 'Bambang Pamungkas Junaidi', lecturerCode: 'BPJ', jabatanFunctionalAkademik: ['Asisten Ahli'], nidn: '0012345678', statusPegawai: 'Tetap' },
-    { id: 3, name: 'Bambang Pamungkas Budiman', lecturerCode: 'BPB', jabatanFunctionalAkademik: ['Lektor Kepala'], statusPegawai: 'Tetap' },
-    { id: 4, name: 'Bambang Pamungkas Ahmadi', lecturerCode: 'BPA', jabatanFunctionalAkademik: ['Guru Besar'], kelompokKeahlian: 'Software Engineering', statusPegawai: 'Tetap' },
-    { id: 5, name: 'Bambang Pamungkas Zakari', lecturerCode: 'BPZ', jabatanFunctionalAkademik: ['Tenaga Pengajar'], statusPegawai: 'Tetap' },
-    { id: 6, name: 'Siti Aminah', lecturerCode: 'STA', jabatanFunctionalAkademik: ['Lektor'], pendidikanTerakhir: ['S3'], statusPegawai: 'Tetap' },
-    { id: 7, name: 'Ahmad Subagyo', lecturerCode: 'ASB', jabatanFunctionalAkademik: ['Asisten Ahli'], statusPegawai: 'Tetap' },
-    { id: 8, name: 'Dewi Lestari', lecturerCode: 'DWL', jabatanFunctionalAkademik: ['Lektor Kepala'], department: 'Informatika', statusPegawai: 'Tetap' },
-    { id: 9, name: 'Rizky Pratama', lecturerCode: 'RZP', jabatanFunctionalAkademik: ['Guru Besar'], statusPegawai: 'Tetap' },
-    { id: 10, name: 'Putu Wijaya', lecturerCode: 'PTW', jabatanFunctionalAkademik: ['Lektor'], statusPegawai: 'Tetap' },
+    // { id: 1, name: 'Bambang Pamungkas Prayoga', lecturerCode: 'BPP', jabatanFungsionalAkademik: 'Lektor', email: 'bpp@example.com', statusPegawai: 'Tetap' },
+    // { id: 2, name: 'Bambang Pamungkas Junaidi', lecturerCode: 'BPJ', jabatanFungsionalAkademik: ['Asisten Ahli'], nidn: '0012345678', statusPegawai: 'Tetap' },
+    // { id: 3, name: 'Bambang Pamungkas Budiman', lecturerCode: 'BPB', jabatanFungsionalAkademik: ['Lektor Kepala'], statusPegawai: 'Tetap' },
+    // { id: 4, name: 'Bambang Pamungkas Ahmadi', lecturerCode: 'BPA', jabatanFungsionalAkademik: ['Guru Besar'], kelompokKeahlian: 'Software Engineering', statusPegawai: 'Tetap' },
+    // { id: 5, name: 'Bambang Pamungkas Zakari', lecturerCode: 'BPZ', jabatanFungsionalAkademik: ['Tenaga Pengajar'], statusPegawai: 'Tetap' },
+    // { id: 6, name: 'Siti Aminah', lecturerCode: 'STA', jabatanFungsionalAkademik: ['Lektor'], pendidikanTerakhir: ['S3'], statusPegawai: 'Tetap' },
+    // { id: 7, name: 'Ahmad Subagyo', lecturerCode: 'ASB', jabatanFungsionalAkademik: ['Asisten Ahli'], statusPegawai: 'Tetap' },
+    // { id: 8, name: 'Dewi Lestari', lecturerCode: 'DWL', jabatanFungsionalAkademik: ['Lektor Kepala'], department: 'Informatika', statusPegawai: 'Tetap' },
+    // { id: 9, name: 'Rizky Pratama', lecturerCode: 'RZP', jabatanFungsionalAkademik: ['Guru Besar'], statusPegawai: 'Tetap' },
+    // { id: 10, name: 'Putu Wijaya', lecturerCode: 'PTW', jabatanFungsionalAkademik: ['Lektor'], statusPegawai: 'Tetap' },
   ];
 
   currentPage: number = 1;

@@ -83,10 +83,10 @@ export class DetailDosenComponent implements OnInit {
       });
   }
 
-  private mapDosenDetailResponseToLecturer(dosen: DosenDetailResponse): Lecturer {
-    if (!dosen || (!dosen.id && !dosen.kode_dosen)) {
-      console.error('mapDosenDetailResponseToLecturer: Invalid "dosen" object received. Missing ID or Kode Dosen.', dosen);
-      throw new Error('Invalid DosenDetailResponse: ID or Kode Dosen is missing.');
+  private mapDosenDetailResponseToLecturer(dosen: any): Lecturer {
+    if (!dosen || !dosen.id) {
+      console.error('mapDosenDetailResponseToLecturer: Invalid "dosen" object received. Missing ID.', dosen);
+      throw new Error('Invalid DosenDetailResponse: ID is missing.');
     }
 
     return {
@@ -94,15 +94,14 @@ export class DetailDosenComponent implements OnInit {
       name: dosen.nama_dosen || '',
       lecturerCode: dosen.kode_dosen || '',
       email: dosen.contact_person || '',
-      jabatanFunctionalAkademik: dosen.jabatan ? [dosen.jabatan] : [],
+      jabatanFungsionalAkademik: dosen.jabatan || '',
       statusPegawai: dosen.status || '',
-      pendidikanTerakhir: dosen.pendidikan ? dosen.pendidikan.split(',').map(s => s.trim()) : [],
-      department: dosen.home_base || '',
-      nidn: dosen.nidn || '',
-      nip: dosen.nip || '',
-      kelompokKeahlian: dosen.bidang_keahlian || '',
-      idJabatanStruktural: undefined,
-      idKelompokKeahlian: undefined,
+      pendidikanTerakhir: dosen.pendidikan || null,
+      nidn: dosen.nidn || null,
+      nip: dosen.nip || null,
+      kelompokKeahlian: dosen.kelompok_keahlian || null,
+      idJabatanStruktural: null,
+      idKelompokKeahlian: 0,
     };
   }
 

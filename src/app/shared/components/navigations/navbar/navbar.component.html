@@ -8,7 +8,7 @@
 >
   <div class="navbar-container">
     <div class="navbar-left">
-      <button class="toggle-btn" (click)="onToggleSidenav()">
+      <button class="toggle-btn" (click)="onToggleSidenav()" title="Collapse">
         <i
           class="fa"
           [class.fa-bars]="collapsed"
@@ -17,10 +17,9 @@
       </button>
       <div class="breadcrumb">
         <span class="breadcrumb-full"
-          >Sistem Plottingan Pengajaran | SIPLONGJAR | Tahun Ajaran 2024/2025 |
-          Semester Genap</span
+          >Sistem Plottingan Pengajaran | {{ activeTahunAjaranString }}</span
         >
-        <span class="breadcrumb-short">Sistem Plottingan Pengajaran</span>
+        <span class="breadcrumb-short">SIPLONGJAR</span>
       </div>
     </div>
     <div class="navbar-right">

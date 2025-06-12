@@ -130,7 +130,7 @@ export class ListDosenComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (response) => {
           if (response.success && response.data) {
-            this.lecturers = this.mapDosenResponseToLecturer(response.data.data);
+            this.lecturers = this.mapDosenResponseToLecturers(response.data.data);
             this.paginatedLecturers = [...this.lecturers];
             this.filteredLecturers = [...this.lecturers];
             this.totalItems = response.data.total;
@@ -162,21 +162,22 @@ export class ListDosenComponent implements OnInit, OnDestroy {
       });
   }
 
-  private mapDosenResponseToLecturer(dosenList: DosenResponse[]): Lecturer[] {
+  private mapDosenResponseToLecturers(dosenList: any[]): Lecturer[] {
     return dosenList.map(dosen => ({
       id: dosen.id,
       name: dosen.name,
       lecturerCode: dosen.lecturer_code,
       email: dosen.email || '',
-      jabatanFunctionalAkademik: dosen.jabatan_fungsional_akademik ? [dosen.jabatan_fungsional_akademik] : [],
+      jabatanFungsionalAkademik: dosen.jabatan_fungsional_akademik || '',
       statusPegawai: dosen.status_pegawai,
-      pendidikanTerakhir: dosen.pendidikan_terakhir ? dosen.pendidikan_terakhir.split(',').map(s => s.trim()) : [],
-      department: dosen.kelompok_keahlian?.nama || '',
-      nidn: dosen.nidn || '',
-      nip: dosen.nip || '',
-      kelompokKeahlian: dosen.kelompok_keahlian?.nama || '',
-      idJabatanStruktural: dosen.id_jabatan_struktural,
+      pendidikanTerakhir: dosen.pendidikan_terakhir || null,
+      nidn: dosen.nidn || null,
+      nip: dosen.nip || null,
+      kelompokKeahlian: dosen.kelompok_keahlian || null,
+      idJabatanStruktural: dosen.id_jabatan_struktural || null,
       idKelompokKeahlian: dosen.id_kelompok_keahlian,
+      createdAt: dosen.created_at,
+      updatedAt: dosen.updated_at,
     }));
   }
 

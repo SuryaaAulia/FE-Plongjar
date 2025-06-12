@@ -7,7 +7,11 @@
       </p>
     </div>
 
-    <form [formGroup]="jabatanForm" class="jabatan-form">
+    <form
+      [formGroup]="jabatanForm"
+      (ngSubmit)="onSubmit()"
+      class="jabatan-form"
+    >
       <app-form-input
         label="Nama Jabatan"
         type="text"
@@ -18,12 +22,11 @@
       ></app-form-input>
 
       <app-form-input
-        label="Maksimal SKS"
-        type="select"
-        placeholder="Pilih Maksimal SKS"
+        label="Konversi SKS"
+        type="number"
+        placeholder="Masukkan jumlah SKS (contoh: 10)"
         formControlName="maksimal_sks"
         [control]="sksControl"
-        [options]="sksOptions"
         [required]="true"
       ></app-form-input>
 

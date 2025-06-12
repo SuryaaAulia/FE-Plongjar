@@ -11,6 +11,7 @@ export class ApiService {
 
     constructor(private http: HttpClient) { }
 
+    // AUTH METHODS
     login(email: string, password: string): Observable<any> {
         const url = this.endpoint.getUrl('auth', 'login');
         return this.http.post(url!, { email, password });
@@ -31,6 +32,7 @@ export class ApiService {
         return this.http.get(url!);
     }
 
+    // ROLE MANAGEMENT METHODS
     getAllRoles(): Observable<any> {
         const url = this.endpoint.getUrl('roles', 'get_all_roles');
         return this.http.get(url!);
@@ -66,6 +68,12 @@ export class ApiService {
         return this.http.post(url!, data);
     }
 
+    assignScopedRole(data: any): Observable<any> {
+        const url = this.endpoint.getUrl('roles', 'assign_scoped_role');
+        return this.http.post(url!, data);
+    }
+
+    // PIC MANAGEMENT METHODS
     addPic(picData: any): Observable<any> {
         const url = this.endpoint.getUrl('pic', 'add');
         return this.http.post(url!, picData);
@@ -76,6 +84,7 @@ export class ApiService {
         return this.http.get(url!);
     }
 
+    // DOSEN MANAGEMENT METHODS
     addDosen(dosenData: any): Observable<any> {
         const url = this.endpoint.getUrl('dosen', 'add');
         return this.http.post(url!, dosenData);
@@ -92,6 +101,26 @@ export class ApiService {
 
     getDosenByKK(kkId: number): Observable<any> {
         const url = this.endpoint.getUrl('dosen', 'get_by_kk', { kkId });
+        return this.http.get(url!);
+    }
+
+    getDosenByKKAlt(kkId: number): Observable<any> {
+        const url = this.endpoint.getUrl('dosen', 'get_by_kk_alt', { kkId });
+        return this.http.get(url!);
+    }
+
+    getDosenTanpaJabatan(): Observable<any> {
+        const url = this.endpoint.getUrl('dosen', 'get_tanpa_jabatan');
+        return this.http.get(url!);
+    }
+
+    getDosenDenganJabatan(): Observable<any> {
+        const url = this.endpoint.getUrl('dosen', 'get_dengan_jabatan');
+        return this.http.get(url!);
+    }
+
+    getDosenByJabatan(jabatanId: number): Observable<any> {
+        const url = this.endpoint.getUrl('dosen', 'get_by_jabatan', { jabatanId });
         return this.http.get(url!);
     }
 
@@ -130,6 +159,22 @@ export class ApiService {
         return this.http.post(url!, data);
     }
 
+    getLaporanBebanSksDosen(tahunAjaranId: number): Observable<any> {
+        const url = this.endpoint.getUrl('dosen', 'laporan_beban_sks', { tahunAjaranId });
+        return this.http.get(url!);
+    }
+
+    getRiwayatPengajaran(dosenId: number): Observable<any> {
+        const url = this.endpoint.getUrl('dosen', 'riwayat_pengajaran', { dosenId });
+        return this.http.get(url!);
+    }
+
+    getBebanSksDosenAktif(dosenId: number): Observable<any> {
+        const url = this.endpoint.getUrl('dosen', 'beban_sks_aktif', { dosenId });
+        return this.http.get(url!);
+    }
+
+    // MATAKULIAH MANAGEMENT METHODS
     getAllMatakuliah(): Observable<any> {
         const url = this.endpoint.getUrl('matakuliah', 'get_all');
         return this.http.get(url!);
@@ -155,16 +200,39 @@ export class ApiService {
         return this.http.delete(url!);
     }
 
+    // PROGRAM STUDI MANAGEMENT METHODS
     getAllProgramStudi(): Observable<any> {
         const url = this.endpoint.getUrl('program_studi', 'get_all');
         return this.http.get(url!);
     }
 
+    createProgramStudi(data: any): Observable<any> {
+        const url = this.endpoint.getUrl('program_studi', 'resource');
+        return this.http.post(url!, data);
+    }
+
+    getProgramStudiById(id: number): Observable<any> {
+        const url = this.endpoint.getUrl('program_studi', 'show', { id });
+        return this.http.get(url!);
+    }
+
+    updateProgramStudi(id: number, data: any): Observable<any> {
+        const url = this.endpoint.getUrl('program_studi', 'update', { id });
+        return this.http.put(url!, data);
+    }
+
+    deleteProgramStudi(id: number): Observable<any> {
+        const url = this.endpoint.getUrl('program_studi', 'delete', { id });
+        return this.http.delete(url!);
+    }
+
+    // KELOMPOK KEAHLIAN MANAGEMENT METHODS
     getAllKelompokKeahlian(): Observable<any> {
         const url = this.endpoint.getUrl('kelompok_keahlian', 'get_all');
         return this.http.get(url!);
     }
 
+    // MAPPING KELAS MATAKULIAH METHODS
     getAllMappingKelasMatkul(): Observable<any> {
         const url = this.endpoint.getUrl('mapping_kelas_matkul', 'resource');
         return this.http.get(url!);
@@ -185,6 +253,16 @@ export class ApiService {
         return this.http.get(url!);
     }
 
+    getMappingByMatkulTahunProdi(matkulId: number, tahunAjaranId: number, prodiId: number): Observable<any> {
+        const url = this.endpoint.getUrl('mapping_kelas_matkul', 'get_by_matkul_tahun_prodi', { matkulId, tahunAjaranId, prodiId });
+        return this.http.get(url!);
+    }
+
+    getMappingByMatkulTahun(matkulId: number, tahunAjaranId: number): Observable<any> {
+        const url = this.endpoint.getUrl('mapping_kelas_matkul', 'get_by_matkul_tahun', { matkulId, tahunAjaranId });
+        return this.http.get(url!);
+    }
+
     getMappingKelasByMatkulId(id: number): Observable<any> {
         const url = this.endpoint.getUrl('mapping_kelas_matkul', 'show', { id });
         return this.http.get(url!);
@@ -200,6 +278,7 @@ export class ApiService {
         return this.http.delete(url!);
     }
 
+    // KOORDINATOR MATAKULIAH METHODS
     getAllKoordinatorMatakuliah(): Observable<any> {
         const url = this.endpoint.getUrl('koordinator_matakuliah', 'resource');
         return this.http.get(url!);
@@ -207,6 +286,11 @@ export class ApiService {
 
     createKoordinatorMatakuliah(data: any): Observable<any> {
         const url = this.endpoint.getUrl('koordinator_matakuliah', 'resource');
+        return this.http.post(url!, data);
+    }
+
+    assignKoordinatorByProgramStudi(data: any): Observable<any> {
+        const url = this.endpoint.getUrl('koordinator_matakuliah', 'assign_by_prodi');
         return this.http.post(url!, data);
     }
 
@@ -225,6 +309,7 @@ export class ApiService {
         return this.http.delete(url!);
     }
 
+    // TAHUN AJARAN METHODS
     getAllTahunAjaran(): Observable<any> {
         const url = this.endpoint.getUrl('tahun_ajaran', 'resource');
         return this.http.get(url!);
@@ -233,6 +318,16 @@ export class ApiService {
     createTahunAjaran(data: any): Observable<any> {
         const url = this.endpoint.getUrl('tahun_ajaran', 'resource');
         return this.http.post(url!, data);
+    }
+
+    getActiveTahunAjaran(): Observable<any> {
+        const url = this.endpoint.getUrl('tahun_ajaran', 'get_active');
+        return this.http.get(url!);
+    }
+
+    setActiveTahunAjaran(id: number): Observable<any> {
+        const url = this.endpoint.getUrl('tahun_ajaran', 'set_active', { id });
+        return this.http.post(url!, {});
     }
 
     getTahunAjaranById(id: number): Observable<any> {
@@ -246,49 +341,79 @@ export class ApiService {
     }
 
     deleteTahunAjaran(id: number): Observable<any> {
-        const url = this.endpoint.getUrl('tahun_ajaran', 'delete', { id });
+        const url = this.endpoint.getUrl('tahun _ajaran', 'delete', { id });
         return this.http.delete(url!);
     }
 
+    // JABATAN STRUKTURAL METHODS
     getAllJabatanStruktural(): Observable<any> {
-        const url = this.endpoint.getUrl('jabatan_struktural', 'show');
+        const url = this.endpoint.getUrl('jabatan_struktural', 'resource');
         return this.http.get(url!);
     }
 
     createJabatanStruktural(data: any): Observable<any> {
-        const url = this.endpoint.getUrl('jabatan_struktural', 'create');
+        const url = this.endpoint.getUrl('jabatan_struktural', 'resource');
         return this.http.post(url!, data);
     }
 
-    get(namespace: string, key: string, context?: any): Observable<any> {
-        const url = this.endpoint.getUrl(namespace as any, key as any, context);
-        if (!url) {
-            throw new Error(`Invalid endpoint: ${namespace}.${key}`);
-        }
-        return this.http.get(url);
+    getJabatanStrukturalById(id: number): Observable<any> {
+        const url = this.endpoint.getUrl('jabatan_struktural', 'show', { id });
+        return this.http.get(url!);
     }
 
-    post(namespace: string, key: string, data: any, context?: any): Observable<any> {
-        const url = this.endpoint.getUrl(namespace as any, key as any, context);
-        if (!url) {
-            throw new Error(`Invalid endpoint: ${namespace}.${key}`);
-        }
-        return this.http.post(url, data);
+    updateJabatanStruktural(id: number, data: any): Observable<any> {
+        const url = this.endpoint.getUrl('jabatan_struktural', 'update', { id });
+        return this.http.put(url!, data);
     }
 
-    put(namespace: string, key: string, data: any, context?: any): Observable<any> {
-        const url = this.endpoint.getUrl(namespace as any, key as any, context);
-        if (!url) {
-            throw new Error(`Invalid endpoint: ${namespace}.${key}`);
-        }
-        return this.http.put(url, data);
+    deleteJabatanStruktural(id: number): Observable<any> {
+        const url = this.endpoint.getUrl('jabatan_struktural', 'delete', { id });
+        return this.http.delete(url!);
     }
 
-    delete(namespace: string, key: string, context?: any): Observable<any> {
-        const url = this.endpoint.getUrl(namespace as any, key as any, context);
-        if (!url) {
-            throw new Error(`Invalid endpoint: ${namespace}.${key}`);
-        }
-        return this.http.delete(url);
+    // PLOTTINGAN PENGAJARAN METHODS
+    getAllPlottinganPengajaran(): Observable<any> {
+        const url = this.endpoint.getUrl('plottingan_pengajaran', 'resource');
+        return this.http.get(url!);
+    }
+
+    createPlottinganPengajaran(data: any): Observable<any> {
+        const url = this.endpoint.getUrl('plottingan_pengajaran', 'resource');
+        return this.http.post(url!, data);
+    }
+
+    getHasilPlottinganPengajaran(tahunAjaranId: number): Observable<any> {
+        const url = this.endpoint.getUrl('plottingan_pengajaran', 'get_hasil', { tahunAjaranId });
+        return this.http.get(url!);
+    }
+
+    getHasilPlottinganByProdi(tahunAjaranId: number, prodiId: number): Observable<any> {
+        const url = this.endpoint.getUrl('plottingan_pengajaran', 'get_hasil_by_prodi', { tahunAjaranId, prodiId });
+        return this.http.get(url!);
+    }
+
+    exportPlottinganPengajaran(tahunAjaranId: number): Observable<any> {
+        const url = this.endpoint.getUrl('plottingan_pengajaran', 'export', { tahunAjaranId });
+        return this.http.get(url!, { responseType: 'blob' });
+    }
+
+    exportPlottinganByProdi(tahunAjaranId: number, prodiId: number): Observable<any> {
+        const url = this.endpoint.getUrl('plottingan_pengajaran', 'export_by_prodi', { tahunAjaranId, prodiId });
+        return this.http.get(url!, { responseType: 'blob' });
+    }
+
+    getPlottinganPengajaranById(id: number): Observable<any> {
+        const url = this.endpoint.getUrl('plottingan_pengajaran', 'show', { id });
+        return this.http.get(url!);
+    }
+
+    updatePlottinganPengajaran(id: number, data: any): Observable<any> {
+        const url = this.endpoint.getUrl('plottingan_pengajaran', 'update', { id });
+        return this.http.put(url!, data);
+    }
+
+    deletePlottinganPengajaran(id: number): Observable<any> {
+        const url = this.endpoint.getUrl('plottingan_pengajaran', 'delete', { id });
+        return this.http.delete(url!);
     }
 }

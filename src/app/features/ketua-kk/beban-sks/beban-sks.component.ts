@@ -128,7 +128,7 @@ export class BebanSksComponent implements OnInit {
       this.totalItems = this.dosenBebanSksData.length;
       this.updatePagination();
       this.isLoading = false;
-    }, 800); // 800ms delay to simulate loading
+    }, 800);
   }
 
   updatePagination(): void {

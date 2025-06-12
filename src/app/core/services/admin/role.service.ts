@@ -70,16 +70,38 @@ export class RoleService {
     getAllUsersByRole(roleId: number): Observable<UserWithRoles[]> {
         return this.apiService.getAllUsersByRole(roleId).pipe(
             map((response: any) => {
-                const users = response.data || [];
+                let users: any[] = [];
 
-                users.forEach((user: UserWithRoles) => {
-                    if (user.roles && user.roles.length > 1) {
-                        console.warn(`User ${user.name} (ID: ${user.id}) has multiple roles:`, user.roles);
-                        console.warn('Only the first role will be used for display purposes');
+                if (Array.isArray(response)) {
+                    users = response;
+                } else if (response && response.data) {
+                    if (response.data.data && Array.isArray(response.data.data)) {
+                        users = response.data.data;
+                    } else if (Array.isArray(response.data)) {
+                        users = response.data;
                     }
-                });
+                }
 
-                return users;
+                const transformedUsers: UserWithRoles[] = [];
+
+                if (Array.isArray(users)) {
+                    const currentRoles = this.rolesSubject.value;
+                    const currentRole = currentRoles.find(role => role.id === roleId);
+
+                    users.forEach((user: any) => {
+                        const transformedUser: UserWithRoles = {
+                            id: user.id,
+                            name: user.name,
+                            email: user.email,
+                            nip: user.nip,
+                            roles: currentRole ? [currentRole] : []
+                        };
+
+                        transformedUsers.push(transformedUser);
+                    });
+                }
+
+                return transformedUsers;
             }),
             catchError(error => {
                 console.error('Error fetching users by role:', error);
@@ -113,7 +135,6 @@ export class RoleService {
         return this.apiService.assignRole(assignment).pipe(
             tap((response) => {
                 console.log('Role assigned successfully:', response);
-                // Refresh the assigned user roles data
                 this.getAllAssignedUserRoles().subscribe();
             }),
             catchError(error => {
@@ -131,7 +152,6 @@ export class RoleService {
         return this.apiService.revokeRole(data).pipe(
             tap((response) => {
                 console.log('Role revoked successfully:', response);
-                // Refresh the assigned user roles data
                 this.getAllAssignedUserRoles().subscribe();
             }),
             catchError(error => {

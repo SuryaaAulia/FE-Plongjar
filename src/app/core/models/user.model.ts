@@ -17,22 +17,23 @@ export interface PaginatedUsers {
   limit: number;
 }
 
+export interface KelompokKeahlian {
+  id: number;
+  nama: string;
+}
 export interface Lecturer {
   id: number;
   name: string;
   lecturerCode: string;
-  email?: string;
-  jabatanFunctionalAkademik: string[];
+  nip: string | null;
+  nidn: string | null;
+  email: string;
+  jabatanFungsionalAkademik: string;
+  idJabatanStruktural: number | null;
   statusPegawai: string;
-  pendidikanTerakhir?: string[];
-  department?: string;
-  nidn?: string;
-  nip?: string;
-  kelompokKeahlian?: string;
-  idJabatanStruktural?: number;
-  idKelompokKeahlian?: number;
-  createdAt?: string;
-  updatedAt?: string;
+  pendidikanTerakhir: string;
+  idKelompokKeahlian: number;
+  kelompokKeahlian?: KelompokKeahlian;
 }
 
 export interface TeachingRecord {
@@ -55,4 +56,9 @@ export interface Course {
   statusMatkul: string;
   metodePerkuliahan: string;
   praktikum: string;
+}
+export interface JabatanStruktural {
+  id: number;
+  nama: string;
+  konversi_sks: number;
 }

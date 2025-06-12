@@ -247,7 +247,6 @@ export const routes: Routes = [
             redirectTo: 'dashboard',
             pathMatch: 'full',
           },
-          // Add LAAK specific routes here
           {
             path: 'dashboard',
             loadComponent: () =>

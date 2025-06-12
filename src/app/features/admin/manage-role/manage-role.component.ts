@@ -94,7 +94,6 @@ export class ManageRoleComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (users) => {
           this.validateSingleRole(users);
-
           this.users = users;
           this.applyFilters();
         },
@@ -122,9 +121,6 @@ export class ManageRoleComponent implements OnInit, OnDestroy {
       if (user.roles && user.roles.length > 0) {
         userRole = user.roles[0];
       }
-
-      console.log('Transforming user:', user.name);
-      console.log('User has role:', userRole ? userRole.name : 'No role');
 
       return {
         id: user.id,

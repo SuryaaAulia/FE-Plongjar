@@ -27,20 +27,24 @@
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr auto;
-  gap: 1.5rem;
+  column-gap: 1.5rem;
   align-items: start;
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
-    gap: 1rem;
   }
 }
 
 .button-container {
-  padding-top: 2rem;
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  padding-bottom: 1.5rem;
 
   @media (max-width: 768px) {
+    justify-content: stretch;
     padding-top: 0;
+
     app-action-button {
       width: 100%;
     }

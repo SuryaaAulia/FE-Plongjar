@@ -33,7 +33,6 @@ export class ActionButtonComponent implements OnInit, OnChanges {
   public currentButtonStyles: { [key: string]: string | null } = {};
   private readonly FIXED_BORDER_RADIUS_PX: number = 6;
 
-  // Computed properties
   get isDisabled(): boolean {
     return this.disabled || this.loading;
   }

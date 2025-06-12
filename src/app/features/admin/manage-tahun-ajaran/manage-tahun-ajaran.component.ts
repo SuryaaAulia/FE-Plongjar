@@ -1,14 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule as NgFormsModule, AbstractControl } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { ActionButtonComponent, FormInputComponent, SelectOption } from '../../../shared/components/index';
-
-interface TahunAjaranEntry {
-  id: string;
-  tahunAjaran: string;
-  semester: 'Ganjil' | 'Genap';
-  statusAktif: boolean;
-}
+import { TahunAjaran, TahunAjaranService } from '../../../core/services/admin/tahun-ajaran.service';
 
 @Component({
   selector: 'app-tahun-ajaran',
@@ -16,113 +12,195 @@ interface TahunAjaranEntry {
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    NgFormsModule,
     ActionButtonComponent,
-    FormInputComponent
+    FormInputComponent,
   ],
   templateUrl: './manage-tahun-ajaran.component.html',
   styleUrls: ['./manage-tahun-ajaran.component.scss']
 })
-export class ManageTahunAjaranComponent implements OnInit {
+export class ManageTahunAjaranComponent implements OnInit, OnDestroy {
   tahunAjaranForm!: FormGroup;
-  daftarTahunAjaran: TahunAjaranEntry[] = [];
-  tahunOptions: SelectOption[] = [];
+  daftarTahunAjaran: TahunAjaran[] = [];
+  activeTahunAjaran: TahunAjaran | null = null;
 
-  constructor(private fb: FormBuilder) { }
+  tahunOptions: SelectOption[] = [];
+  sampaiTahunOptions: SelectOption[] = [];
+  semesterOptions: SelectOption[] = [];
+
+  private destroy$ = new Subject<void>();
+
+  constructor(
+    private fb: FormBuilder,
+    private tahunAjaranService: TahunAjaranService
+  ) { }
 
   ngOnInit(): void {
     this.generateTahunOptions();
+    this.generateSemesterOptions();
+    this.initForm();
+    this.loadTahunAjaranData();
+
+    this.tahunAjaranService.activeTahunAjaran$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(active => {
+        this.activeTahunAjaran = active;
+        this.updateStatusInList();
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private initForm(): void {
     this.tahunAjaranForm = this.fb.group({
       dariTahun: ['', Validators.required],
-      sampaiTahun: ['', Validators.required]
-    }, { validator: this.tahunValidator });
+      sampaiTahun: ['', Validators.required],
+      semester: ['', Validators.required],
+    }, { validators: this.tahunValidator });
 
-    // Pre-populate with some data to match the image
-    this.prepopulateData();
+    this.getControl('dariTahun').valueChanges.pipe(takeUntil(this.destroy$)).subscribe(val => {
+      const dariTahunNum = parseInt(val, 10);
+      this.sampaiTahunOptions = this.tahunOptions.filter(option => Number(option.value) > dariTahunNum);
+
+      const currentSampaiTahun = this.getControl('sampaiTahun').value;
+      if (currentSampaiTahun && parseInt(currentSampaiTahun, 10) <= dariTahunNum) {
+        this.getControl('sampaiTahun').setValue('');
+      }
+    });
+  }
+
+  private loadTahunAjaranData(): void {
+    this.tahunAjaranService.getAllTahunAjaran()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          if (res.success && Array.isArray(res.data)) {
+            this.daftarTahunAjaran = res.data.sort((a: TahunAjaran, b: TahunAjaran) => {
+              if (a.tahun_ajaran > b.tahun_ajaran) return -1;
+              if (a.tahun_ajaran < b.tahun_ajaran) return 1;
+              if (a.semester > b.semester) return -1;
+              if (a.semester < b.semester) return 1;
+              return 0;
+            });
+            this.updateStatusInList();
+          }
+        },
+        error: (err) => {
+          console.error('Failed to load tahun ajaran list', err);
+          alert('Error: Gagal memuat daftar tahun ajaran.');
+        }
+      });
+
+    this.tahunAjaranService.loadInitialActiveTahunAjaran();
+  }
+
+  private updateStatusInList(): void {
+    if (this.activeTahunAjaran && this.daftarTahunAjaran.length > 0) {
+      this.daftarTahunAjaran.forEach(item => {
+        item.status = (item.id === this.activeTahunAjaran?.id) ? 1 : 0;
+      });
+    }
   }
 
   private generateTahunOptions(): void {
     const currentYear = new Date().getFullYear();
-    for (let i = 0; i < 10; i++) {
+    for (let i = -5; i < 10; i++) {
       const year = currentYear + i;
       this.tahunOptions.push({ value: year.toString(), label: year.toString() });
     }
+    this.sampaiTahunOptions = [...this.tahunOptions];
   }
 
-  // Pre-populate data to match the initial screenshot
-  private prepopulateData(): void {
-    this.daftarTahunAjaran = [
-      { id: crypto.randomUUID(), tahunAjaran: '2024/2025', semester: 'Genap', statusAktif: false },
-      { id: crypto.randomUUID(), tahunAjaran: '2024/2025', semester: 'Genap', statusAktif: false },
-      { id: crypto.randomUUID(), tahunAjaran: '2024/2025', semester: 'Genap', statusAktif: false },
-      { id: crypto.randomUUID(), tahunAjaran: '2024/2025', semester: 'Genap', statusAktif: false },
-      { id: crypto.randomUUID(), tahunAjaran: '2024/2025', semester: 'Genap', statusAktif: false },
-      { id: crypto.randomUUID(), tahunAjaran: '2024/2025', semester: 'Genap', statusAktif: false },
+  private generateSemesterOptions(): void {
+    this.semesterOptions = [
+      { value: 'ganjil', label: 'Ganjil' },
+      { value: 'genap', label: 'Genap' }
     ];
   }
 
-
-  tahunValidator(group: FormGroup): { [key: string]: boolean } | null {
+  tahunValidator = (control: AbstractControl): ValidationErrors | null => {
+    const group = control as FormGroup;
     const dari = group.get('dariTahun')?.value;
     const sampai = group.get('sampaiTahun')?.value;
+
     if (dari && sampai && parseInt(dari, 10) >= parseInt(sampai, 10)) {
       return { tahunTidakValid: true };
     }
-    return null;
-  }
 
-  getControl(name: string): AbstractControl | null {
-    return this.tahunAjaranForm.get(name);
+    return null;
+  };
+
+
+  getControl(name: string): AbstractControl {
+    return this.tahunAjaranForm.get(name) as AbstractControl;
   }
 
   tambahTahunAjaran(): void {
     if (this.tahunAjaranForm.invalid) {
       this.tahunAjaranForm.markAllAsTouched();
+      alert('Peringatan: Harap isi semua field yang diperlukan.');
       return;
     }
 
-    const { dariTahun, sampaiTahun } = this.tahunAjaranForm.value;
-    const newTahunAjaran: TahunAjaranEntry = {
-      id: crypto.randomUUID(),
-      tahunAjaran: `${dariTahun}/${sampaiTahun}`,
-      semester: 'Genap', // Default semester
-      statusAktif: false,
+    const { dariTahun, sampaiTahun, semester } = this.tahunAjaranForm.value;
+    const payload = {
+      tahun_ajaran: `${dariTahun}/${sampaiTahun}`,
+      semester: semester,
     };
 
-    this.daftarTahunAjaran.unshift(newTahunAjaran); // Add to the top of the list
-    this.tahunAjaranForm.reset();
+    this.tahunAjaranService.createTahunAjaran(payload)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          alert(res.message || 'Tahun Ajaran berhasil ditambahkan.');
+          this.tahunAjaranForm.reset();
+          this.getControl('dariTahun').setValue(''); // Clear selections
+          this.getControl('sampaiTahun').setValue('');
+          this.getControl('semester').setValue('');
+          this.loadTahunAjaranData();
+        },
+        error: (err) => {
+          const errorMsg = err.error?.message || 'Gagal menambahkan tahun ajaran.';
+          alert('Error: ' + errorMsg);
+          console.error('Create error:', err);
+        }
+      });
   }
 
-  hapusTahunAjaran(index: number): void {
-    if (index >= 0 && index < this.daftarTahunAjaran.length) {
-      this.daftarTahunAjaran.splice(index, 1);
+  hapusTahunAjaran(ajaran: TahunAjaran): void {
+    if (confirm(`Anda yakin akan menghapus ${ajaran.tahun_ajaran} - semester ${ajaran.semester}? Aksi ini tidak dapat dibatalkan.`)) {
+      this.tahunAjaranService.deleteTahunAjaran(ajaran.id)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (res) => {
+            alert(res.message || 'Tahun Ajaran telah dihapus.');
+            this.loadTahunAjaranData();
+          },
+          error: (err) => {
+            const errorMsg = err.error?.message || 'Gagal menghapus tahun ajaran.';
+            alert('Error: ' + errorMsg);
+            console.error('Delete error:', err);
+          }
+        });
     }
   }
 
-  setAktif(selectedIndex: number): void {
-    this.daftarTahunAjaran.forEach((item, index) => {
-      item.statusAktif = index === selectedIndex;
-    });
-  }
-
-  simpanTahunAjaran(): void {
-    if (this.daftarTahunAjaran.length === 0) {
-      alert('Tidak ada data untuk disimpan.');
-      return;
-    }
-
-    const activeEntry = this.daftarTahunAjaran.find(item => item.statusAktif);
-    if (!activeEntry) {
-      alert('Silakan pilih satu Tahun Ajaran sebagai status aktif.');
-      return;
-    }
-
-    const dataToSave = {
-      daftarTahunAjaran: this.daftarTahunAjaran,
-      tahunAjaranAktif: activeEntry
-    };
-
-    console.log('Menyimpan data:', dataToSave);
-    alert(`Tahun Ajaran berhasil disimpan! Aktif: ${activeEntry.tahunAjaran} - ${activeEntry.semester}`);
+  setAktif(ajaran: TahunAjaran): void {
+    this.tahunAjaranService.setActiveTahunAjaran(ajaran.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          alert(res.message || 'Status berhasil diperbarui.');
+          this.loadTahunAjaranData();
+        },
+        error: (err) => {
+          const errorMsg = err.error?.message || 'Gagal mengubah status aktif.';
+          alert('Error: ' + errorMsg);
+          console.error('Set active error:', err);
+          this.loadTahunAjaranData();
+        }
+      });
   }
 }

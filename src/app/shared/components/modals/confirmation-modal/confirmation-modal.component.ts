@@ -62,14 +62,6 @@ export class ConfirmationModalComponent implements OnChanges {
     this.cancelled.emit();
   }
 
-  // This method is for the parent to call if it wants to force close,
-  // or parent can just set isVisible to false.
-  // For this design, parent controls isVisible.
-  // closeModal(): void {
-  //   this.isVisible = false; // This is problematic if isVisible is an @Input
-  //   this.resetStates();
-  // }
-
   onBackdropClick(event: MouseEvent): void {
     if (event.target === event.currentTarget) {
       this.onCancel(); 

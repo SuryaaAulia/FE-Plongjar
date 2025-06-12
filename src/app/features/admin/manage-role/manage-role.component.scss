@@ -9,12 +9,12 @@
 }
 
 .manage-role-header {
-  padding: 1.5rem;
+  padding-top: 0.75rem;
 }
 
 .horizontal-divider {
   height: 1px;
-  background-color: #e2e8f0;
+  background-color: var(--grey);
   width: 100%;
   margin: 0;
 }
@@ -34,14 +34,14 @@
 .role-list-sidebar {
   width: 200px;
   padding: 1rem;
-  background-color: #fff;
+  background-color: var(--primary-white);
   overflow-y: auto;
   flex-shrink: 0;
 }
 
 .vertical-divider {
   width: 1px;
-  background-color: #e2e8f0;
+  background-color: var(--grey);
   height: 100%;
 }
 
