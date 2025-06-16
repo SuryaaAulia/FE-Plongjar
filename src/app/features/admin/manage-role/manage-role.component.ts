@@ -1,18 +1,19 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
-import { Subject } from 'rxjs';
+import { Subject, forkJoin } from 'rxjs';
 import { takeUntil, finalize } from 'rxjs/operators';
 import {
   SearchHeaderComponent,
   UserCardComponent,
   PaginationComponent,
   LoadingSpinnerComponent,
-  SearchNotFoundComponent
+  SearchNotFoundComponent,
+  AssignScopeCardComponent,
+  ScopeOption
 } from '../../../shared/components/index';
 import { User, Role } from '../../../core/models/user.model';
-import { RoleService, UserWithRoles } from '../../../core/services/admin/role.service';
+import { RoleService, UserWithRoles, ScopedRoleAssignment } from '../../../core/services/admin/role.service';
 
 @Component({
   selector: 'app-manage-role',
@@ -25,6 +26,7 @@ import { RoleService, UserWithRoles } from '../../../core/services/admin/role.se
     PaginationComponent,
     LoadingSpinnerComponent,
     SearchNotFoundComponent,
+    AssignScopeCardComponent,
   ],
   templateUrl: './manage-role.component.html',
   styleUrls: ['./manage-role.component.scss'],
@@ -41,17 +43,16 @@ export class ManageRoleComponent implements OnInit, OnDestroy {
   activeRoleFilter: string | null = null;
   activeRoleId: number | null = null;
 
-  currentSearchKeyword: string = '';
+  programStudiOptions: ScopeOption[] = [];
+  kelompokKeahlianOptions: ScopeOption[] = [];
 
+  currentSearchKeyword: string = '';
   private destroy$ = new Subject<void>();
 
-  constructor(
-    private router: Router,
-    public roleService: RoleService
-  ) { }
+  constructor(public roleService: RoleService) { }
 
   ngOnInit(): void {
-    this.loadRoles();
+    this.loadInitialData();
   }
 
   ngOnDestroy(): void {
@@ -59,17 +60,24 @@ export class ManageRoleComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  private loadRoles(): void {
+  private loadInitialData(): void {
     this.isLoading = true;
-
-    this.roleService.getAllRoles()
+    forkJoin({
+      roles: this.roleService.getAllRoles(),
+      programStudi: this.roleService.getAllProgramStudi(),
+      kelompokKeahlian: this.roleService.getAllKelompokKeahlian()
+    })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (roles) => {
+        next: ({ roles, programStudi, kelompokKeahlian }) => {
           this.roles = roles;
+          this.programStudiOptions = programStudi;
+          this.kelompokKeahlianOptions = kelompokKeahlian;
+
           this.availableRoles = roles.map(role =>
             this.roleService.getRoleDisplayName(role.name)
           );
+
           if (roles.length > 0) {
             this.filterByRole(this.availableRoles[0]);
           } else {
@@ -77,7 +85,7 @@ export class ManageRoleComponent implements OnInit, OnDestroy {
           }
         },
         error: (error) => {
-          console.error('Error loading roles:', error);
+          console.error('Error loading initial data:', error);
           this.isLoading = false;
         }
       });
@@ -85,7 +93,6 @@ export class ManageRoleComponent implements OnInit, OnDestroy {
 
   private loadUsersByRole(roleId: number): void {
     this.isLoading = true;
-
     this.roleService.getAllUsersByRole(roleId)
       .pipe(
         takeUntil(this.destroy$),
@@ -93,7 +100,6 @@ export class ManageRoleComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (users) => {
-          this.validateSingleRole(users);
           this.users = users;
           this.applyFilters();
         },
@@ -105,50 +111,20 @@ export class ManageRoleComponent implements OnInit, OnDestroy {
       });
   }
 
-  private validateSingleRole(users: UserWithRoles[]): void {
-    users.forEach(user => {
-      if (user.roles && user.roles.length > 1) {
-        console.warn(`User ${user.name} (ID: ${user.id}) has multiple roles:`, user.roles);
-        console.warn('Only the first role will be displayed');
-      }
-    });
-  }
-
   private transformUsersForDisplay(users: UserWithRoles[]): User[] {
     return users.map(user => {
-      let userRole: Role | undefined;
-
-      if (user.roles && user.roles.length > 0) {
-        userRole = user.roles[0];
-      }
-
-      return {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        nip: user.nip,
-        role: userRole
-      } as User;
+      const userRole = (user.roles && user.roles.length > 0) ? user.roles[0] : undefined;
+      return { ...user, role: userRole } as User;
     });
   }
 
   filterByRole(displayName: string | null): void {
     if (!displayName) return;
-
     this.activeRoleFilter = displayName;
-
     const actualRoleName = this.roleService.getRoleByDisplayName(displayName);
-    if (!actualRoleName) {
-      console.error('Could not find role for display name:', displayName);
-      return;
-    }
-
+    if (!actualRoleName) return;
     const role = this.roles.find(r => r.name === actualRoleName);
-    if (!role) {
-      console.error('Could not find role:', actualRoleName);
-      return;
-    }
-
+    if (!role) return;
     this.activeRoleId = role.id;
     this.currentPage = 1;
     this.loadUsersByRole(role.id);
@@ -156,20 +132,42 @@ export class ManageRoleComponent implements OnInit, OnDestroy {
 
   applyFilters(searchTerm: string = this.currentSearchKeyword): void {
     const displayUsers = this.transformUsersForDisplay(this.users);
-    let tempUsers = [...displayUsers];
+    this.filteredUsers = displayUsers.filter(user =>
+      searchTerm
+        ? user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.id.toString().includes(searchTerm) ||
+        user.nip?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.email?.toLowerCase().includes(searchTerm.toLowerCase())
+        : true
+    );
+  }
 
-    if (searchTerm) {
-      const lowerSearchTerm = searchTerm.toLowerCase();
-      tempUsers = tempUsers.filter(
-        (user) =>
-          user.name.toLowerCase().includes(lowerSearchTerm) ||
-          user.id.toString().includes(searchTerm) ||
-          user.nip?.toLowerCase().includes(lowerSearchTerm) ||
-          (user.email && user.email.toLowerCase().includes(lowerSearchTerm))
-      );
+  onAssignScope(event: { userId: number, scopeId: number }): void {
+    if (!this.activeRoleId) {
+      console.error("Cannot assign scope, active role ID is not set.");
+      return;
     }
 
-    this.filteredUsers = tempUsers;
+    const assignment: ScopedRoleAssignment = {
+      user_id: event.userId,
+      role_id: this.activeRoleId,
+      roleable_id: event.scopeId
+    };
+
+    this.isLoading = true;
+    this.roleService.assignScopedRole(assignment)
+      .pipe(finalize(() => this.isLoading = false))
+      .subscribe({
+        next: () => {
+          console.log('Scope assigned successfully');
+          this.loadUsersByRole(this.activeRoleId!);
+        },
+        error: (err) => console.error('Failed to assign scope', err)
+      });
+  }
+
+  onRemoveScope(event: { userId: number }): void {
+    console.log('Remove scope for user:', event.userId);
   }
 
   onRemoveRole(user: User): void {
@@ -180,9 +178,7 @@ export class ManageRoleComponent implements OnInit, OnDestroy {
 
     const roleDisplayName = this.roleService.getRoleDisplayName(user.role.name);
 
-    if (!confirm(`Are you sure you want to remove the ${roleDisplayName} role from ${user.name}?`)) {
-      return;
-    }
+    console.log(`Requesting to remove the ${roleDisplayName} role from ${user.name}...`);
 
     this.isLoading = true;
     this.roleService.revokeRole(user.id, user.role.id)
@@ -192,13 +188,13 @@ export class ManageRoleComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (response) => {
+          console.log('Role revoked successfully:', response);
           if (this.activeRoleId) {
             this.loadUsersByRole(this.activeRoleId);
           }
         },
         error: (error) => {
           console.error('Error revoking role:', error);
-          alert('Failed to remove role. Please try again.');
         }
       });
   }

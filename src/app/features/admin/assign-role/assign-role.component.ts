@@ -97,6 +97,7 @@ export class AssignRoleComponent implements OnInit, OnDestroy {
         }
       });
   }
+
   private transformUsersForDisplay(users: UserWithRoles[]): User[] {
     return this.roleService.transformUsersForDisplay(users);
   }
@@ -137,28 +138,13 @@ export class AssignRoleComponent implements OnInit, OnDestroy {
 
     const role = this.roles.find(r => r.name === actualRoleName);
     if (!role) {
-      console.error('Could not find role:', actualRoleName);
+      console.error('Could not find role object for:', actualRoleName);
       return;
-    }
-
-    const roleableInfo = this.roleService.getRoleableInfo(role.id, role.name);
-
-    let roleableId: number;
-    let roleableType: string;
-
-    if (roleableInfo) {
-      roleableId = roleableInfo.id;
-      roleableType = roleableInfo.type;
-    } else {
-      roleableId = this.selectedUser.id;
-      roleableType = 'App\\Models\\User';
     }
 
     const assignment: RoleAssignment = {
       user_id: this.selectedUser.id,
       role_id: role.id,
-      roleable_id: roleableId,
-      roleable_type: roleableType,
     };
 
     this.isLoading = true;
@@ -178,7 +164,7 @@ export class AssignRoleComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('Error assigning role:', error);
-          alert('Failed to assign role. Please try again.');
+          console.error('Failed to assign role. Please try again.');
         },
       });
   }
@@ -197,9 +183,8 @@ export class AssignRoleComponent implements OnInit, OnDestroy {
 
     const roleDisplayName = this.roleService.getRoleDisplayName(user.role.name);
 
-    if (!confirm(`Are you sure you want to remove the ${roleDisplayName} role from ${user.name}?`)) {
-      return;
-    }
+    console.log(`Proceeding to remove the ${roleDisplayName} role from ${user.name}.`);
+
 
     this.isLoading = true;
     this.roleService.revokeRole(user.id, user.role.id)
@@ -214,29 +199,24 @@ export class AssignRoleComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('Error revoking role:', error);
-          alert('Failed to remove role. Please try again.');
+          console.error('Failed to remove role. Please try again.');
         }
       });
   }
 
   onSearch(searchQuery: { query1: string; query2: string }): void {
-    const { query1, query2 } = searchQuery;
-
+    const { query1 } = searchQuery;
     this.currentSearchKeyword = query1 || '';
 
     const displayUsers = this.transformUsersForDisplay(this.users);
 
-    this.filteredUsers = displayUsers.filter(
-      (user) =>
-        (query1
-          ? user.name.toLowerCase().includes(query1.toLowerCase()) ||
-          user.id.toString().includes(query1) ||
-          user.nip?.toLowerCase().includes(query1.toLowerCase()) ||
-          (user.email && user.email.toLowerCase().includes(query1.toLowerCase()))
-          : true) &&
-        (query2
-          ? (user as any).lecturerCode?.toLowerCase().includes(query2.toLowerCase())
-          : true)
+    this.filteredUsers = displayUsers.filter(user =>
+    (query1
+      ? user.name.toLowerCase().includes(query1.toLowerCase()) ||
+      user.id.toString().includes(query1) ||
+      user.nip?.toLowerCase().includes(query1.toLowerCase()) ||
+      (user.email && user.email.toLowerCase().includes(query1.toLowerCase()))
+      : true)
     );
     this.currentPage = 1;
   }

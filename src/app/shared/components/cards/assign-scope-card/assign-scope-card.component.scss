@@ -1,0 +1,54 @@
+.card-footer-layout {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+.scope-selection {
+    width: 100%;
+    margin-top: 1rem;
+    app-form-input {
+        width: 100%;
+        display: block;
+    }
+}
+
+.remove-scope-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #999;
+    padding: 0;
+    margin-left: 8px;
+    font-size: 12px;
+
+    &:hover {
+        color: #333;
+    }
+}
+
+.remove-role-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--secondary-blue);
+    border: 1px solid var(--secondary-blue);
+    border-radius: 0.25rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    font-size: var(--text-xs);
+    cursor: pointer;
+    margin-left: auto;
+
+    i {
+        color: var(--primary-white);
+    }
+
+    &:hover {
+        background-color: var(--secondary-white);
+
+        i {
+            color: var(--secondary-blue);
+        }
+    }
+}

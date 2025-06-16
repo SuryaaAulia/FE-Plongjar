@@ -7,8 +7,28 @@ import { Role, User } from '../../models/user.model';
 export interface RoleAssignment {
     user_id: number;
     role_id: number;
+    roleable_id?: number | null;
+    roleable_type?: string | null;
+}
+
+export interface ScopedRoleAssignment {
+    user_id: number;
+    role_id: number;
     roleable_id: number;
-    roleable_type: string;
+}
+
+export interface ScopeOption {
+    id: number;
+    name: string;
+}
+
+interface ApiResponse<T> {
+    status: string;
+    data: T;
+}
+interface ApiScopeItem {
+    id: number;
+    nama: string;
 }
 
 export interface UserWithRoles extends Omit<User, 'role'> {
@@ -132,7 +152,14 @@ export class RoleService {
     }
 
     assignRole(assignment: RoleAssignment): Observable<any> {
-        return this.apiService.assignRole(assignment).pipe(
+        const payload: RoleAssignment = {
+            user_id: assignment.user_id,
+            role_id: assignment.role_id,
+            roleable_id: assignment.roleable_id || null,
+            roleable_type: assignment.roleable_type || null
+        };
+
+        return this.apiService.assignRole(payload).pipe(
             tap((response) => {
                 console.log('Role assigned successfully:', response);
                 this.getAllAssignedUserRoles().subscribe();
@@ -143,6 +170,19 @@ export class RoleService {
             })
         );
     }
+
+    assignScopedRole(assignment: ScopedRoleAssignment): Observable<any> {
+        return this.apiService.assignScopedRole(assignment).pipe(
+            tap((response) => {
+                console.log('Scoped role assigned successfully:', response);
+            }),
+            catchError(error => {
+                console.error('Error assigning scoped role:', error);
+                throw error;
+            })
+        );
+    }
+
 
     revokeRole(userId: number, roleId: number): Observable<any> {
         const data = {
@@ -172,15 +212,6 @@ export class RoleService {
             }
         }
         return null;
-    }
-
-    getRoleableInfo(roleId: number, roleName: string): { type: string, id: number } | null {
-        const roleableMapping: { [key: string]: { type: string, id: number } } = {
-            'ProgramStudi': { type: 'App\\Models\\ProgramStudi', id: 2 },
-            'KelompokKeahlian': { type: 'App\\Models\\KelompokKeahlian', id: 1 },
-        };
-
-        return roleableMapping[roleName] || null;
     }
 
     transformToSingleRoleUser(userWithRoles: UserWithRoles): UserWithSingleRole {
@@ -246,6 +277,34 @@ export class RoleService {
                 value: role.name,
                 label: this.getRoleDisplayName(role.name)
             })))
+        );
+    }
+
+    getAllProgramStudi(): Observable<ScopeOption[]> {
+        return this.apiService.getAllProgramStudi().pipe(
+            map((response: ApiResponse<ApiScopeItem[]>) => {
+                if (response && Array.isArray(response.data)) {
+                    return response.data.map(item => ({
+                        id: item.id,
+                        name: item.nama
+                    }));
+                }
+                return [];
+            })
+        );
+    }
+
+    getAllKelompokKeahlian(): Observable<ScopeOption[]> {
+        return this.apiService.getAllKelompokKeahlian().pipe(
+            map((response: ApiResponse<ApiScopeItem[]>) => {
+                if (response && Array.isArray(response.data)) {
+                    return response.data.map(item => ({
+                        id: item.id,
+                        name: item.nama
+                    }));
+                }
+                return [];
+            })
         );
     }
 

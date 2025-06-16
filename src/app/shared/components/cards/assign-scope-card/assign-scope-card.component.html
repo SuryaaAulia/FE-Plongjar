@@ -1,0 +1,46 @@
+<app-base-card
+  [title]="user.name"
+  [subtitle]="user.nip || user.id.toString()"
+  [contentTemplate]="cardContent"
+>
+</app-base-card>
+
+<ng-template #cardContent>
+  <div class="scope-container">
+    <div *ngIf="showDropdown" class="scope-selection">
+      <app-form-input
+        type="select"
+        [placeholder]="placeholder"
+        [options]="formattedScopeOptions"
+        [(ngModel)]="selectedScopeId"
+        (ngModelChange)="onScopeChange()"
+      ></app-form-input>
+    </div>
+    <div *ngIf="!showDropdown && selectedScope" class="selected-scope-display">
+      <span class="selected-scope-name">{{ selectedScope.name }}</span>
+      <button
+        class="remove-scope-btn"
+        (click)="onRemoveScope()"
+        title="Remove Scope"
+        type="button"
+      >
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  </div>
+  <div class="card-footer-layout">
+    <app-role-tag
+      *ngIf="user.role"
+      [role]="user.role"
+      [roleService]="roleService"
+    ></app-role-tag>
+
+    <button
+      class="remove-role-btn"
+      (click)="onRemoveRole()"
+      title="Remove Role"
+    >
+      <i class="fa fa-times"></i>
+    </button>
+  </div>
+</ng-template>

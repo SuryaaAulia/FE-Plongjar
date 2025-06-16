@@ -38,13 +38,34 @@
       ></app-search-not-found>
       } @else {
       <div class="user-grid">
-        @for (user of paginatedUsers; track user.id) {
+        @for (user of paginatedUsers; track user.id) { @if (activeRoleFilter ===
+        'Kaprodi') {
+        <app-assign-scope-card
+          [user]="user"
+          [scopeOptions]="programStudiOptions"
+          placeholder="Pilih Program Studi"
+          [roleService]="roleService"
+          (assignScope)="onAssignScope($event)"
+          (removeScope)="onRemoveScope($event)"
+          (removeRole)="onRemoveRole(user)"
+        ></app-assign-scope-card>
+        } @else if (activeRoleFilter === 'Ket. KK') {
+        <app-assign-scope-card
+          [user]="user"
+          [scopeOptions]="kelompokKeahlianOptions"
+          placeholder="Pilih Kelompok Keahlian"
+          [roleService]="roleService"
+          (assignScope)="onAssignScope($event)"
+          (removeScope)="onRemoveScope($event)"
+          (removeRole)="onRemoveRole(user)"
+        ></app-assign-scope-card>
+        } @else {
         <app-user-card
           [user]="user"
           [roleService]="roleService"
           (removeRole)="onRemoveRole(user)"
         ></app-user-card>
-        }
+        } }
       </div>
       <app-pagination
         [currentPage]="currentPage"
