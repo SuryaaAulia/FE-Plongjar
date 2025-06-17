@@ -1,19 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  FormBuilder,
-  FormGroup,
-  Validators,
-  ReactiveFormsModule,
-  FormsModule as NgFormsModule,
-  AbstractControl
-} from '@angular/forms';
-import { Router } from '@angular/router';
-import { ActionButtonComponent, FormInputComponent, SelectOption } from '../../../shared/components/index';
-interface MataKuliahOption {
-  id: string;
-  nama: string;
-}
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule as NgFormsModule, AbstractControl } from '@angular/forms';
+import { finalize, forkJoin } from 'rxjs';
+import { ActionButtonComponent, FormInputComponent, SelectOption, LoadingSpinnerComponent } from '../../../shared/components/index';
+import { MatakuliahService } from '../../../core/services/kaprodi/matakuliah.service';
 
 interface KelasEntry {
   id: string;
@@ -30,102 +20,139 @@ interface KelasEntry {
     ReactiveFormsModule,
     NgFormsModule,
     ActionButtonComponent,
-    FormInputComponent
+    FormInputComponent,
+    LoadingSpinnerComponent
   ],
   templateUrl: './mapping-matkul.component.html',
   styleUrls: ['./mapping-matkul.component.scss']
 })
 export class MappingMatkulComponent implements OnInit {
-  mappingForm!: FormGroup;
+  mainForm!: FormGroup;
+  kelasForm!: FormGroup;
+
   daftarKelas: KelasEntry[] = [];
-  private kelasCounter: number = 0;
-  showTable: boolean = false;
-  formattedMataKuliahOptions: SelectOption[] = [];
+  isLoading = false;
+  showTable = false;
 
-  mataKuliahOptions: MataKuliahOption[] = [
-    { id: 'mk001', nama: 'CCK41BB3-DEVOPS' },
-    { id: 'mk002', nama: 'PEMROGRAMAN WEB LANJUT' },
-    { id: 'mk003', nama: 'STATISTIKA INDUSTRI JAWA JAWA STATISTIKA JAWA JAWA' },
-  ];
+  mataKuliahOptions: SelectOption[] = [];
+  tahunAjaranOptions: SelectOption[] = [];
+  programStudiOptions: SelectOption[] = [];
 
-  tahunAjaranOptions: SelectOption[] = [
-    { value: '2024/2025-ganjil', label: '2024/2025 Ganjil' },
-    { value: '2024/2025-genap', label: '2024/2025 Genap' },
-    { value: '2023/2024-genap', label: '2023/2024 Genap' },
-  ];
-
-  constructor(private fb: FormBuilder, private router: Router) { }
+  private fb = inject(FormBuilder);
+  private matakuliahService = inject(MatakuliahService);
 
   ngOnInit(): void {
-    this.mappingForm = this.fb.group({
+    this.mainForm = this.fb.group({
       mataKuliah: ['', Validators.required],
       tahunAjaran: ['', Validators.required],
-      prefixNamaKelas: ['', Validators.required],
-      kuotaDefault: [40, [Validators.required, Validators.min(1)]]
+      programStudi: ['', Validators.required],
     });
-    this.formattedMataKuliahOptions = this.mataKuliahOptions.map(mk => ({
-      value: mk.id,
-      label: mk.nama
-    }));
+
+    this.kelasForm = this.fb.group({
+      namaKelas: ['', Validators.required],
+      kuota: [40, [Validators.required, Validators.min(1)]]
+    });
+
+    this.loadDropdownData();
   }
-  getControl(name: string): AbstractControl | null {
-    return this.mappingForm.get(name);
+
+  private loadDropdownData(): void {
+    this.isLoading = true;
+    forkJoin({
+      matakuliah: this.matakuliahService.getMataKuliah(),
+      tahunAjaran: this.matakuliahService.getTahunAjaran(),
+      programStudi: this.matakuliahService.getProgramStudi()
+    }).pipe(
+      finalize(() => this.isLoading = false)
+    ).subscribe({
+      next: ({ matakuliah, tahunAjaran, programStudi }) => {
+        this.mataKuliahOptions = matakuliah.data.data.map((mk: any) => ({
+          value: mk.id,
+          label: `${mk.kode_matkul} - ${mk.nama_matakuliah}`
+        }));
+        this.tahunAjaranOptions = tahunAjaran.data.map((ta: any) => ({
+          value: ta.id,
+          label: `${ta.tahun_ajaran} (${ta.semester})`
+        }));
+        this.programStudiOptions = programStudi.data.map((ps: any) => ({
+          value: ps.id,
+          label: ps.nama
+        }));
+      },
+      error: err => {
+        console.error("Failed to load initial data", err);
+        alert("Gagal memuat data dropdown. Silakan coba lagi.");
+      }
+    });
   }
-  get isTambahKelasDisabled(): boolean {
-    return this.mappingForm.invalid;
+
+  getKelasControl(name: string): AbstractControl | null {
+    return this.kelasForm.get(name);
   }
+
   tambahKelas(): void {
-    if (this.mappingForm.invalid) {
-      this.mappingForm.markAllAsTouched();
+    if (this.kelasForm.invalid) {
+      this.kelasForm.markAllAsTouched();
       return;
     }
 
-    const prefix = this.mappingForm.get('prefixNamaKelas')?.value;
-    const kuota = this.mappingForm.get('kuotaDefault')?.value;
-
-    this.kelasCounter++;
     const newKelas: KelasEntry = {
       id: crypto.randomUUID(),
-      namaKelas: `${prefix}${String(this.kelasCounter).padStart(2, '0')}`,
-      kuota: Number(kuota),
+      namaKelas: this.kelasForm.value.namaKelas,
+      kuota: Number(this.kelasForm.value.kuota),
       teamTeaching: false
     };
+
     this.daftarKelas.push(newKelas);
     this.showTable = true;
+    this.kelasForm.reset({ kuota: 40 });
   }
+
   hapusKelas(index: number): void {
-    if (index >= 0 && index < this.daftarKelas.length) {
-      this.daftarKelas.splice(index, 1);
-      if (this.daftarKelas.length === 0) {
-        this.kelasCounter = 0;
-        this.showTable = false;
-      }
+    this.daftarKelas.splice(index, 1);
+    if (this.daftarKelas.length === 0) {
+      this.showTable = false;
     }
   }
 
   get isSubmitMappingDisabled(): boolean {
-    return this.daftarKelas.length === 0 ||
-      !!this.mappingForm.get('mataKuliah')?.invalid ||
-      !!this.mappingForm.get('tahunAjaran')?.invalid;
+    return this.daftarKelas.length === 0 || this.mainForm.invalid;
   }
 
   submitMapping(): void {
     if (this.isSubmitMappingDisabled) {
-      this.mappingForm.markAllAsTouched();
+      this.mainForm.markAllAsTouched();
       return;
     }
 
-    const finalMappingData = {
-      mataKuliahId: this.mappingForm.get('mataKuliah')?.value,
-      tahunAjaran: this.mappingForm.get('tahunAjaran')?.value,
-      kelasDitambahkan: this.daftarKelas.map(k => ({
-        namaKelas: k.namaKelas,
+    this.isLoading = true;
+    const formValue = this.mainForm.value;
+
+    const payload = {
+      id_matakuliah: formValue.mataKuliah,
+      id_tahun_ajaran: formValue.tahunAjaran,
+      id_program_studi: formValue.programStudi,
+      classes: this.daftarKelas.map(k => ({
+        nama_kelas: k.namaKelas,
         kuota: k.kuota,
-        isTeamTeaching: k.teamTeaching
+        team_teaching: k.teamTeaching
       }))
     };
 
-    console.log('Submitting Final Mapping Data:', finalMappingData);
-    alert('Mapping Kelas berhasil disubmit! (Data di-log ke console)');
+    this.matakuliahService.submitMapping(payload)
+      .pipe(finalize(() => this.isLoading = false))
+      .subscribe({
+        next: () => {
+          alert('Mapping Kelas berhasil disubmit!');
+          this.daftarKelas = [];
+          this.showTable = false;
+          this.mainForm.reset();
+          this.kelasForm.reset({ kuota: 40 });
+        },
+        error: (err) => {
+          console.error('Failed to submit mapping', err);
+          alert('Gagal menyimpan mapping. Silakan cek kembali data Anda.');
+        }
+      });
   }
 }

@@ -49,8 +49,7 @@ export class Endpoint {
             },
 
             matakuliah: {
-                get_all: `${API}/masterdata/getAllMatakuliah`,
-                resource: `${API}/masterdata/matakuliahs`,
+                get_all: `${API}/masterdata/matakuliahs`,
                 show: `${API}/masterdata/matakuliahs/${context?.id || ':id'}`,
                 update: `${API}/masterdata/matakuliahs/${context?.id || ':id'}`,
                 delete: `${API}/masterdata/matakuliahs/${context?.id || ':id'}`,

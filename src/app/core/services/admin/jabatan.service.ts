@@ -52,7 +52,6 @@ export class JabatanService {
                 console.log('JabatanService: Raw API response:', response);
             }),
             map((response: any) => {
-                // Handle different response structures
                 if (response && response.success && response.data) {
                     return response.data;
                 } else if (response && Array.isArray(response)) {
@@ -141,7 +140,6 @@ export class JabatanService {
         return throwError(error);
     }
 
-    // Utility methods remain the same
     formatJabatanForSelect(jabatanList: JabatanStruktural[]): { value: number; label: string }[] {
         return jabatanList.map(jabatan => ({
             value: jabatan.id,

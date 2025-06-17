@@ -4,15 +4,17 @@
     <p>Isi form untuk menambahkan mapping kelas matakuliah</p>
   </header>
 
-  <form [formGroup]="mappingForm">
+  <div *ngIf="isLoading" class="loading-overlay">
+    <app-loading-spinner></app-loading-spinner>
+  </div>
+  <form [formGroup]="mainForm" *ngIf="!isLoading">
     <section class="form-grid top-filters">
       <app-form-input
         label="Mata Kuliah"
         type="select"
         placeholder="Pilih Mata Kuliah"
         formControlName="mataKuliah"
-        [control]="getControl('mataKuliah')"
-        [options]="formattedMataKuliahOptions"
+        [options]="mataKuliahOptions"
         [required]="true"
       ></app-form-input>
 
@@ -21,56 +23,68 @@
         type="select"
         placeholder="Pilih Tahun Ajaran"
         formControlName="tahunAjaran"
-        [control]="getControl('tahunAjaran')"
         [options]="tahunAjaranOptions"
         [required]="true"
       ></app-form-input>
-    </section>
 
-    <section class="tambah-kelas-section">
-      <h3>Tambah Kelas</h3>
-      <div class="form-grid tambah-kelas-grid">
-        <div>
-          <app-form-input
-            label="Prefix Nama Kelas"
-            type="text"
-            placeholder="Contoh: SE-45-"
-            formControlName="prefixNamaKelas"
-            [control]="getControl('prefixNamaKelas')"
-            [required]="true"
-          ></app-form-input>
-          <small class="format-hint">Format: [Kode Prodi]-[Angkatan]-</small>
-        </div>
-
-        <app-form-input
-          label="Kuota Default"
-          type="number"
-          placeholder="Contoh: 40"
-          formControlName="kuotaDefault"
-          [control]="getControl('kuotaDefault')"
-          [required]="true"
-        ></app-form-input>
-
-        <div class="form-field tambah-kelas-button-container">
-          <app-action-button
-            text="Tambah Kelas"
-            iconClass="fas fa-plus"
-            (buttonClick)="tambahKelas()"
-            [disabled]="isTambahKelasDisabled"
-          ></app-action-button>
-        </div>
-      </div>
+      <app-form-input
+        label="Program Studi"
+        type="select"
+        placeholder="Pilih Program Studi"
+        formControlName="programStudi"
+        [options]="programStudiOptions"
+        [required]="true"
+      ></app-form-input>
     </section>
   </form>
+  <section class="tambah-kelas-section" *ngIf="!isLoading">
+    <h3>Tambah Kelas</h3>
+    <form
+      [formGroup]="kelasForm"
+      (ngSubmit)="tambahKelas()"
+      class="form-grid tambah-kelas-grid"
+    >
+      <div>
+        <app-form-input
+          label="Nama Kelas"
+          type="text"
+          placeholder="Contoh: IF-45-01"
+          formControlName="namaKelas"
+          [control]="getKelasControl('namaKelas')"
+          [required]="true"
+        ></app-form-input>
+        <small class="format-hint"
+          >Format: [Kode Prodi]-[Angkatan]-[Nomor Kelas]</small
+        >
+      </div>
 
+      <app-form-input
+        label="Kuota"
+        type="number"
+        placeholder="Contoh: 40"
+        formControlName="kuota"
+        [control]="getKelasControl('kuota')"
+        [required]="true"
+      ></app-form-input>
+
+      <div class="form-field tambah-kelas-button-container">
+        <app-action-button
+          text="Tambah Kelas"
+          iconClass="fas fa-plus"
+          type="submit"
+          [disabled]="kelasForm.invalid"
+        ></app-action-button>
+      </div>
+    </form>
+  </section>
   <section class="dynamic-content-area">
-    <div *ngIf="!showTable" class="no-data-placeholder">
+    <div *ngIf="!showTable && !isLoading" class="no-data-placeholder">
       <img
         src="assets/images/search_plotting.svg"
         alt="Belum ada data"
         class="placeholder-image"
       />
-      <p>Belum Ada Data Yang Ditambahkan!</p>
+      <p>Belum Ada Kelas yang Ditambahkan!</p>
     </div>
 
     <div *ngIf="showTable" class="daftar-kelas-section">
@@ -125,10 +139,9 @@
       </div>
     </div>
   </section>
-
   <footer class="footer-submit-section">
     <p class="data-summary">
-      Menambahkan {{ daftarKelas.length }} data kedalam sistem
+      Total {{ daftarKelas.length }} kelas akan ditambahkan ke sistem.
     </p>
     <app-action-button
       text="Submit"

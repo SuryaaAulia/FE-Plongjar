@@ -4,7 +4,15 @@
       <h2>{{ pageTitle }}</h2>
       <p>{{ pageSubtitle }}</p>
     </div>
-    <form [formGroup]="addMatkulForm" (ngSubmit)="onSubmit()">
+
+    <div *ngIf="isLoading" class="loading-overlay">
+      <app-loading-spinner></app-loading-spinner>
+    </div>
+    <form
+      [formGroup]="addMatkulForm"
+      (ngSubmit)="onSubmit()"
+      *ngIf="!isLoading"
+    >
       <div class="form-grid">
         <app-form-input
           label="Nama Mata Kuliah"
@@ -13,7 +21,6 @@
           [control]="getControl('namaMatkul')"
           [required]="true"
         ></app-form-input>
-
         <app-form-input
           label="Kode Mata Kuliah"
           placeholder="Contoh: CRI313"
@@ -21,7 +28,6 @@
           [control]="getControl('kodeMatkul')"
           [required]="true"
         ></app-form-input>
-
         <div class="full-width-field">
           <app-form-input
             label="SKS / Credit"
@@ -33,7 +39,6 @@
             [required]="true"
           ></app-form-input>
         </div>
-
         <div class="full-width-field">
           <app-form-input
             label="PIC"
@@ -45,19 +50,28 @@
             [required]="true"
           ></app-form-input>
         </div>
-
         <div class="full-width-field">
           <app-form-input
-            label="Status Mata Kuliah"
+            label="Status Wajib"
             type="select"
-            placeholder="Pilih Status Mata Kuliah"
-            formControlName="statusMatkul"
-            [control]="getControl('statusMatkul')"
-            [options]="statusMatkulOptions"
+            placeholder="Pilih Status Wajib"
+            formControlName="mandatoryStatus"
+            [control]="getControl('mandatoryStatus')"
+            [options]="mandatoryStatusOptions"
             [required]="true"
           ></app-form-input>
         </div>
-
+        <div class="full-width-field">
+          <app-form-input
+            label="Tingkat Matakuliah"
+            type="select"
+            placeholder="Pilih Tingkat Matakuliah"
+            formControlName="tingkatMatakuliah"
+            [control]="getControl('tingkatMatakuliah')"
+            [options]="tingkatMatakuliahOptions"
+            [required]="true"
+          ></app-form-input>
+        </div>
         <div class="full-width-field">
           <app-form-input
             label="Metode Perkuliahan"
@@ -69,7 +83,17 @@
             [required]="true"
           ></app-form-input>
         </div>
-
+        <div class="full-width-field">
+          <app-form-input
+            label="Matakuliah Eksepsi"
+            type="select"
+            placeholder="Pilih Opsi Eksepsi"
+            formControlName="matakuliahEksepsi"
+            [control]="getControl('matakuliahEksepsi')"
+            [options]="matakuliahEksepsiOptions"
+            [required]="true"
+          ></app-form-input>
+        </div>
         <div class="form-field full-width-field">
           <label>Praktikum <span class="required">*</span></label>
           <div class="radio-group">
@@ -93,21 +117,19 @@
           </div>
         </div>
       </div>
-
       <div class="submit-button-container" style="gap: 1rem">
-        @if (isEditMode) {
         <app-action-button
+          *ngIf="isEditMode"
           text="Back"
           backgroundColorVar="var(--red)"
           type="button"
           (click)="goBack()"
         ></app-action-button>
-        }
         <app-action-button
-          [text]="submitButtonText"
+          [text]="isLoading ? 'Submitting...' : submitButtonText"
           backgroundColorVar="var(--primary-blue)"
           type="submit"
-          [disabled]="addMatkulForm.invalid"
+          [disabled]="addMatkulForm.invalid || isLoading"
         ></app-action-button>
       </div>
     </form>
