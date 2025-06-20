@@ -173,7 +173,7 @@ export class ListDosenComponent implements OnInit, OnDestroy {
       pendidikanTerakhir: dosen.pendidikan_terakhir || null,
       nidn: dosen.nidn || null,
       nip: dosen.nip || null,
-      kelompokKeahlian: dosen.kelompok_keahlian || null,
+      kelompokKeahlian: dosen.kelompok_keahlian.nama || null,
       idJabatanStruktural: dosen.id_jabatan_struktural || null,
       idKelompokKeahlian: dosen.id_kelompok_keahlian,
       createdAt: dosen.created_at,
