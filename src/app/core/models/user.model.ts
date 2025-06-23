@@ -56,9 +56,17 @@ export interface Course {
   statusMatkul: string;
   metodePerkuliahan: string;
   praktikum: string;
+  koordinator?: Lecturer;
 }
 export interface JabatanStruktural {
   id: number;
   nama: string;
   konversi_sks: number;
+}
+
+export interface TahunAjaran {
+  id: number;
+  tahun_ajaran: string;
+  semester: 'ganjil' | 'genap';
+  status: number;
 }

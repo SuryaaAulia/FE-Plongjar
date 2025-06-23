@@ -1,59 +1,148 @@
 import { Component, OnInit, Output, EventEmitter, ElementRef, HostListener, ViewChild, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Course } from '../../../../../core/models/user.model';
-
-interface AcademicYear {
-  value: string;
-  label: string;
-}
+import { Course, Lecturer, TahunAjaran } from '../../../../../core/models/user.model';
+import { ApiService } from '../../../../../core/services/api.service';
+import { AuthService } from '../../../../../core/services/auth.service';
+import { HttpParams } from '@angular/common/http';
+import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+import { LoadingSpinnerComponent, SearchNotFoundComponent, ActionButtonComponent } from '../../../index';
 
 @Component({
   selector: 'app-search-matkul',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LoadingSpinnerComponent, SearchNotFoundComponent, ActionButtonComponent],
   templateUrl: './search-matkul.component.html',
   styleUrls: ['./search-matkul.component.scss']
 })
 export class SearchMatkulComponent implements OnInit {
   @Input() initialSearchTerm: string = '';
+  @Output() selectionConfirmed = new EventEmitter<{ course: Course, academicYear: { id: number; value: string }, coordinator?: Lecturer; }>();
+  @Output() selectionClosed = new EventEmitter<void>();
 
   searchTerm: string = '';
   searchPlaceholder: string = 'Contoh: PEMROGRAMAN WEB';
-  searchInputNote: string = '* Masukkan nama mata kuliah yang ingin di tambahkan';
-
-  availableCourses: Course[] = [
-    { id: 'CRI3I3', name: 'PEMROGRAMAN PERANGKAT BERGERAK', pic: 'SEAL', code: 'CRI3I3', sks: 3, statusMatkul: 'Aktif', metodePerkuliahan: 'Daring', praktikum: 'Ya' },
-    { id: 'CRI3B3', name: 'PEMROGRAMAN WEB', pic: 'SEAL', code: 'CRI3I3', sks: 3, statusMatkul: 'Aktif', metodePerkuliahan: 'Daring', praktikum: 'Ya' },
-    { id: 'CII3B4', name: 'PEMROGRAMAN BERORIENTASI OBJEK', pic: 'SEAL', code: 'CRI3I3', sks: 3, statusMatkul: 'Aktif', metodePerkuliahan: 'Daring', praktikum: 'Ya' },
-    { id: 'CSH2A3', name: 'ALGORITMA DAN STRUKTUR DATA', pic: 'SEAL', code: 'CRI3I3', sks: 3, statusMatkul: 'Aktif', metodePerkuliahan: 'Daring', praktikum: 'Ya' },
-    { id: 'CSI3A3', name: 'BASIS DATA', pic: 'SEAL', code: 'CRI3I3', sks: 3, statusMatkul: 'Aktif', metodePerkuliahan: 'Daring', praktikum: 'Ya' },
-  ];
+  searchInputNote: string = '* Masukkan setidaknya 2 huruf untuk nama mata kuliah';
 
   filteredCourses: Course[] = [];
   selectedCourse: Course | null = null;
-
-  academicYears: AcademicYear[] = [
-    { value: '2024/2025', label: '2024/2025' },
-    { value: '2023/2024', label: '2023/2024' },
-    { value: '2022/2023', label: '2022/2023' },
-    { value: '2021/2022', label: '2021/2022' },
-    { value: '2020/2021', label: '2020/2021' },
-  ];
-  selectedAcademicYear: string | null = null;
+  academicYears: TahunAjaran[] = [];
+  selectedAcademicYear: TahunAjaran | null = null;
   showDropdown: boolean = false;
+  isLoading: boolean = false;
+  isSearching: boolean = false;
+  errorMessage: string = '';
 
-  @Output() selectionConfirmed = new EventEmitter<{ course: Course, academicYear: string }>();
-  @Output() selectionClosed = new EventEmitter<void>();
-
+  private searchSubject = new Subject<string>();
   @ViewChild('searchInput') searchInput!: ElementRef;
 
-  constructor(private elementRef: ElementRef) { }
+  constructor(
+    private elementRef: ElementRef,
+    private apiService: ApiService,
+    private authService: AuthService
+  ) {
+    this.searchSubject.pipe(debounceTime(300), distinctUntilChanged()).subscribe(searchTerm => {
+      if (this.selectedCourse && searchTerm === `${this.selectedCourse.code} - ${this.selectedCourse.name}`) return;
+      this.performSearch(searchTerm);
+    });
+  }
 
   ngOnInit(): void {
     if (this.initialSearchTerm) {
       this.searchTerm = this.initialSearchTerm;
     }
+    this.loadAcademicYears();
+  }
+
+  private performSearch(searchTerm: string): void {
+    if (!searchTerm || searchTerm.trim().length < 2) {
+      this.filteredCourses = [];
+      this.isSearching = false;
+      return;
+    }
+
+    this.isSearching = true;
+    this.errorMessage = '';
+
+    const params = new HttpParams()
+      .set('nama_matakuliah', searchTerm)
+      .set('per_page', '50');
+    const currentRole = this.authService.getCurrentRole()?.role_name;
+
+    if (currentRole === 'ProgramStudi') {
+      this.apiService.getMatakuliahByAuthProdi(params).subscribe({
+        next: (response) => {
+          if (response.success && response.data) {
+            const coursesData = response.data.data || response.data;
+            this.filteredCourses = this.mapApiCoursesToCourses(coursesData);
+          } else {
+            this.filteredCourses = [];
+          }
+          this.isSearching = false;
+        },
+        error: (error) => {
+          this.errorMessage = 'Error searching courses';
+          console.error('Error searching courses:', error);
+          this.filteredCourses = [];
+          this.isSearching = false;
+        }
+      });
+    } else {
+      this.apiService.getAllMatakuliah(params).subscribe({
+        next: (response) => {
+          if (response.success && response.data) {
+            const coursesData = response.data.data || response.data;
+            this.filteredCourses = this.mapApiCoursesToCourses(coursesData);
+          } else {
+            this.filteredCourses = [];
+          }
+          this.isSearching = false;
+        },
+        error: (error) => {
+          this.errorMessage = 'Error searching courses';
+          console.error('Error searching courses:', error);
+          this.filteredCourses = [];
+          this.isSearching = false;
+        }
+      });
+    }
+  }
+
+  private loadAcademicYears(): void {
+    this.apiService.getAllTahunAjaran().subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          this.academicYears = response.data;
+        } else {
+          console.error('Failed to load academic years:', response);
+        }
+      },
+      error: (error) => {
+        console.error('Error loading academic years:', error);
+      }
+    });
+  }
+
+  private mapApiCoursesToCourses(apiCourses: any[]): Course[] {
+    return apiCourses.map(apiCourse => ({
+      id: apiCourse.id || apiCourse.id.toString(),
+      name: apiCourse.nama_matakuliah || apiCourse.name,
+      code: apiCourse.kode_matkul || apiCourse.code,
+      sks: apiCourse.sks || 0,
+      pic: apiCourse.id_pic,
+      statusMatkul: apiCourse.mandatory_status,
+      metodePerkuliahan: this.mapModePerkuliahan(apiCourse.mode_perkuliahan) || 'Daring',
+      praktikum: apiCourse.praktikum === 1 || apiCourse.praktikum === true ? 'Ya' : 'Tidak'
+    }));
+  }
+
+  private mapModePerkuliahan(mode: string): string {
+    const modeMapping: { [key: string]: string } = {
+      'onsite': 'Luring',
+      'online': 'Daring',
+      'hybrid': 'Hybrid'
+    };
+    return modeMapping[mode] || 'Daring';
   }
 
   @HostListener('document:click', ['$event'])
@@ -65,34 +154,22 @@ export class SearchMatkulComponent implements OnInit {
 
   onSearchFocus(): void {
     this.showDropdown = true;
-    this.filterCourses();
+    if (this.searchTerm.trim().length >= 2) {
+      this.searchSubject.next(this.searchTerm);
+    }
   }
 
   onSearchInput(): void {
     this.showDropdown = true;
-    this.filterCourses();
-  }
-
-  filterCourses(): void {
-    if (this.searchTerm.trim() === '' && !this.selectedCourse) {
-      this.filteredCourses = [];
-    } else if (this.searchTerm.trim() !== '') {
-      if (this.selectedCourse && (this.searchTerm !== `${this.selectedCourse.id} - ${this.selectedCourse.name}`)) {
-        this.selectedCourse = null;
-      }
-      this.filteredCourses = this.availableCourses.filter(course =>
-        course.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        course.id.toLowerCase().includes(this.searchTerm.toLowerCase())
-      );
-    } else if (this.selectedCourse && this.searchTerm === `${this.selectedCourse.id} - ${this.selectedCourse.name}`) {
-      this.filteredCourses = [];
+    if (this.selectedCourse && this.searchTerm !== `${this.selectedCourse.id} - ${this.selectedCourse.name}`) {
+      this.selectedCourse = null;
     }
+    this.searchSubject.next(this.searchTerm);
   }
 
   selectCourse(course: Course): void {
     this.selectedCourse = course;
-    this.searchTerm = `${course.id} - ${course.name}`;
-    this.filteredCourses = [];
+    this.searchTerm = `${course.code} - ${course.name}`;
   }
 
   clearSearch(): void {
@@ -100,6 +177,7 @@ export class SearchMatkulComponent implements OnInit {
     this.selectedCourse = null;
     this.selectedAcademicYear = null;
     this.filteredCourses = [];
+    this.errorMessage = '';
     this.showDropdown = true;
     if (this.searchInput && this.searchInput.nativeElement) {
       this.searchInput.nativeElement.focus();
@@ -108,8 +186,52 @@ export class SearchMatkulComponent implements OnInit {
 
   onDone(): void {
     if (this.selectedCourse && this.selectedAcademicYear) {
-      this.selectionConfirmed.emit({ course: this.selectedCourse, academicYear: this.selectedAcademicYear });
-      this.showDropdown = false;
+      const id_matakuliah = parseInt(this.selectedCourse.id);
+      const id_tahun_ajaran = this.selectedAcademicYear.id;
+
+      const params = new HttpParams()
+        .set('id_matakuliah', id_matakuliah)
+        .set('id_tahun_ajaran', id_tahun_ajaran);
+
+      this.apiService.getAllKoordinatorMatakuliah(params).subscribe({
+        next: (response) => {
+          const data = response.data;
+
+          let coordinator: Lecturer | undefined = undefined;
+
+          if (data && data.id != null) {
+            coordinator = {
+              id: data.id,
+              name: data.name,
+              lecturerCode: data.lecturer_code,
+              email: '',
+              nip: '',
+              nidn: '',
+              jabatanFungsionalAkademik: '',
+              idJabatanStruktural: null,
+              statusPegawai: '',
+              pendidikanTerakhir: '',
+              idKelompokKeahlian: 0
+            };
+          }
+
+          this.selectionConfirmed.emit({
+            course: this.selectedCourse!,
+            academicYear: {
+              id: this.selectedAcademicYear!.id,
+              value: `${this.selectedAcademicYear!.tahun_ajaran}-${this.selectedAcademicYear!.semester}`
+            },
+            coordinator
+          });
+
+          this.showDropdown = false;
+        },
+        error: (error) => {
+          console.error('Failed to load coordinator:', error);
+          alert('Gagal memuat koordinator mata kuliah.');
+        }
+      });
+
     } else if (!this.selectedCourse) {
       alert('Please select a course.');
     } else {
@@ -125,10 +247,17 @@ export class SearchMatkulComponent implements OnInit {
   }
 
   showPlaceholder(): boolean {
-    return this.searchTerm.trim() === '' && this.filteredCourses.length === 0 && !this.selectedCourse && this.showDropdown;
+    return this.searchTerm.trim().length < 2 && this.filteredCourses.length === 0 && !this.selectedCourse && this.showDropdown && !this.isLoading && !this.isSearching;
   }
 
-  public setSearchTermDisplay(term: string, course: Course | null, academicYear: string | null) {
+  public retrySearch(): void {
+    this.errorMessage = '';
+    if (this.searchTerm.trim().length >= 2) {
+      this.performSearch(this.searchTerm);
+    }
+  }
+
+  public setSearchTermDisplay(term: string, course: Course | null, academicYear: TahunAjaran | null) {
     this.searchTerm = term;
     this.selectedCourse = course;
     this.selectedAcademicYear = academicYear;

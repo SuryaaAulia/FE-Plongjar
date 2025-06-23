@@ -78,6 +78,7 @@ export class MappingMatkulComponent implements OnInit {
           value: ps.id,
           label: ps.nama
         }));
+        console.log("prodi", this.programStudiOptions);
       },
       error: err => {
         console.error("Failed to load initial data", err);

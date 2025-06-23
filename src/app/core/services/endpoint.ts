@@ -46,10 +46,13 @@ export class Endpoint {
                 laporan_beban_sks: `${API}/plottingan-pengajaran/dosen/laporan-beban-sks/tahun-ajaran/${context?.tahunAjaranId || ':tahunAjaranId'}`,
                 riwayat_pengajaran: `${API}/plottingan-pengajaran/dosen/${context?.dosenId || ':dosenId'}/riwayat-pengajaran`,
                 beban_sks_aktif: `${API}/plottingan-pengajaran/dosen/${context?.dosenId || ':dosenId'}/beban-sks-aktif`,
+                beban_sks_by_tahun: `${API}/plottingan-pengajaran/dosen/${context?.dosenId || ':dosenId'}/tahun-ajaran/${context?.tahunAjaranId || ':tahunAjaranId'}`,
             },
 
             matakuliah: {
-                get_all: `${API}/masterdata/matakuliahs`,
+                get_all: `${API}/getAllMatakuliah`,
+                by_auth_prodi: `${API}/masterdata/matakuliahs/by-auth-prodi`,
+                resource: `${API}/masterdata/matakuliahs`,
                 show: `${API}/masterdata/matakuliahs/${context?.id || ':id'}`,
                 update: `${API}/masterdata/matakuliahs/${context?.id || ':id'}`,
                 delete: `${API}/masterdata/matakuliahs/${context?.id || ':id'}`,
@@ -65,6 +68,8 @@ export class Endpoint {
 
             kelompok_keahlian: {
                 get_all: `${API}/masterdata/kelompokkeahlian`,
+                assign_ketua: `${API}/masterdata/kelompok-keahlian/${context?.kkId || ':kkId'}/assign-ketua`,
+                revoke_ketua: `${API}/masterdata/kelompok-keahlian/${context?.kkId || ':kkId'}/revoke-ketua`,
             },
 
             mapping_kelas_matkul: {
@@ -81,6 +86,7 @@ export class Endpoint {
             koordinator_matakuliah: {
                 resource: `${API}/masterdata/koordinator-matakuliah`,
                 assign_by_prodi: `${API}/masterdata/koordinator-matakuliah/assign-by-program-studi`,
+                assign_by_prodi_auth: `${API}/masterdata/koordinator-matakuliah/assign-by-program-studi/by-auth-prodi`,
                 show: `${API}/masterdata/koordinator-matakuliah/${context?.id || ':id'}`,
                 update: `${API}/masterdata/koordinator-matakuliah/${context?.id || ':id'}`,
                 delete: `${API}/masterdata/koordinator-matakuliah/${context?.id || ':id'}`,
@@ -90,7 +96,8 @@ export class Endpoint {
                 resource: `${API}/masterdata/tahunajarans`,
                 get_active: `${API}/masterdata/tahun-ajaran/aktif`,
                 set_active: `${API}/masterdata/tahun-ajaran/${context?.id || ':id'}/set-active`,
-                create: `${API}/masterdata/tahunajarans/${context?.id || ':id'}`,
+                show: `${API}/masterdata/tahunajarans/${context?.id || ':id'}`,
+                update: `${API}/masterdata/tahunajarans/${context?.id || ':id'}`,
                 delete: `${API}/masterdata/tahunajarans/${context?.id || ':id'}`,
             },
 
@@ -107,9 +114,6 @@ export class Endpoint {
                 get_hasil_by_prodi: `${API}/plottingan-pengajaran/tahun-ajaran/${context?.tahunAjaranId || ':tahunAjaranId'}/program-studi/${context?.prodiId || ':prodiId'}`,
                 export: `${API}/plottingan-pengajaran/export/tahun-ajaran/${context?.tahunAjaranId || ':tahunAjaranId'}`,
                 export_by_prodi: `${API}/plottingan-pengajaran/export/tahun-ajaran/${context?.tahunAjaranId || ':tahunAjaranId'}/program-studi/${context?.prodiId || ':prodiId'}`,
-                show: `${API}/plottingan-pengajaran/start-plottingan-pengajaran/${context?.id || ':id'}`,
-                update: `${API}/plottingan-pengajaran/start-plottingan-pengajaran/${context?.id || ':id'}`,
-                delete: `${API}/plottingan-pengajaran/start-plottingan-pengajaran/${context?.id || ':id'}`,
             },
         };
 

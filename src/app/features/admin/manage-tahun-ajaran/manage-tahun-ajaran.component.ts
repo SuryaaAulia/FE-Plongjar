@@ -4,7 +4,8 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractContro
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ActionButtonComponent, FormInputComponent, SelectOption, LoadingSpinnerComponent } from '../../../shared/components/index';
-import { TahunAjaran, TahunAjaranService } from '../../../core/services/admin/tahun-ajaran.service';
+import { TahunAjaranService } from '../../../core/services/admin/tahun-ajaran.service';
+import { TahunAjaran } from '../../../core/models/user.model';
 
 @Component({
   selector: 'app-tahun-ajaran',

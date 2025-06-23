@@ -1,17 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from '../api.service';
 import { Observable, BehaviorSubject, tap } from 'rxjs';
-
-export interface TahunAjaran {
-    id: number;
-    tahun_ajaran: string;
-    semester: 'ganjil' | 'genap';
-    status: number;
-    created_at?: string;
-    updated_at?: string;
-    deleted_at?: string | null;
-}
-
+import { TahunAjaran } from '../../models/user.model';
 @Injectable({
     providedIn: 'root'
 })

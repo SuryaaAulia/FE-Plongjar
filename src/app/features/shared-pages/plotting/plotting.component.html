@@ -1,5 +1,41 @@
-<div class="course-assignment-container">
+<div *ngIf="showProdiSelection" class="prodi-selection-container">
+  <div class="prodi-header">
+    <h1 class="prodi-title">Plotting Koordinator dan Dosen Matkul</h1>
+    <p class="prodi-subtitle">
+      *Pilih program studi yang ingin anda mulai plottingnya
+    </p>
+  </div>
+
+  <div class="prodi-grid">
+    <div
+      *ngFor="let prodi of prodiOptions"
+      class="prodi-card"
+      [style.background-color]="prodi.color"
+      (click)="handleProdiSelection(prodi)"
+    >
+      <span class="prodi-name">{{ prodi.name }}</span>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="!showProdiSelection" class="course-assignment-container">
   <div class="green-header-bar"></div>
+
+  <div
+    *ngIf="isKelompokKeahlianUser && selectedProdi"
+    class="selected-prodi-indicator"
+  >
+    <div class="selected-prodi-info">
+      <span class="selected-prodi-label">Program Studi Terpilih:</span>
+      <div
+        class="selected-prodi-badge"
+        [style.background-color]="selectedProdi.color"
+      >
+        {{ selectedProdi.name }}
+      </div>
+    </div>
+  </div>
+
   <div class="form-section">
     <div class="form-group">
       <label for="course-search">Mata Kuliah: </label>
@@ -44,7 +80,11 @@
           <th>Online/Onsite</th>
         </tr>
       </thead>
-      <tbody *ngIf="currentSelectedCourse && tableData.length > 0">
+      <tbody
+        *ngIf="
+          !isLoadingTableData && currentSelectedCourse && tableData.length > 0
+        "
+      >
         <tr *ngFor="let row of tableData; let i = index">
           <td>{{ row.no }}</td>
           <td>{{ row.kelas }}</td>
@@ -72,25 +112,32 @@
           <td>{{ row.onlineOnsite }}</td>
         </tr>
       </tbody>
-      <tbody *ngIf="showPlaceholderContent">
+      <tbody *ngIf="showPlaceholderContent || isLoadingTableData">
         <tr>
           <td [attr.colspan]="9" class="placeholder-cell">
             <div class="placeholder-content-area">
-              <img
-                [src]="noCourseSelectedImageUrl"
-                alt="Pilih mata kuliah untuk melihat data"
-                class="placeholder-image"
-              />
-              <p *ngIf="!currentSelectedCourse" class="placeholder-message">
-                Silakan pilih Mata Kuliah & Tahun Ajaran untuk menampilkan
-                detail plotting.
-              </p>
-              <p
-                *ngIf="currentSelectedCourse && tableData.length === 0"
-                class="placeholder-message"
-              >
-                Belum ada data plotting untuk mata kuliah yang dipilih.
-              </p>
+              <app-loading-spinner
+                *ngIf="isLoadingTableData"
+              ></app-loading-spinner>
+
+              <ng-container *ngIf="!isLoadingTableData">
+                <img
+                  [src]="noCourseSelectedImageUrl"
+                  alt="Pilih mata kuliah untuk melihat data"
+                  class="placeholder-image"
+                />
+                <p *ngIf="!currentSelectedCourse" class="placeholder-message">
+                  Silakan pilih Mata Kuliah & Tahun Ajaran untuk menampilkan
+                  detail plotting.
+                </p>
+                <p
+                  *ngIf="currentSelectedCourse && tableData.length === 0"
+                  class="placeholder-message"
+                >
+                  Belum ada data mapping kelas untuk mata kuliah yang dipilih
+                  pada T.A. ini.
+                </p>
+              </ng-container>
             </div>
           </td>
         </tr>
@@ -107,24 +154,19 @@
       type="button"
       (click)="onBack()"
     ></app-action-button>
-    <app-action-button
-      text="Submit"
-      iconClass="fa fa-paper-plane"
-      backgroundColorVar="var(--green)"
-      [fontSizePx]="16"
-      [paddingScaleFactor]="0.6"
-      type="button"
-      (click)="onSubmit()"
-      [disabled]="
-        !currentSelectedCourse || !coordinatorName || tableData.length === 0
-      "
-    ></app-action-button>
   </div>
 </div>
 
 <app-search-modal
-  *ngIf="showLecturerSearchModal"
+  *ngIf="
+    showLecturerSearchModal &&
+    currentSelectedCourse &&
+    currentSelectedAcademicYear
+  "
   (lecturerSelected)="handleLecturerSelected($event)"
   (closeModal)="closeLecturerModal()"
->
-</app-search-modal>
+  (coordinatorAssigned)="handleCoordinatorAssigned($event)"
+  [mode]="editingField"
+  [courseId]="parseCourseId(currentSelectedCourse)"
+  [academicYearId]="currentSelectedAcademicYear.id"
+/>

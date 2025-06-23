@@ -9,24 +9,41 @@
       (focus)="onSearchFocus()"
       aria-label="Search for course"
       class="search-input"
+      [disabled]="isLoading"
+      [placeholder]="isSearching ? 'Searching...' : searchPlaceholder"
     />
     <button
-      *ngIf="searchTerm"
+      *ngIf="searchTerm && !isLoading"
       (click)="clearSearch()"
       class="icon-button clear-button"
       aria-label="Clear search"
     >
       <i class="fas fa-times-circle"></i>
     </button>
-    <span class="icon-button search-icon-magnifier">
+    <span
+      class="icon-button search-icon-magnifier"
+      *ngIf="!isLoading && !isSearching"
+    >
       <i class="fas fa-search"></i>
+    </span>
+    <span class="icon-button" *ngIf="isLoading || isSearching">
+      <i class="fas fa-spinner fa-spin"></i>
     </span>
   </div>
 
   <div class="dropdown-panel" [class.is-open]="showDropdown">
     <div class="content-area">
       <div class="course-list-panel">
-        <div *ngIf="showPlaceholder()" class="placeholder-container">
+        <div *ngIf="isLoading || isSearching" class="placeholder-container">
+          <app-loading-spinner></app-loading-spinner>
+        </div>
+
+        <div
+          *ngIf="
+            showPlaceholder() && !isLoading && !isSearching && !errorMessage
+          "
+          class="placeholder-container"
+        >
           <div class="placeholder-image-wrapper">
             <img
               src="assets/images/search_mata_kuliah.svg"
@@ -37,7 +54,15 @@
           <p class="placeholder-text">{{ searchInputNote }}</p>
         </div>
 
-        <ul *ngIf="filteredCourses.length > 0" class="course-list">
+        <ul
+          *ngIf="
+            filteredCourses.length > 0 &&
+            !isLoading &&
+            !isSearching &&
+            !errorMessage
+          "
+          class="course-list"
+        >
           <li
             *ngFor="let course of filteredCourses"
             (click)="selectCourse(course)"
@@ -46,31 +71,33 @@
             (keydown.enter)="selectCourse(course)"
             role="option"
             [attr.aria-selected]="course === selectedCourse"
-            [title]="course.id + ' - ' + course.name"
+            [title]="course.code + ' - ' + course.name"
           >
-            {{ course.id }} - {{ course.name }}
+            {{ course.code }} - {{ course.name }}
           </li>
         </ul>
-
-        <div
+        <app-search-not-found
           *ngIf="
-            searchTerm.trim() !== '' &&
+            searchTerm.trim().length >= 2 &&
             filteredCourses.length === 0 &&
             !showPlaceholder() &&
-            !selectedCourse
+            !selectedCourse &&
+            !isLoading &&
+            !isSearching &&
+            !errorMessage
           "
-          class="no-results"
-        >
-          No courses found matching "{{ searchTerm }}".
-        </div>
+          [keyword]="searchTerm"
+        ></app-search-not-found>
       </div>
 
       <div
         class="academic-year-panel"
         *ngIf="
-          selectedCourse ||
-          filteredCourses.length > 0 ||
-          searchTerm.trim() !== ''
+          (selectedCourse ||
+            filteredCourses.length > 0 ||
+            (searchTerm.trim().length >= 2 && !isSearching)) &&
+          !isLoading &&
+          !errorMessage
         "
       >
         <h3 class="panel-title">Tahun Ajaran</h3>
@@ -80,24 +107,32 @@
               <input
                 type="radio"
                 name="academicYear"
-                [value]="year.value"
+                [value]="year"
                 [(ngModel)]="selectedAcademicYear"
               />
-              {{ year.label }}
+              {{ year.tahun_ajaran }} - {{ year.semester }}
             </label>
           </li>
         </ul>
       </div>
     </div>
 
-    <div class="footer-actions">
-      <button
-        (click)="onDone()"
-        class="done-button"
+    <div
+      class="footer-actions"
+      *ngIf="!isLoading && !isSearching && !errorMessage"
+    >
+      <app-action-button
+        [text]="'Done'"
+        [type]="'button'"
         [disabled]="!selectedCourse || !selectedAcademicYear"
-      >
-        Done
-      </button>
+        [fullWidth]="false"
+        [loading]="false"
+        [backgroundColorVar]="'var(--green)'"
+        [textColorVar]="'white'"
+        [borderColorVar]="'transparent'"
+        [fontSizePx]="16"
+        (buttonClick)="onDone()"
+      ></app-action-button>
     </div>
   </div>
 </div>
