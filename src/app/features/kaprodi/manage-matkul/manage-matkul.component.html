@@ -1,50 +1,26 @@
 <div class="manage-items-container">
-  <div class="page-header">
-    <div class="controls">
-      <div class="items-per-page-selector">
-        <label for="itemsPerPage">Show</label>
-        <select
-          id="itemsPerPage"
-          [(ngModel)]="itemsPerPage"
-          (ngModelChange)="onItemsPerPageChange($event)"
-        >
-          <option [value]="6">6 Data</option>
-          <option [value]="9">9 Data</option>
-          <option [value]="12">12 Data</option>
-          <option [value]="24">24 Data</option>
-          <option [value]="30">30 Data</option>
-        </select>
-      </div>
-      <input
-        type="text"
-        placeholder="Nama Matkul"
-        [(ngModel)]="searchNamaMatkul"
-        (keyup.enter)="onSearch()"
-      />
-      <input
-        type="text"
-        placeholder="PIC"
-        [(ngModel)]="searchPIC"
-        (keyup.enter)="onSearch()"
-      />
-      <button class="search-button" (click)="onSearch()">
-        <i class="fas fa-search"></i> Search
-      </button>
-    </div>
-  </div>
+  <app-search-header
+    title="Daftar Mata Kuliah"
+    [itemsPerPage]="itemsPerPage"
+    [pageSizeOptions]="[6, 9, 12, 24, 30]"
+    placeholder1="Nama Mata Kuliah"
+    placeholder2="PIC"
+    (itemsPerPageChange)="onItemsPerPageChange($event)"
+    (search)="handleSearch($event)"
+  ></app-search-header>
 
   <div class="divider"></div>
 
   @if (isLoading) {
   <app-loading-spinner></app-loading-spinner>
-  } @else { @if (filteredCourses.length === 0) {
+  } @else { @if (courses.length === 0) {
   <app-search-not-found
     [keyword]="currentSearchDisplayKeyword"
     altText="Mata kuliah tidak ditemukan"
   ></app-search-not-found>
   } @else {
   <div class="item-grid">
-    @for (course of paginatedCourses; track course.id) {
+    @for (course of courses; track course.id) {
     <app-course-card
       [course]="course"
       (viewDetails)="handleViewDetails($event)"
@@ -57,7 +33,7 @@
   <app-pagination
     [currentPage]="currentPage"
     [itemsPerPage]="itemsPerPage"
-    [totalItems]="filteredCourses.length"
+    [totalItems]="totalItems"
     (pageChange)="onPageChange($event)"
   ></app-pagination>
   } }

@@ -176,6 +176,13 @@ export const routes: Routes = [
               ).then((m) => m.HasilPlottingComponent),
           },
           {
+            path: 'beban-sks',
+            loadComponent: () =>
+              import(
+                './features/ketua-kk/beban-sks/beban-sks.component'
+              ).then((m) => m.BebanSksComponent),
+          },
+          {
             path: 'tambah-matkul',
             loadComponent: () =>
               import(
@@ -183,7 +190,7 @@ export const routes: Routes = [
               ).then((m) => m.TambahMatkulComponent),
           },
           {
-            path: 'matkul/edit/:code',
+            path: 'matkul/edit/:id',
             loadComponent: () =>
               import('./features/kaprodi/tambah-matkul/tambah-matkul.component')
                 .then(m => m.TambahMatkulComponent)
@@ -203,7 +210,7 @@ export const routes: Routes = [
               ).then((m) => m.ManageMatkulComponent),
           },
           {
-            path: 'detail-matkul/:code',
+            path: 'detail-matkul/:id',
             loadComponent: () =>
               import(
                 './features/kaprodi/detail-matkul/detail-matkul.component'

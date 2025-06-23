@@ -13,13 +13,11 @@ import { Course } from '../../../../core/models/user.model';
 export class CourseCardComponent {
   @Input() course!: Course;
   @Output() viewDetails = new EventEmitter<Course>();
-  @Output() manageUsers = new EventEmitter<Course>();
-  @Output() settings = new EventEmitter<Course>();
   @Output() edit = new EventEmitter<Course>();
   @Output() delete = new EventEmitter<Course>();
 
-  onSettingsClick(): void {
-    this.settings.emit(this.course);
+  onDetailClick(): void {
+    this.viewDetails.emit(this.course);
   }
 
   onEditClick(): void {

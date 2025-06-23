@@ -1,12 +1,11 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule, Location } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ApiService } from '../../../core/services/api.service';
 import { ActionButtonComponent, FormInputComponent, SelectOption, LoadingSpinnerComponent } from '../../../shared/components/index';
-import { Pic, CreateMatakuliahPayload } from '../../../core/services/kaprodi/matakuliah.service';
+import { MatakuliahService, Pic, CreateMatakuliahPayload } from '../../../core/services/kaprodi/matakuliah.service';
 
 @Component({
   selector: 'app-tambah-matkul',
@@ -28,6 +27,8 @@ export class TambahMatkulComponent implements OnInit {
   pageTitle = 'Tambah Mata Kuliah';
   pageSubtitle = 'Masukkan informasi untuk mata kuliah baru';
   submitButtonText = 'Submit';
+
+  private courseId: number | null = null;
 
   sksOptions: SelectOption[] = [1, 2, 3, 4, 6].map(v => ({ value: v, label: `${v} SKS` }));
   picOptions: SelectOption[] = [];
@@ -51,10 +52,12 @@ export class TambahMatkulComponent implements OnInit {
     { value: 'Tingkat 4', label: 'Tingkat 4' },
   ];
 
-  private fb = inject(FormBuilder);
-  private router = inject(Router);
-  private route = inject(ActivatedRoute);
-  private apiService = inject(ApiService);
+  constructor(
+    private fb: FormBuilder,
+    private router: Router,
+    private route: ActivatedRoute,
+    private matakuliahService: MatakuliahService
+  ) { }
 
   ngOnInit(): void {
     this.initForm();
@@ -78,17 +81,50 @@ export class TambahMatkulComponent implements OnInit {
 
   private checkForEditMode(): void {
     this.route.paramMap.subscribe(params => {
-      const courseId = params.get('id');
-      if (courseId) {
+      const idParam = params.get('id');
+      if (idParam) {
         this.isEditMode = true;
+        this.courseId = Number(idParam);
+        this.pageTitle = 'Edit Mata Kuliah';
+        this.pageSubtitle = 'Perbarui informasi mata kuliah yang sudah ada';
+        this.submitButtonText = 'Update';
+        this.loadCourseForEdit(this.courseId);
+      }
+    });
+  }
+
+  private loadCourseForEdit(id: number): void {
+    this.isLoading = true;
+    this.matakuliahService.getCourseById(id).pipe(
+      finalize(() => { this.isLoading = false; })
+    ).subscribe({
+      next: (course) => {
+        this.addMatkulForm.patchValue({
+          namaMatkul: course.name,
+          kodeMatkul: course.code,
+          sks: course.sks,
+          pic: course.id_pic,
+          metodePerkuliahan: course.mode_perkuliahan_key,
+          praktikum: course.praktikum === 'Ya' ? 'true' : 'false',
+          mandatoryStatus: course.statusMatkul,
+          matakuliahEksepsi: course.matakuliah_eksepsi,
+          tingkatMatakuliah: course.tingkat_matakuliah,
+        });
+      },
+      error: (err) => {
+        console.error(`Failed to load course ${id} for editing`, err);
+        alert('Gagal memuat data mata kuliah. Mengembalikan ke halaman sebelumnya.');
+        this.goBack();
       }
     });
   }
 
   private loadPics(): void {
-    this.isLoading = true;
-    this.apiService.getAllPic().pipe(
-      finalize(() => this.isLoading = false)
+    if (!this.isEditMode) {
+      this.isLoading = true;
+    }
+    this.matakuliahService.getAllPics().pipe(
+      finalize(() => { if (!this.isEditMode) this.isLoading = false; })
     ).subscribe({
       next: (pics: Pic[]) => {
         this.picOptions = pics.map(pic => ({
@@ -114,7 +150,6 @@ export class TambahMatkulComponent implements OnInit {
     }
 
     this.isLoading = true;
-
     const formValue = this.addMatkulForm.value;
     const payload: CreateMatakuliahPayload = {
       nama_matakuliah: formValue.namaMatkul,
@@ -127,27 +162,48 @@ export class TambahMatkulComponent implements OnInit {
       matakuliah_eksepsi: formValue.matakuliahEksepsi,
       tingkat_matakuliah: formValue.tingkatMatakuliah,
     };
+    if (this.isEditMode && this.courseId) {
+      this.updateCourse(this.courseId, payload);
+    } else {
+      this.createCourse(payload);
+    }
+  }
 
-    this.apiService.createMatakuliah(payload).pipe(
+  private createCourse(payload: CreateMatakuliahPayload): void {
+    this.matakuliahService.createMatakuliah(payload).pipe(
       finalize(() => this.isLoading = false)
     ).subscribe({
-      next: (response) => {
-        console.log('Mata kuliah berhasil dibuat!', response);
+      next: () => {
         alert('Mata kuliah berhasil ditambahkan!');
-        this.addMatkulForm.reset();
+        this.router.navigate(['/ketua-prodi/matkul']);
       },
-      error: (err: HttpErrorResponse) => {
-        if (err.status === 422 && err.error?.errors?.kode_matkul) {
-          alert('Gagal: Kode Mata Kuliah sudah terdaftar. Silakan gunakan kode lain.');
-        } else {
-          alert('Gagal menambahkan mata kuliah. Terjadi kesalahan pada server.');
-        }
-        console.error('Gagal membuat mata kuliah', err);
-      }
+      error: (err) => this.handleFormError(err)
     });
   }
 
+  private updateCourse(id: number, payload: CreateMatakuliahPayload): void {
+    this.matakuliahService.updateMatakuliah(id, payload).pipe(
+      finalize(() => this.isLoading = false)
+    ).subscribe({
+      next: () => {
+        alert('Mata kuliah berhasil diperbarui!');
+        this.goBack();
+      },
+      error: (err) => this.handleFormError(err)
+    });
+  }
+
+  private handleFormError(err: HttpErrorResponse): void {
+    this.isLoading = false;
+    if (err.status === 422 && err.error?.errors?.kode_matkul) {
+      alert('Gagal: Kode Mata Kuliah sudah terdaftar. Silakan gunakan kode lain.');
+    } else {
+      alert(`Gagal menyimpan mata kuliah: ${err.error?.message || 'Terjadi kesalahan pada server.'}`);
+    }
+    console.error('Gagal menyimpan mata kuliah', err);
+  }
+
   goBack(): void {
-    this.router.navigate(['../'], { relativeTo: this.route });
+    this.router.navigate(['/ketua-prodi/matkul']);
   }
 }

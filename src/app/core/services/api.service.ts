@@ -211,9 +211,9 @@ export class ApiService {
         return this.http.put(url!, data);
     }
 
-    deleteMatakuliah(id: number): Observable<any> {
+    deleteMatakuliah(id: number, body?: any): Observable<any> {
         const url = this.endpoint.getUrl('matakuliah', 'delete', { id });
-        return this.http.delete(url!);
+        return this.http.delete(url!, { body: body });
     }
 
     // =================================================================
@@ -315,7 +315,7 @@ export class ApiService {
     // =================================================================
     getAllKoordinatorMatakuliah(params?: HttpParams): Observable<any> {
         const url = this.endpoint.getUrl('koordinator_matakuliah', 'resource');
-        return this.http.get(url!, {params});
+        return this.http.get(url!, { params });
     }
 
     createKoordinatorMatakuliah(data: any): Observable<any> {

@@ -8,8 +8,12 @@ import {
   CourseCardComponent,
   ConfirmationModalComponent,
   LoadingSpinnerComponent,
-  SearchNotFoundComponent
-} from '../../../shared/components/index'
+  SearchNotFoundComponent,
+  SearchHeaderComponent
+} from '../../../shared/components/index';
+import { MatakuliahService } from '../../../core/services/kaprodi/matakuliah.service';
+import { HttpParams } from '@angular/common/http';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-manage-matkul',
@@ -21,22 +25,23 @@ import {
     PaginationComponent,
     ConfirmationModalComponent,
     LoadingSpinnerComponent,
-    SearchNotFoundComponent
+    SearchNotFoundComponent,
+    SearchHeaderComponent
   ],
   templateUrl: './manage-matkul.component.html',
   styleUrl: './manage-matkul.component.scss'
 })
 export class ManageMatkulComponent implements OnInit {
-  allCourses: Course[] = [];
-  filteredCourses: Course[] = [];
+  courses: Course[] = [];
+  totalItems: number = 0;
   currentPage = 1;
   itemsPerPage = 12;
   isLoading = true;
-  searchNamaMatkul: string = '';
-  searchPIC: string = '';
+
+  private currentSearchName = '';
+  private currentSearchPic = '';
 
   currentSearchDisplayKeyword: string = '';
-  noResultsImagePath: string = 'assets/images/image_57e4f0.png';
 
   showDeleteModal = false;
   deleteModalMode: 'checkbox' | 'password' = 'checkbox';
@@ -45,7 +50,10 @@ export class ManageMatkulComponent implements OnInit {
   deleteModalMessage = '';
   deletePasswordPrompt = 'Masukan password akun anda untuk melanjutkan tindakan penghapusan mata kuliah';
 
-  constructor(private router: Router) { }
+  constructor(
+    private router: Router,
+    private matakuliahService: MatakuliahService
+  ) { }
 
   ngOnInit(): void {
     this.loadCourses();
@@ -53,88 +61,65 @@ export class ManageMatkulComponent implements OnInit {
 
   loadCourses(): void {
     this.isLoading = true;
-    this.currentSearchDisplayKeyword = '';
-    setTimeout(() => {
-      this.allCourses = this.generateMockCourses();
-      this.applyFilters();
-      this.isLoading = false;
-    }, 1000);
-  }
+    let params = new HttpParams()
+      .set('page', this.currentPage.toString())
+      .set('per_page', this.itemsPerPage.toString());
 
-  private generateMockCourses(): Course[] {
-    const courseNames = ['MOBILE PROGRAMMING', 'WEB DEVELOPMENT', 'DATABASE SYSTEMS', 'ALGORITHMS', 'DATA STRUCTURES', 'OPERATING SYSTEMS', 'NETWORKING', 'SOFTWARE ENGINEERING', 'ARTIFICIAL INTELLIGENCE', 'MACHINE LEARNING'];
-    const courseCodes = ['CRI3I3', 'CS101', 'DB202', 'ALGO303', 'DS304', 'OS401', 'NET402', 'SE501', 'AI601', 'ML602'];
-    const pics = ['SEAL', 'RPL', 'KBK', 'DOSEN X', 'DOSEN Y'];
-    const sksValues = [1, 2, 3, 4, 5, 6];
-    const statuses = ['active', 'inactive', 'new'];
-    const metodes = ['online', 'offline', 'hybrid'];
-    const praktikumValues = ['true', 'false'];
+    if (this.currentSearchName) {
+      params = params.set('nama_matakuliah', this.currentSearchName);
+    }
+    if (this.currentSearchPic) {
+      params = params.set('pic', this.currentSearchPic);
+    }
 
-    return Array.from({ length: 20 }, (_, i) => {
-      const code = courseCodes[i % courseCodes.length] + (i >= courseCodes.length ? `_V${Math.floor(i / courseCodes.length)}` : '');
-      return {
-        id: `db-${i + 1}`,
-        name: courseNames[i % courseNames.length] + (i >= courseNames.length ? ` ${Math.floor(i / courseNames.length) + 1}` : ''),
-        code: code,
-        sks: sksValues[i % sksValues.length],
-        pic: pics[i % pics.length],
-        statusMatkul: statuses[i % statuses.length],
-        metodePerkuliahan: metodes[i % metodes.length],
-        praktikum: praktikumValues[i % praktikumValues.length],
-      };
+    this.matakuliahService.getAllCourses(params).pipe(
+      finalize(() => { this.isLoading = false; })
+    ).subscribe({
+      next: (response) => {
+        this.courses = response.data;
+        this.totalItems = response.total;
+        this.currentPage = response.current_page;
+      },
+      error: (err) => {
+        console.error('Failed to load courses:', err);
+        alert('Gagal memuat daftar mata kuliah. Silakan coba lagi.');
+        this.courses = [];
+        this.totalItems = 0;
+      }
     });
   }
 
-  onSearch(): void {
-    this.applyFilters();
-  }
-
-  applyFilters(): void {
-    this.filteredCourses = this.allCourses.filter(course => {
-      const nameMatch = this.searchNamaMatkul
-        ? course.name.toLowerCase().includes(this.searchNamaMatkul.toLowerCase())
-        : true;
-      const picMatch = this.searchPIC
-        ? course.pic.toLowerCase().includes(this.searchPIC.toLowerCase())
-        : true;
-      return nameMatch && picMatch;
-    });
+  handleSearch(searchQueries: { query1: string; query2: string }): void {
     this.currentPage = 1;
-    this.updateSearchDisplayKeyword();
+    this.currentSearchName = searchQueries.query1;
+    this.currentSearchPic = searchQueries.query2;
+    this.updateSearchDisplayKeyword(this.currentSearchName, this.currentSearchPic);
+    this.loadCourses();
   }
 
-  updateSearchDisplayKeyword(): void {
-    let keywords = [];
-    if (this.searchNamaMatkul) {
-      keywords.push(`Nama: "${this.searchNamaMatkul}"`);
-    }
-    if (this.searchPIC) {
-      keywords.push(`PIC: "${this.searchPIC}"`);
-    }
-    this.currentSearchDisplayKeyword = keywords.join(', ');
+  updateSearchDisplayKeyword(name: string, pic: string): void {
+    const trimmedName = name.trim();
+    const trimmedPic = pic.trim();
+    this.currentSearchDisplayKeyword = [trimmedName, trimmedPic].filter(Boolean).join(', ');
   }
-
 
   onItemsPerPageChange(items: number): void {
     this.itemsPerPage = Number(items);
     this.currentPage = 1;
+    this.loadCourses();
   }
 
   onPageChange(page: number): void {
     this.currentPage = page;
-  }
-
-  get paginatedCourses(): Course[] {
-    const start = (this.currentPage - 1) * this.itemsPerPage;
-    return this.filteredCourses.slice(start, start + this.itemsPerPage);
+    this.loadCourses();
   }
 
   handleViewDetails(course: Course): void {
-    this.router.navigate(['/ketua-prodi/detail-matkul', course.code]);
+    this.router.navigate(['/ketua-prodi/detail-matkul', course.id]);
   }
 
   handleEditCourse(course: Course): void {
-    this.router.navigate(['/ketua-prodi/matkul/edit', course.code]);
+    this.router.navigate(['/ketua-prodi/matkul/edit', course.id]);
   }
 
   handleDeleteCourse(course: Course): void {
@@ -152,14 +137,30 @@ export class ManageMatkulComponent implements OnInit {
   }
 
   onPasswordDeleteSubmitted(password: string): void {
-    if (!this.courseToDelete) {
+    if (!this.courseToDelete || !password) {
+      return;
+    }
+
+    const courseId = Number(this.courseToDelete.id);
+    if (isNaN(courseId)) {
+      console.error("Invalid course ID for deletion:", this.courseToDelete.id);
       this.closeDeleteModal();
       return;
     }
-    console.log(`Mata Kuliah ${this.courseToDelete.name} (${this.courseToDelete.code}) akan dihapus. Password: ${password}`);
-    this.allCourses = this.allCourses.filter(c => c.code !== this.courseToDelete!.code);
-    this.applyFilters();
-    this.closeDeleteModal();
+
+    this.matakuliahService.deleteMatakuliah(courseId, password).subscribe({
+      next: (response) => {
+        alert(response.message || 'Mata kuliah berhasil dihapus.');
+        this.closeDeleteModal();
+        this.loadCourses();
+      },
+      error: (err) => {
+        console.error('Failed to delete course:', err);
+        const errorMessage = err.error?.message || 'Gagal menghapus mata kuliah. Password mungkin salah atau terjadi error lain.';
+        alert(errorMessage);
+        this.deleteModalMode = 'password';
+      }
+    });
   }
 
   onDeleteCancelled(): void {
@@ -170,16 +171,5 @@ export class ManageMatkulComponent implements OnInit {
     this.showDeleteModal = false;
     this.courseToDelete = null;
     this.deleteModalMode = 'checkbox';
-  }
-
-  get displayedEndIndex(): number {
-    return Math.min(this.currentPage * this.itemsPerPage, this.filteredCourses.length);
-  }
-
-  get displayedStartIndex(): number {
-    if (this.filteredCourses.length === 0) {
-      return 0;
-    }
-    return (this.currentPage - 1) * this.itemsPerPage + 1;
   }
 }

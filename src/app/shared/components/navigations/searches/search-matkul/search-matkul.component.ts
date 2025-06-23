@@ -19,6 +19,7 @@ export class SearchMatkulComponent implements OnInit {
   @Input() initialSearchTerm: string = '';
   @Output() selectionConfirmed = new EventEmitter<{ course: Course, academicYear: { id: number; value: string }, coordinator?: Lecturer; }>();
   @Output() selectionClosed = new EventEmitter<void>();
+  @Output() searchCleared = new EventEmitter<void>();
 
   searchTerm: string = '';
   searchPlaceholder: string = 'Contoh: PEMROGRAMAN WEB';
@@ -182,6 +183,7 @@ export class SearchMatkulComponent implements OnInit {
     if (this.searchInput && this.searchInput.nativeElement) {
       this.searchInput.nativeElement.focus();
     }
+    this.searchCleared.emit();
   }
 
   onDone(): void {

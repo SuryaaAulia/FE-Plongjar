@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule as
 import { finalize, forkJoin } from 'rxjs';
 import { ActionButtonComponent, FormInputComponent, SelectOption, LoadingSpinnerComponent } from '../../../shared/components/index';
 import { MatakuliahService } from '../../../core/services/kaprodi/matakuliah.service';
+import { Course, TahunAjaran } from '../../../core/models/user.model';
 
 interface KelasEntry {
   id: string;
@@ -59,25 +60,28 @@ export class MappingMatkulComponent implements OnInit {
   private loadDropdownData(): void {
     this.isLoading = true;
     forkJoin({
-      matakuliah: this.matakuliahService.getMataKuliah(),
+      matakuliah: this.matakuliahService.getCoursesByAuthProdi(),
       tahunAjaran: this.matakuliahService.getTahunAjaran(),
       programStudi: this.matakuliahService.getProgramStudi()
     }).pipe(
       finalize(() => this.isLoading = false)
     ).subscribe({
       next: ({ matakuliah, tahunAjaran, programStudi }) => {
-        this.mataKuliahOptions = matakuliah.data.data.map((mk: any) => ({
+        this.mataKuliahOptions = matakuliah.map((mk: Course) => ({
           value: mk.id,
-          label: `${mk.kode_matkul} - ${mk.nama_matakuliah}`
+          label: `${mk.code} - ${mk.name}`
         }));
-        this.tahunAjaranOptions = tahunAjaran.data.map((ta: any) => ({
+
+        this.tahunAjaranOptions = tahunAjaran.map((ta: TahunAjaran) => ({
           value: ta.id,
-          label: `${ta.tahun_ajaran} (${ta.semester})`
+          label: `${ta.tahun_ajaran} - ${ta.semester}`
         }));
-        this.programStudiOptions = programStudi.data.map((ps: any) => ({
+
+        this.programStudiOptions = programStudi.map((ps: any) => ({
           value: ps.id,
           label: ps.nama
         }));
+
         console.log("prodi", this.programStudiOptions);
       },
       error: err => {

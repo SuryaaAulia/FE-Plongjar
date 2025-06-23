@@ -42,6 +42,7 @@
       <app-search-matkul
         (selectionConfirmed)="handleCourseAndYearSelected($event)"
         (selectionClosed)="updatePlaceholderVisibility()"
+        (searchCleared)="handleSearchCleared()"
         id="course-search"
       ></app-search-matkul>
     </div>
@@ -52,7 +53,12 @@
         class="input-like-button"
         (click)="openLecturerModal('coordinator')"
         id="coordinator"
-        [disabled]="!currentSelectedCourse"
+        [disabled]="
+          !currentSelectedCourse ||
+          (!isLoadingTableData &&
+            currentSelectedCourse &&
+            tableData.length === 0)
+        "
       >
         <span *ngIf="coordinatorName; else pilihKoordinatorTextCoordinator">{{
           coordinatorName

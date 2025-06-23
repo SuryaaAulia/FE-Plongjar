@@ -1,15 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { ActionButtonComponent } from '../../../shared/components/index';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
+import { ActionButtonComponent, LoadingSpinnerComponent, FormInputComponent } from '../../../shared/components/index'; // Import FormInputComponent
 import { Course } from '../../../core/models/user.model';
-
-
-interface SelectOption {
-  value: string | number;
-  label: string;
-}
+import { MatakuliahService } from '../../../core/services/kaprodi/matakuliah.service';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-detail-matkul',
@@ -17,90 +13,88 @@ interface SelectOption {
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    ActionButtonComponent
+    ActionButtonComponent,
+    LoadingSpinnerComponent,
+    FormInputComponent
   ],
   templateUrl: './detail-matkul.component.html',
   styleUrls: ['./detail-matkul.component.scss']
 })
 export class DetailMatkulComponent implements OnInit {
   detailMatkulForm!: FormGroup;
-  courseData: Course | null = null;
-  sksOptions: number[] = [1, 2, 3, 4, 5, 6];
-  picOptions: SelectOption[] = [
-    { value: 'pic1', label: 'PIC A (SEAL)' },
-    { value: 'pic2', label: 'PIC B (BNL)' },
-    { value: 'pic3', label: 'PIC C (SUI)' },
-  ];
-  statusMatkulOptions: SelectOption[] = [
-    { value: 'active', label: 'Aktif' },
-    { value: 'inactive', label: 'Tidak Aktif' },
-    { value: 'new', label: 'Baru' },
-  ];
-  metodePerkuliahanOptions: SelectOption[] = [
-    { value: 'online', label: 'Daring (Online)' },
-    { value: 'offline', label: 'Luring (Offline)' },
-    { value: 'hybrid', label: 'Bauran (Hybrid)' },
-  ];
+  isLoading = false;
 
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
-    private router: Router,
     private location: Location,
+    private matakuliahService: MatakuliahService
   ) { }
 
   ngOnInit(): void {
     this.initForm();
-    const courseId = this.route.snapshot.paramMap.get('code');
+    const courseIdParam = this.route.snapshot.paramMap.get('id');
 
-    if (courseId) {
-      this.loadCourseDetails(courseId);
+    if (courseIdParam) {
+      const courseId = Number(courseIdParam);
+      if (!isNaN(courseId)) {
+        this.loadCourseDetails(courseId);
+      } else {
+        console.error('Invalid Course ID in URL');
+        this.goBack();
+      }
     } else {
-      console.error('Course ID not found!');
+      console.error('Course ID not found in URL!');
       this.goBack();
     }
   }
 
   initForm(): void {
     this.detailMatkulForm = this.fb.group({
-      namaMatkul: ['', Validators.required],
-      kodeMatkul: ['', Validators.required],
-      sks: ['', Validators.required],
-      pic: ['', Validators.required],
-      statusMatkul: ['', Validators.required],
-      metodePerkuliahan: ['', Validators.required],
-      praktikum: [null, Validators.required]
+      namaMatkul: [''],
+      kodeMatkul: [''],
+      sks: [''],
+      pic: [''],
+      statusMatkul: [''],
+      metodePerkuliahan: [''],
+      praktikum: [''],
+      matakuliahEksepsi: [''],
+      tingkatMatakuliah: [''],
+    });
+    this.detailMatkulForm.disable();
+  }
+
+  loadCourseDetails(id: number): void {
+    this.isLoading = true;
+    this.matakuliahService.getCourseById(id).pipe(
+      finalize(() => { this.isLoading = false; })
+    ).subscribe({
+      next: (courseData: Course) => {
+        this.populateForm(courseData);
+      },
+      error: (err) => {
+        console.error('Failed to load course details:', err);
+        alert('Gagal memuat detail mata kuliah.');
+        this.goBack();
+      }
     });
   }
 
-  loadCourseDetails(code: string): void {
-
-    const mockCourses: Course[] = [
-      { id: 'db-1', name: 'MOBILE PROGRAMMING', code: 'CRI3I3', sks: 3, pic: 'pic1', statusMatkul: 'active', metodePerkuliahan: 'hybrid', praktikum: 'true' },
-      { id: 'db-2', name: 'WEB DEVELOPMENT', code: 'CS101', sks: 4, pic: 'pic2', statusMatkul: 'new', metodePerkuliahan: 'online', praktikum: 'false' },
-    ];
-    this.courseData = mockCourses.find(c => c.code === code) || null;
-
-    if (this.courseData) {
-      const formData = {
-        namaMatkul: this.courseData.name,
-        kodeMatkul: this.courseData.code,
-        sks: this.courseData.sks,
-        pic: this.courseData.pic,
-        statusMatkul: this.courseData.statusMatkul,
-        metodePerkuliahan: this.courseData.metodePerkuliahan,
-        praktikum: String(this.courseData.praktikum)
-      };
-      this.detailMatkulForm.patchValue(formData);
-      this.detailMatkulForm.disable();
-    } else {
-      console.error('Mock Course data not found for ID:', code);
-      this.goBack();
-    }
+  populateForm(course: any): void {
+    this.detailMatkulForm.patchValue({
+      namaMatkul: course.name,
+      kodeMatkul: course.code,
+      sks: `${course.sks} SKS`,
+      pic: course.pic,
+      statusMatkul: course.statusMatkul,
+      metodePerkuliahan: course.metodePerkuliahan,
+      praktikum: course.praktikum,
+      matakuliahEksepsi: course.matakuliah_eksepsi,
+      tingkatMatakuliah: course.tingkat_matakuliah,
+    });
   }
 
   goBack(): void {
     this.location.back();
   }
-
 }

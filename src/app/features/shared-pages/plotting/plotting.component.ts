@@ -191,6 +191,10 @@ export class PlottingComponent implements OnInit {
     this.showPlaceholderContent = !this.currentSelectedCourse || (!this.isLoadingTableData && this.tableData.length === 0);
   }
 
+  public handleSearchCleared(): void {
+    this.resetPlottingData();
+  }
+
   openLecturerModal(field: 'coordinator' | 'dosen', index?: number): void {
     if (field === 'coordinator' && (!this.currentSelectedCourse || !this.currentSelectedAcademicYear)) {
       alert('Pilih Mata Kuliah & Tahun Ajaran terlebih dahulu.');
