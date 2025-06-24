@@ -175,7 +175,7 @@ export class TambahMatkulComponent implements OnInit {
     ).subscribe({
       next: () => {
         alert('Mata kuliah berhasil ditambahkan!');
-        this.router.navigate(['/ketua-prodi/matkul']);
+        this.router.navigate(['/ketua-prodi/manage-matkul']);
       },
       error: (err) => this.handleFormError(err)
     });

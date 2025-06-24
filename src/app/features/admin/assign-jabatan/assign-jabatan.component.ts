@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Observable, Subject, of } from 'rxjs';
 import { takeUntil, finalize, catchError } from 'rxjs/operators';
-import { DosenService } from '../../../core/services/dosen.service';
+import { DosenService, DosenListParams } from '../../../core/services/dosen.service';
 import { JabatanService } from '../../../core/services/admin/jabatan.service';
 import { Lecturer, JabatanStruktural } from '../../../core/models/user.model';
 import {
@@ -97,20 +97,17 @@ export class AssignJabatanComponent implements OnInit, OnDestroy {
     let dosenObservable: Observable<any>;
 
     const hasSearch = this.searchQuery1.trim() || this.searchQuery2.trim();
-    const searchQuery = [this.searchQuery1, this.searchQuery2]
-      .map(q => q.trim())
-      .filter(q => q.length > 0)
-      .join(' ');
-
     const isTanpaJabatan = this.activeFilter === 'Tanpa Jabatan';
     const selectedJabatan = this.jabatanList.find(j => j.nama === this.activeFilter);
 
     if (hasSearch) {
-      dosenObservable = this.dosenService.getAllDosen({
+      const params: DosenListParams = {
         page: 1,
         per_page: 200,
-        search: searchQuery
-      });
+        nama_or_nip: this.searchQuery1.trim(),
+        kode_dosen: this.searchQuery2.trim()
+      };
+      dosenObservable = this.dosenService.getAllDosen(params);
     } else if (isTanpaJabatan) {
       dosenObservable = this.dosenService.getDosenTanpaJabatanStruktural();
     } else if (selectedJabatan) {

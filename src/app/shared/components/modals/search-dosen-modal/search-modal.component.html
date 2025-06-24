@@ -77,30 +77,15 @@
           ></app-search-not-found>
         </ng-template>
 
-        <div
-          *ngIf="searchResults.length > 0 && totalItems > 0"
-          class="pagination-container"
-        >
-          <div class="pagination-controls">
-            <span class="pagination-info">
-              Menampilkan {{ displayedItemsStart }} -
-              {{ displayedItemsEnd }} dari {{ totalItems }} entri
-            </span>
-
-            <div class="page-buttons" *ngIf="totalItems > itemsPerPage">
-              <button (click)="prevPage()" [disabled]="currentPage === 1">
-                &lt;
-              </button>
-              <span>{{ currentPage }}</span>
-              <button
-                (click)="nextPage()"
-                [disabled]="currentPage * itemsPerPage >= totalItems"
-              >
-                &gt;
-              </button>
-            </div>
-          </div>
-        </div>
+        <app-pagination
+          *ngIf="searchResults.length > 0"
+          [currentPage]="currentPage"
+          [itemsPerPage]="itemsPerPage"
+          [totalItems]="totalItems"
+          [searchKeyword]="searchKeyword"
+          [maxVisiblePages]="5"
+          (pageChange)="onPageChange($event)"
+        ></app-pagination>
       </div>
     </div>
   </div>

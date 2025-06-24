@@ -118,7 +118,7 @@ export const routes: Routes = [
             path: 'beban-sks',
             loadComponent: () =>
               import(
-                './features/ketua-kk/beban-sks/beban-sks.component'
+                './features/shared-pages/beban-sks/beban-sks.component'
               ).then((m) => m.BebanSksComponent),
           },
         ]
@@ -179,7 +179,7 @@ export const routes: Routes = [
             path: 'beban-sks',
             loadComponent: () =>
               import(
-                './features/ketua-kk/beban-sks/beban-sks.component'
+                './features/shared-pages/beban-sks/beban-sks.component'
               ).then((m) => m.BebanSksComponent),
           },
           {

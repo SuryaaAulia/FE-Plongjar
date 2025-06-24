@@ -1,65 +1,88 @@
-<div class="pagination-controls-top">
-  <div class="left-content-area"></div>
-
-  <div class="page-size-selector">
-    <label for="pageSize">Show</label>
-    <select
-      id="pageSize"
-      [(ngModel)]="pageSize"
-      (change)="onPageSizeChange()"
-      class="page-size-dropdown"
-      aria-label="Select number of items per page"
-    >
-      <option *ngFor="let size of pageSizeOptions" [value]="size">
-        {{ size }}
-      </option>
-    </select>
-    <span>Data</span>
-  </div>
-</div>
-
-<app-dynamic-table
-  [data]="paginatedData"
-  [columnConfigs]="mataKuliahColumnConfigs"
-  [tableMinimuWidth]="tableMinimuWidth"
-  [parentMaxHeight]="'70vh'"
-  [noDataMessage]="'Tidak ada data hasil plotting yang tersedia.'"
->
-</app-dynamic-table>
-
-<div class="bottom-controls-wrapper">
-  <div class="pagination-controls-bottom">
-    <div class="page-navigation">
-      <div class="page-info">
-        <span *ngIf="totalItems > 0">
-          Menampilkan {{ getStartRecord() }} sampai {{ getEndRecord() }} dari
-          {{ totalItems }} entri
-        </span>
-        <span *ngIf="totalItems === 0">Tidak ada entri</span>
+<div class="top-controls-wrapper">
+  <div class="left-controls">
+    <div class="filter-dropdown-wrapper">
+      <label for="prodi">Program Studi:</label>
+      <div class="custom-select-wrapper">
+        <select
+          id="prodi"
+          class="filter-dropdown"
+          [(ngModel)]="selectedProdiId"
+          (change)="onFilterChange()"
+          [disabled]="isLoading"
+        >
+          <option
+            *ngFor="let prodi of programStudiOptions"
+            [ngValue]="prodi.id"
+          >
+            {{ prodi.nama }}
+          </option>
+        </select>
+        <i class="fa fa-chevron-down dropdown-icon"></i>
       </div>
-      <div class="pagination-arrow-buttons" *ngIf="totalPages > 0">
-        <button
-          type="button"
-          class="pagination-arrow-btn"
-          [disabled]="currentPage === 1"
-          (click)="goToPreviousPage()"
-          aria-label="Previous Page"
+    </div>
+
+    <div class="filter-dropdown-wrapper">
+      <label for="tahunAjaran">Tahun Ajaran:</label>
+      <div class="custom-select-wrapper">
+        <select
+          id="tahunAjaran"
+          class="filter-dropdown"
+          [(ngModel)]="selectedTahunAjaranId"
+          (change)="onFilterChange()"
+          [disabled]="isLoading"
         >
-          &lt;
-        </button>
-        <span class="current-page-display">{{ currentPage }}</span>
-        <button
-          type="button"
-          class="pagination-arrow-btn"
-          [disabled]="currentPage === totalPages || totalPages === 0"
-          (click)="goToNextPage()"
-          aria-label="Next Page"
-        >
-          &gt;
-        </button>
+          <option *ngFor="let tahun of tahunAjaranOptions" [ngValue]="tahun.id">
+            {{ tahun.tahun_ajaran }}
+          </option>
+        </select>
+        <i class="fa fa-chevron-down dropdown-icon"></i>
       </div>
     </div>
   </div>
+
+  <div class="right-controls">
+    <div class="pagination-controls-top">
+      <div class="custom-select-wrapper">
+        <select
+          [(ngModel)]="pageSize"
+          (change)="onPageSizeChange()"
+          class="custom-select"
+          [disabled]="isLoading"
+        >
+          <option *ngFor="let option of pageSizeOptions" [ngValue]="option">
+            {{ option }}
+          </option>
+        </select>
+        <div class="selected-label">
+          Menampilkan {{ pageSize }} Data
+          <i class="fa fa-chevron-down dropdown-icon"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="table-container">
+  <app-dynamic-table
+    [data]="paginatedData"
+    [isLoading]="isLoading"
+    [columnConfigs]="mataKuliahColumnConfigs"
+    [tableMinimuWidth]="tableMinimuWidth"
+    [parentMaxHeight]="'70vh'"
+    [noDataMessage]="
+      'Tidak ada data hasil plotting yang tersedia untuk filter yang dipilih.'
+    "
+  >
+  </app-dynamic-table>
+</div>
+
+<div class="bottom-controls-wrapper">
+  <app-pagination
+    [currentPage]="currentPage"
+    [itemsPerPage]="pageSize"
+    [totalItems]="totalItems"
+    (pageChange)="onPageChange($event)"
+  ></app-pagination>
 
   <div class="action-buttons-container">
     <app-action-button
@@ -69,13 +92,14 @@
       [paddingScaleFactor]="0.6"
       (buttonClick)="onBack()"
     ></app-action-button>
+
     <app-action-button
       text="Download Excel"
       iconClass="fas fa-download"
       backgroundColorVar="var(--primary-blue)"
       [fontSizePx]="16"
       [paddingScaleFactor]="0.6"
-      [disabled]="paginatedData.length === 0"
+      [disabled]="paginatedData.length === 0 || isLoading"
       (buttonClick)="onDownloadExcel()"
     ></app-action-button>
   </div>

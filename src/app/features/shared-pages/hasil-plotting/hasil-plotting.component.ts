@@ -2,7 +2,16 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { DynamicTableComponent, ColumnConfig, ActionButtonComponent } from '../../../shared/components';
+import { forkJoin } from 'rxjs';
+import {
+  DynamicTableComponent,
+  ColumnConfig,
+  ActionButtonComponent,
+  PaginationComponent,
+} from '../../../shared/components';
+import { MatakuliahService } from '../../../core/services/kaprodi/matakuliah.service';
+import { TahunAjaran } from '../../../core/models/user.model';
+import { finalize } from 'rxjs/operators';
 
 export interface MataKuliah {
   no: number;
@@ -21,6 +30,11 @@ export interface MataKuliah {
   tahunAjaran: string;
   mkEksepsi: string;
 }
+export interface ProgramStudi {
+  id: number;
+  nama: string;
+}
+
 
 @Component({
   selector: 'app-hasil-plotting',
@@ -29,41 +43,45 @@ export interface MataKuliah {
     CommonModule,
     FormsModule,
     DynamicTableComponent,
-    ActionButtonComponent
+    ActionButtonComponent,
+    PaginationComponent,
   ],
   templateUrl: './hasil-plotting.component.html',
-  styleUrls: ['./hasil-plotting.component.scss']
+  styleUrls: ['./hasil-plotting.component.scss'],
 })
 export class HasilPlottingComponent implements OnInit {
-
   mataKuliahData: MataKuliah[] = [];
   paginatedData: MataKuliah[] = [];
-
   currentPage: number = 1;
   pageSize: number = 12;
   pageSizeOptions: number[] = [12, 24, 36, 50];
-  totalPages: number = 0;
   totalItems: number = 0;
+
+  tahunAjaranOptions: TahunAjaran[] = [];
+  programStudiOptions: ProgramStudi[] = [];
+  selectedTahunAjaranId: number | null = null;
+  selectedProdiId: number | null = null;
+
+  isLoading: boolean = false;
 
   mataKuliahColumnConfigs: ColumnConfig[] = [];
   tableMinimuWidth: string = '2000px';
   private stickyCol0Width: string = '60px';
-  private stickyCol1Width: string = '120px';
-  private stickyCol2Width: string = '360px';
-  private stickyCol3Width: string = '80px';
-  private stickyCol4Width: string = '110px';
+  private stickyCol1Width: string = '110px';
+  private stickyCol2Width: string = '260px';
+  private stickyCol3Width: string = '280px';
+  private stickyCol4Width: string = '100px';
   private colKelasWidth: string = '160px';
-  private colMkEksepsiWidth: string = '240px';
-
-
+  private colMkEksepsiWidth: string = '140px';
 
   constructor(
     private router: Router,
+    private matakuliahService: MatakuliahService
   ) { }
 
   ngOnInit(): void {
     this.setupColumnConfigs();
-    this.loadMataKuliahData();
+    this.loadFilterOptions();
   }
 
   setupColumnConfigs(): void {
@@ -82,78 +100,126 @@ export class HasilPlottingComponent implements OnInit {
       { key: 'semester', label: 'Semester', width: '100px' },
       { key: 'hourTarget', label: 'Hour Target', width: '120px', customClass: 'text-right' },
       { key: 'tahunAjaran', label: 'Tahun Ajaran', width: '120px', customClass: 'text-center' },
+      { key: 'teamTeaching', label: 'Team Teaching', width: '120px', customClass: 'text-center' },
       { key: 'mkEksepsi', label: 'MK Eksepsi', width: this.colMkEksepsiWidth, minWidth: this.colMkEksepsiWidth }
     ];
   }
 
-  loadMataKuliahData(): void {
-    this.mataKuliahData = [];
-    for (let i = 1; i <= 75; i++) {
-      this.mataKuliahData.push({
-        no: i,
-        idMatkul: `CRI3I${(i % 10) + 1}`,
-        matkul: `MATA KULIAH ${String.fromCharCode(65 + (i % 15))} Rev.${i % 3}`,
-        pic: ['SEAL', 'BNL', 'SUI', 'VLY', 'RDT'][i % 5],
-        dosen: ['VLY', 'SUI', 'BNL', 'SEAL', 'RDT'][i % 5],
-        mandatory: i % 2 === 0 ? 'Wajib Prodi' : 'Pilihan',
-        tingkatMatkul: `Tingkat ${(i % 4) + 1}`,
-        kredit: (i % 3) + 2,
-        kelas: `IF-4${(i % 3) + 1}-0${(i % 4) + 1}`,
-        praktikum: i % 3 === 0 ? 'YES' : 'NO',
-        koordinator: ['SUI', 'VLY', 'SEAL', 'BNL', 'RDT'][i % 5],
-        semester: (i % 2 === 0) ? 'Ganjil' : 'Genap',
-        hourTarget: 100 + (i % 8) * 10,
-        tahunAjaran: '2024/2025',
-        mkEksepsi: i % 7 === 0 ? 'ADA EKSEPSI KHUSUS' : '-'
+  loadFilterOptions(): void {
+    this.isLoading = true;
+    forkJoin({
+      prodi: this.matakuliahService.getProgramStudi(),
+      tahun: this.matakuliahService.getTahunAjaran(),
+    })
+      .pipe(finalize(() => (this.isLoading = false)))
+      .subscribe({
+        next: ({ prodi, tahun }) => {
+          this.programStudiOptions = prodi;
+          console.log('Program Studi Options:', this.programStudiOptions);
+          if (prodi.length > 0) {
+            this.selectedProdiId = prodi[0].id;
+          }
+
+          this.tahunAjaranOptions = tahun;
+          if (tahun.length > 0) {
+            this.selectedTahunAjaranId = tahun[0].id;
+          }
+
+          this.loadHasilPlottingan();
+        },
+        error: (err) =>
+          console.error('Error loading filter options:', err),
       });
-    }
-    this.totalItems = this.mataKuliahData.length;
-    this.updatePagination();
   }
 
-  updatePagination(): void {
-    this.totalPages = Math.ceil(this.totalItems / this.pageSize);
-    if (this.currentPage < 1 && this.totalItems > 0) {
-      this.currentPage = 1;
-    } else if (this.currentPage > this.totalPages && this.totalPages > 0) {
-      this.currentPage = this.totalPages;
-    } else if (this.totalItems === 0) {
-      this.currentPage = 1;
-      this.totalPages = 0;
+  loadHasilPlottingan(): void {
+    if (!this.selectedTahunAjaranId || !this.selectedProdiId) {
+      this.mataKuliahData = [];
+      this.totalItems = 0;
+      this.updatePaginatedData();
+      return;
     }
 
-    const startIndex = (this.currentPage - 1) * this.pageSize;
-    const endIndex = Math.min(startIndex + this.pageSize, this.totalItems);
-    this.paginatedData = this.mataKuliahData.slice(startIndex, endIndex);
+    this.isLoading = true;
+    this.matakuliahService
+      .getHasilPlottinganByProdi(
+        this.selectedTahunAjaranId,
+        this.selectedProdiId
+      )
+      .pipe(finalize(() => (this.isLoading = false)))
+      .subscribe({
+        next: (response) => {
+          if (response?.success && response.data?.data) {
+            this.mataKuliahData = this.mapApiResponseToMataKuliah(
+              response.data.data
+            );
+            this.totalItems = this.mataKuliahData.length;
+          } else {
+            this.mataKuliahData = [];
+            this.totalItems = 0;
+          }
+          this.updatePaginatedData();
+        },
+        error: (err) => {
+          console.error('Error fetching hasil plottingan:', err);
+          this.mataKuliahData = [];
+          this.totalItems = 0;
+          this.updatePaginatedData();
+        },
+      });
+  }
+
+  private mapApiResponseToMataKuliah(apiData: any[]): MataKuliah[] {
+    return apiData.map((item) => {
+      const [tahun, semester] = (item.tahun_ajaran || ' - ').split(' - ');
+      console.log('item', item);
+      return {
+        no: 0,
+        idMatkul: item.kode_matakuliah || '-',
+        matkul: item.nama_matakuliah || '-',
+        pic: item.pic_matakuliah || '-',
+        dosen: item.kode_dosen_pengajar || '-',
+        mandatory: item.mandatory_status === 'wajib_prodi' ? 'Wajib Prodi' : 'Pilihan',
+        tingkatMatkul: item.tingkat_matakuliah || '-',
+        kredit: item.sks_matakuliah || 0,
+        kelas: item.nama_kelas || '-',
+        praktikum: item.praktikum ? 'Ya' : 'Tidak',
+        koordinator: item.kode_koordinator || '-',
+        semester: semester || '-',
+        hourTarget: item.hour_target || 0,
+        tahunAjaran: tahun || '-',
+        mkEksepsi: item.mk_eksepsi || '-',
+      };
+    });
+  }
+
+  onFilterChange(): void {
+    this.currentPage = 1;
+    this.loadHasilPlottingan();
+  }
+
+  onPageChange(page: number): void {
+    this.currentPage = page;
+    this.updatePaginatedData();
   }
 
   onPageSizeChange(): void {
     this.currentPage = 1;
-    this.updatePagination();
+    this.updatePaginatedData();
   }
 
-  goToPreviousPage(): void {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-      this.updatePagination();
+  updatePaginatedData(): void {
+    if (this.totalItems === 0) {
+      this.paginatedData = [];
+      return;
     }
-  }
-
-  goToNextPage(): void {
-    if (this.currentPage < this.totalPages) {
-      this.currentPage++;
-      this.updatePagination();
-    }
-  }
-
-  getStartRecord(): number {
-    if (this.totalItems === 0) return 0;
-    return (this.currentPage - 1) * this.pageSize + 1;
-  }
-
-  getEndRecord(): number {
-    if (this.totalItems === 0) return 0;
-    return Math.min(this.currentPage * this.pageSize, this.totalItems);
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    const endIndex = Math.min(startIndex + this.pageSize, this.totalItems);
+    this.paginatedData = this.mataKuliahData.slice(startIndex, endIndex)
+      .map((item, index) => ({
+        ...item,
+        no: startIndex + index + 1
+      }));
   }
 
   onBack(): void {
@@ -161,6 +227,30 @@ export class HasilPlottingComponent implements OnInit {
   }
 
   onDownloadExcel(): void {
-    console.log('Download Excel button clicked. Implement download service call.');
+    if (!this.selectedTahunAjaranId || !this.selectedProdiId) {
+      console.error('Cannot download, filter not selected.');
+      return;
+    }
+
+    this.matakuliahService
+      .exportPlottinganByProdi(
+        this.selectedTahunAjaranId,
+        this.selectedProdiId
+      )
+      .subscribe({
+        next: (blob) => {
+          const prodiName = this.programStudiOptions.find(p => p.id === this.selectedProdiId)?.nama?.replace(/\s/g, '_') || 'prodi';
+          const tahunAjaranName = this.tahunAjaranOptions.find(t => t.id === this.selectedTahunAjaranId)?.tahun_ajaran?.replace(/[\/\s]/g, '_') || 'tahun_ajaran';
+          const fileName = `hasil_plotting_${prodiName}_${tahunAjaranName}.xlsx`;
+
+          const a = document.createElement('a');
+          const objectUrl = URL.createObjectURL(blob);
+          a.href = objectUrl;
+          a.download = fileName;
+          a.click();
+          URL.revokeObjectURL(objectUrl);
+        },
+        error: (err) => console.error('Error downloading excel file:', err),
+      });
   }
 }

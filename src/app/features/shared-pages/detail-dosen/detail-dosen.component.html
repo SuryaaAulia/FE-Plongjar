@@ -24,13 +24,13 @@
           <div class="info-label">Jabatan</div>
           <div class="info-divider">:</div>
           <div class="info-value">
-            {{ lecturer.jabatanFungsionalAkademik }}
+            {{ lecturer.jabatan }}
           </div>
         </div>
         <div class="info-row">
           <div class="info-label">Home Base</div>
           <div class="info-divider">:</div>
-          <div class="info-value">{{ lecturer.kelompokKeahlian?.nama }}</div>
+          <div class="info-value">{{ lecturer.home_base }}</div>
         </div>
         <div class="info-row">
           <div class="info-label">NIP</div>
@@ -74,7 +74,7 @@
         <div class="info-row">
           <div class="info-label">JFA</div>
           <div class="info-divider">:</div>
-          <div class="info-value"></div>
+          <div class="info-value">{{ lecturer.jabatanFungsionalAkademik }}</div>
         </div>
         <div class="info-row">
           <div class="info-label">Riwayat Mengajar</div>
@@ -95,9 +95,10 @@
           <div class="info-divider">:</div>
           <div class="info-value">
             <ul class="education-list">
-              @for (edu of lecturer.pendidikanTerakhir; track $index) {
+              @if (pendidikanList.length > 0) { @for (edu of pendidikanList;
+              track $index) {
               <li>{{ edu }}</li>
-              } @empty {
+              } } @else {
               <li>Data pendidikan tidak tersedia.</li>
               }
             </ul>

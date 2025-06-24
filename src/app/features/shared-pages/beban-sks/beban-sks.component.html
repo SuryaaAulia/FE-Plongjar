@@ -1,0 +1,82 @@
+<div class="controls-and-table-wrapper beban-sks-page">
+  <div class="top-controls-wrapper">
+    <div class="left-controls">
+      <div class="filter-dropdown-wrapper">
+        <label for="tahunAjaran">Tahun Ajaran:</label>
+        <div class="custom-select-wrapper">
+          <select
+            id="tahunAjaran"
+            class="filter-dropdown"
+            [(ngModel)]="selectedTahunAjaranId"
+            (change)="onTahunAjaranChange()"
+          >
+            <option *ngFor="let tahun of tahunAjaranOptions" [value]="tahun.id">
+              {{ tahun.tahun_ajaran }} ({{ tahun.semester }})
+            </option>
+          </select>
+          <i class="fa fa-chevron-down dropdown-icon"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="right-controls">
+      <div class="search-bar-wrapper">
+        <input
+          type="text"
+          placeholder="Nama Dosen"
+          class="search-bar-input"
+          aria-label="Search by name"
+          [(ngModel)]="searchQuery"
+          (ngModelChange)="onSearchQueryChange()"
+        />
+        <i class="fa fa-search search-icon"></i>
+      </div>
+
+      <div class="pagination-controls-top">
+        <div class="custom-select-wrapper">
+          <select
+            [(ngModel)]="pageSize"
+            (change)="onPageSizeChange()"
+            class="custom-select"
+          >
+            <option *ngFor="let option of pageSizeOptions" [ngValue]="option">
+              {{ option }}
+            </option>
+          </select>
+          <div class="selected-label">
+            Menampilkan {{ pageSize }} Data
+            <i class="fa fa-chevron-down dropdown-icon"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <app-dynamic-table
+    [data]="paginatedData"
+    [columnConfigs]="columnConfigs"
+    [tableMinimuWidth]="tableMinimuWidth"
+    [isLoading]="isLoading"
+    [parentMaxHeight]="'70vh'"
+    [noDataMessage]="'Tidak ada data beban SKS dosen yang tersedia.'"
+  ></app-dynamic-table>
+
+  <div class="bottom-controls-wrapper">
+    <app-pagination
+      [currentPage]="currentPage"
+      [itemsPerPage]="pageSize"
+      [totalItems]="totalItems"
+      [searchKeyword]="searchQuery"
+      (pageChange)="onPageChange($event)"
+    ></app-pagination>
+
+    <app-action-button
+      text="Back"
+      backgroundColorVar="var(--red)"
+      [fontSizePx]="16"
+      [paddingScaleFactor]="0.6"
+      type="button"
+      (click)="onBack()"
+    ></app-action-button>
+  </div>
+</div>

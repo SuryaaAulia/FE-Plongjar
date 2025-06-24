@@ -1,165 +1,173 @@
 .detail-dosen-container {
-    position: relative;
-    overflow: hidden;
-    padding: 2rem;
-    max-width: 70%;
-    height: min-content;
-    margin: 0 auto;
-    box-shadow: 0 0 17.3px rgba(0, 0, 0, 0.3);
-    border-radius: 8px;
-    background: var(--primary-white);
-  
-    .lecturer-info {
+  position: relative;
+  overflow: hidden;
+  padding: 2rem;
+  width: 100%;
+  max-width: 900px;
+  height: min-content;
+  margin: 0 auto;
+  box-shadow: 0 0 17.3px rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  background: var(--primary-white);
+
+  .lecturer-info {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .lecturer-profile {
+    margin-top: 2rem;
+    margin-left: 3rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 4rem;
+
+    .profile-image {
+      flex-shrink: 0;
+      color: var(--secondary-blue);
+    }
+
+    .profile-details {
+      flex-grow: 1;
       display: flex;
       flex-direction: column;
-      width: 100%;
-    }
-  
-    .lecturer-profile {
-      margin-top: 2rem;
-      margin-left: 3rem;
-      display: flex;
-      align-items: flex-start;
-      gap: 4rem;
-  
-      .profile-image {
-        flex-shrink: 0;
-        color: var(--secondary-blue);
-      }
-  
-      .profile-details {
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-        gap: 2rem;
-      }
-    }
-  
-    .info-row {
-      display: grid;
-      grid-template-columns: 180px 20px 1fr;
-      align-items: baseline;
-      margin-bottom: 0.5rem;
-      
-      .info-label {
-        font-weight: var(--font-semibold);
-        color: var(--black);
-      }
-      
-      .info-divider {
-        text-align: center;
-        color: var(--black);
-      }
-      
-      .info-value {
-        color: var(--black);
-        .email-value {
-          i{
-            color: var(--secondary-blue);
-          }
-        }
-
-        .phone-value {
-          i{
-            color: var(--secondary-blue);
-          }
-        }
-        
-        .icon-small {
-          margin-right: 0.5rem;
-          font-size: var(--text-base);
-        }
-        
-        .file-icon {
-          color: var(--blue);
-          font-size: var(--text-xl);
-          cursor: pointer;
-        }
-        
-        .education-list {
-          list-style-type: disc;
-          margin: 0;
-          padding-left: 1.5rem;
-          
-          li {
-            margin-bottom: 0.25rem;
-          }
-        }
-      }
-    }
-  
-    .navigation-controls {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 2rem;
-      
-      .pagination-controls {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        
-        .page-nav-btn {
-          background: none;
-          border: 1px solid #dee2e6;
-          border-radius: 4px;
-          padding: 0.25rem 0.5rem;
-          cursor: pointer;
-          transition: background-color 0.2s;
-          
-          &:hover:not([disabled]) {
-            background-color: #e9ecef;
-          }
-          
-          &[disabled] {
-            opacity: 0.5;
-            cursor: not-allowed;
-          }
-        }
-        
-        .page-number {
-          font-weight: var(--font-medium);
-        }
-      }
+      gap: 2rem;
     }
   }
-  
-  @media (max-width: 768px) {
-    .detil-dosen-container {
-      padding: 1.5rem;
-      
-      .lecturer-profile {
-        flex-direction: column;
-        align-items: center;
-        gap: 1rem;
-        
-        .profile-image {
-          margin-bottom: 1rem;
+
+  .info-row {
+    display: grid;
+    grid-template-columns: 180px 20px 1fr;
+    align-items: baseline;
+    margin-bottom: 0.5rem;
+
+    .info-label {
+      font-weight: var(--font-semibold);
+      color: var(--black);
+    }
+
+    .info-divider {
+      text-align: center;
+      color: var(--black);
+    }
+
+    .info-value {
+      color: var(--black);
+      word-break: break-word;
+      white-space: normal;
+
+      .email-value {
+        i {
+          color: var(--secondary-blue);
         }
       }
-      
-      .info-row {
-        grid-template-columns: 120px 20px 1fr;
+
+      .phone-value {
+        i {
+          color: var(--secondary-blue);
+        }
+      }
+
+      .icon-small {
+        margin-right: 0.5rem;
         font-size: var(--text-base);
       }
-    }
-  }
-  
-  @media (max-width: 576px) {
-    .detil-dosen-container {
-      padding: 1rem;
-      
-      .info-row {
-        grid-template-columns: 1fr;
-        gap: 0.25rem;
-        
-        .info-divider {
-          display: none;
-        }
-        
-        .info-label {
+
+      .file-icon {
+        color: var(--blue);
+        font-size: var(--text-xl);
+        cursor: pointer;
+      }
+
+      .education-list {
+        list-style-type: disc;
+        margin: 0;
+        padding-left: 1.5rem;
+
+        li {
           margin-bottom: 0.25rem;
         }
       }
     }
   }
+
+  .navigation-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2rem;
+
+    .pagination-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      .page-nav-btn {
+        background: none;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        padding: 0.25rem 0.5rem;
+        cursor: pointer;
+        transition: background-color 0.2s;
+
+        &:hover:not([disabled]) {
+          background-color: #e9ecef;
+        }
+
+        &[disabled] {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+      }
+
+      .page-number {
+        font-weight: var(--font-medium);
+      }
+    }
+  }
+}
+
+// Responsive adjustments
+
+@media (max-width: 768px) {
+  .detail-dosen-container {
+    padding: 1.5rem;
+
+    .lecturer-profile {
+      flex-direction: column;
+      align-items: center;
+      gap: 2rem;
+      margin-left: 0;
+    }
+
+    .info-row {
+      grid-template-columns: 120px 20px 1fr;
+      font-size: var(--text-sm);
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .detail-dosen-container {
+    padding: 1rem;
+
+    .info-row {
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+      font-size: var(--text-sm);
+
+      .info-divider {
+        display: none;
+      }
+
+      .info-label {
+        margin-bottom: 0.25rem;
+      }
+
+      .info-value {
+        word-break: break-word;
+      }
+    }
+  }
+}

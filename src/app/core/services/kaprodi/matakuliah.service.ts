@@ -124,6 +124,19 @@ export class MatakuliahService {
         );
     }
 
+    getHasilPlottinganByProdi(tahunAjaranId: number, prodiId: number): Observable<any> {
+        return this.apiService.getHasilPlottinganByProdi(tahunAjaranId, prodiId).pipe(
+            catchError(this.handleError('Error fetching hasil plottingan by prodi'))
+        );
+    }
+
+    exportPlottinganByProdi(tahunAjaranId: number, prodiId: number): Observable<Blob> {
+        return this.apiService.exportPlottinganByProdi(tahunAjaranId, prodiId).pipe(
+            catchError(this.handleError('Error exporting plottingan by prodi'))
+        );
+    }
+
+
     submitMapping(payload: any): Observable<any> {
         return this.apiService.createMappingKelasMatkul(payload).pipe(
             map((response: any) => response),

@@ -58,8 +58,8 @@ export class NavService {
         routerLink: '',
         children: [
           { label: 'Start Plotting', routerLink: '/ketua-prodi/plotting' },
+          { label: 'Beban SKS', routerLink: '/ketua-prodi/beban-sks' }, 
           { label: 'Hasil', routerLink: '/ketua-prodi/hasil-plotting' },
-          { label: 'Beban SKS', routerLink: '/ketua-prodi/beban-sks' },
         ],
       },
       {

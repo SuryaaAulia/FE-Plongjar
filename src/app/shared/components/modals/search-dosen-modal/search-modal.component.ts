@@ -8,6 +8,7 @@ import { ApiService } from '../../../../core/services/api.service';
 import { Lecturer } from '../../../../core/models/user.model';
 import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner.component';
 import { SearchNotFoundComponent } from '../../search-not-found/search-not-found.component';
+import { PaginationComponent } from '../../index';
 
 @Component({
   selector: 'app-search-modal',
@@ -16,7 +17,8 @@ import { SearchNotFoundComponent } from '../../search-not-found/search-not-found
     CommonModule,
     FormsModule,
     LoadingSpinnerComponent,
-    SearchNotFoundComponent
+    SearchNotFoundComponent,
+    PaginationComponent
   ],
   templateUrl: './search-modal.component.html',
   styleUrl: './search-modal.component.scss',
@@ -175,6 +177,10 @@ export class SearchModalComponent implements OnInit, OnDestroy {
     this.resetModalState(true);
   }
 
+  onPageChange(page: number): void {
+    this.fetchData(page).subscribe();
+  }
+
   private resetModalState(shouldEmitClose: boolean): void {
     this.searchNameTerm = '';
     this.searchCodeTerm = '';
@@ -188,14 +194,5 @@ export class SearchModalComponent implements OnInit, OnDestroy {
     if (shouldEmitClose) {
       this.closeModal.emit();
     }
-  }
-
-  get displayedItemsStart(): number {
-    return this.totalItems > 0 ? (this.currentPage - 1) * this.itemsPerPage + 1 : 0;
-  }
-
-  get displayedItemsEnd(): number {
-    const end = this.currentPage * this.itemsPerPage;
-    return end > this.totalItems ? this.totalItems : end;
   }
 }

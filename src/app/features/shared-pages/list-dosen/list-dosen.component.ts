@@ -15,7 +15,7 @@ import {
 } from '../../../shared/components/index';
 import { Lecturer } from '../../../core/models/user.model';
 import { AuthService } from '../../../core/services/auth.service';
-import { DosenService, DosenResponse, DosenListParams } from '../../../core/services/dosen.service';
+import { DosenService, DosenListParams } from '../../../core/services/dosen.service';
 
 @Component({
   selector: 'app-list-dosen',
@@ -37,7 +37,6 @@ export class ListDosenComponent implements OnInit, OnDestroy {
   private searchSubject = new Subject<{ query1: string; query2: string }>();
 
   lecturers: Lecturer[] = [];
-  filteredLecturers: Lecturer[] = [];
   paginatedLecturers: Lecturer[] = [];
 
   isLoading = true;
@@ -52,8 +51,6 @@ export class ListDosenComponent implements OnInit, OnDestroy {
 
   hasLoadedData: boolean = false;
   isSearchEmpty: boolean = false;
-
-  noResultsImagePath: string = 'assets/images/image_57e4f0.png';
 
   tableColumns: TableColumn<Lecturer>[] = [
     { key: 'name', header: 'Nama Dosen', width: 'col-nama-dosen' },
@@ -102,7 +99,7 @@ export class ListDosenComponent implements OnInit, OnDestroy {
       this.currentSearchQuery2 = searchQueries.query2;
       this.currentCombinedSearchKeyword = [searchQueries.query1, searchQueries.query2]
         .filter(q => q && q.trim())
-        .join(' ');
+        .join(', ');
 
       this.currentPage = 1;
       this.isSearchEmpty = false;
@@ -118,10 +115,12 @@ export class ListDosenComponent implements OnInit, OnDestroy {
       page: this.currentPage,
       per_page: this.itemsPerPage,
     };
-    if (this.currentCombinedSearchKeyword.trim()) {
-      params.search = this.currentCombinedSearchKeyword.trim();
+    if (this.currentSearchQuery1.trim()) {
+      params.nama_or_nip = this.currentSearchQuery1.trim();
     }
-
+    if (this.currentSearchQuery2.trim()) {
+      params.kode_dosen = this.currentSearchQuery2.trim();
+    }
     this.dosenService.getAllDosen(params)
       .pipe(
         takeUntil(this.destroy$),
@@ -132,16 +131,13 @@ export class ListDosenComponent implements OnInit, OnDestroy {
           if (response.success && response.data) {
             this.lecturers = this.mapDosenResponseToLecturers(response.data.data);
             this.paginatedLecturers = [...this.lecturers];
-            this.filteredLecturers = [...this.lecturers];
             this.totalItems = response.data.total;
             this.totalPages = response.data.last_page;
             this.currentPage = response.data.current_page;
-
             this.isSearchEmpty = this.totalItems === 0;
           } else {
             this.lecturers = [];
             this.paginatedLecturers = [];
-            this.filteredLecturers = [];
             this.totalItems = 0;
             this.totalPages = 0;
             this.currentPage = 1;
@@ -153,7 +149,6 @@ export class ListDosenComponent implements OnInit, OnDestroy {
           this.isLoading = false;
           this.lecturers = [];
           this.paginatedLecturers = [];
-          this.filteredLecturers = [];
           this.totalItems = 0;
           this.totalPages = 0;
           this.currentPage = 1;
@@ -173,7 +168,7 @@ export class ListDosenComponent implements OnInit, OnDestroy {
       pendidikanTerakhir: dosen.pendidikan_terakhir || null,
       nidn: dosen.nidn || null,
       nip: dosen.nip || null,
-      kelompokKeahlian: dosen.kelompok_keahlian.nama || null,
+      kelompokKeahlian: dosen.kelompok_keahlian?.nama || null,
       idJabatanStruktural: dosen.id_jabatan_struktural || null,
       idKelompokKeahlian: dosen.id_kelompok_keahlian,
       createdAt: dosen.created_at,

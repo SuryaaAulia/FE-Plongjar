@@ -163,9 +163,9 @@ export class ApiService {
         return this.http.post(url!, data);
     }
 
-    getLaporanBebanSksDosen(tahunAjaranId: number): Observable<any> {
+    getLaporanBebanSksDosen(tahunAjaranId: number, params?: HttpParams): Observable<any> {
         const url = this.endpoint.getUrl('dosen', 'laporan_beban_sks', { tahunAjaranId });
-        return this.http.get(url!);
+        return this.http.get(url!, {params});
     }
 
     getRiwayatPengajaran(dosenId: number): Observable<any> {

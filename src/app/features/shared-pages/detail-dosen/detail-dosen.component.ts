@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Lecturer } from '../../../core/models/user.model';
 import { LoadingSpinnerComponent, ActionButtonComponent } from '../../../shared/components/index';
-import { DosenService, DosenDetailResponse } from '../../../core/services/dosen.service';
+import { DosenService } from '../../../core/services/dosen.service';
 import { finalize } from 'rxjs/operators';
 
 @Component({
@@ -18,7 +17,7 @@ import { finalize } from 'rxjs/operators';
   styleUrls: ['./detail-dosen.component.scss'],
 })
 export class DetailDosenComponent implements OnInit {
-  lecturer: Lecturer | null = null;
+  lecturer: any | null = null;
   lecturerId: number | null = null;
   currentPage = 1;
   totalPages = 2;
@@ -62,7 +61,6 @@ export class DetailDosenComponent implements OnInit {
       )
       .subscribe({
         next: (apiResponse) => {
-          console.log('DetailDosenComponent: API response from DosenService:', apiResponse);
           if (apiResponse.success && apiResponse.data && (apiResponse.data.kode_dosen || apiResponse.data.id)) {
             try {
               this.lecturer = this.mapDosenDetailResponseToLecturer(apiResponse.data);
@@ -83,25 +81,20 @@ export class DetailDosenComponent implements OnInit {
       });
   }
 
-  private mapDosenDetailResponseToLecturer(dosen: any): Lecturer {
-    if (!dosen || !dosen.id) {
-      console.error('mapDosenDetailResponseToLecturer: Invalid "dosen" object received. Missing ID.', dosen);
-      throw new Error('Invalid DosenDetailResponse: ID is missing.');
-    }
-
+  private mapDosenDetailResponseToLecturer(dosen: any): any {
     return {
       id: dosen.id,
-      name: dosen.nama_dosen || '',
-      lecturerCode: dosen.kode_dosen || '',
-      email: dosen.contact_person || '',
-      jabatanFungsionalAkademik: dosen.jabatan || '',
-      statusPegawai: dosen.status || '',
+      name: dosen.nama_dosen,
+      lecturerCode: dosen.kode_dosen || '-',
+      email: dosen.email || '',
+      jabatan: dosen.jabatan || '-',
+      jabatanFungsionalAkademik: dosen.jfa || '-',
+      home_base: dosen.homebase || '-',
+      statusPegawai: dosen.status || '-',
       pendidikanTerakhir: dosen.pendidikan || null,
-      nidn: dosen.nidn || null,
+      nidn: dosen.nidn || '-',
       nip: dosen.nip || null,
-      kelompokKeahlian: dosen.kelompok_keahlian || null,
-      idJabatanStruktural: null,
-      idKelompokKeahlian: 0,
+      kelompokKeahlian: dosen.bidang_keahlian || '-',
     };
   }
 
@@ -129,5 +122,15 @@ export class DetailDosenComponent implements OnInit {
       queryParams: { page: this.currentPage },
       queryParamsHandling: 'merge',
     });
+  }
+
+  get pendidikanList(): string[] {
+    if (Array.isArray(this.lecturer?.pendidikanTerakhir)) {
+      return this.lecturer.pendidikanTerakhir;
+    } else if (typeof this.lecturer?.pendidikanTerakhir === 'string') {
+      return [this.lecturer.pendidikanTerakhir];
+    } else {
+      return [];
+    }
   }
 }

@@ -3,7 +3,7 @@ import { Observable, throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { HttpParams } from '@angular/common/http';
-import { KelompokKeahlian } from '../models/user.model';
+import { KelompokKeahlian, TahunAjaran } from '../models/user.model';
 
 export interface DosenResponse {
     id: number;
@@ -58,7 +58,8 @@ export interface DosenListResponse {
 export interface DosenListParams {
     page?: number;
     per_page?: number;
-    search?: string;
+    nama_or_nip?: string;
+    kode_dosen?: string;
 }
 
 export interface JabatanStrukturalResponse {
@@ -67,17 +68,34 @@ export interface JabatanStrukturalResponse {
     deskripsi?: string;
 }
 
-export interface BebanSksResponse {
-    id_dosen: number;
-    nama_dosen: string;
-    total_sks: number;
-    detail_pengajaran: any[];
-}
-
 export interface RiwayatPengajaranResponse {
     id_dosen: number;
     nama_dosen: string;
     riwayat: any[];
+}
+export interface BebanSksApiData {
+    kode_dosen: string;
+    nama_dosen: string;
+    kelompok_keahlian: string;
+    jfa: string;
+    jabatan_struktural: string | null;
+    sks_ekuivalen_jabatan: number;
+    max_ajar_sks: number;
+    status_pegawai: string;
+    total_ajar_per_prodi: { [key: string]: number } | null;
+    total_ajar_sks_keseluruhan: number;
+    sisa_sks_mengajar: number;
+}
+export interface BebanSksApiResponse {
+    success: boolean;
+    message: string;
+    data: {
+        current_page: number;
+        data: BebanSksApiData[];
+        last_page: number;
+        per_page: number;
+        total: number;
+    };
 }
 
 @Injectable({
@@ -92,7 +110,13 @@ export class DosenService {
 
         if (params.page) httpParams = httpParams.set('page', params.page.toString());
         if (params.per_page) httpParams = httpParams.set('per_page', params.per_page.toString());
-        if (params.search && params.search.trim()) httpParams = httpParams.set('search', params.search.trim());
+
+        if (params.nama_or_nip && params.nama_or_nip.trim()) {
+            httpParams = httpParams.set('nama', params.nama_or_nip.trim());
+        }
+        if (params.kode_dosen && params.kode_dosen.trim()) {
+            httpParams = httpParams.set('kode_dosen', params.kode_dosen.trim());
+        }
 
         return this.apiService.getAllDosen(httpParams).pipe(
             map(response => this.transformResponse(response)),
@@ -165,8 +189,21 @@ export class DosenService {
         );
     }
 
-    getLaporanBebanSksDosen(tahunAjaranId: number): Observable<any> {
-        return this.apiService.getLaporanBebanSksDosen(tahunAjaranId).pipe(
+    getLaporanBebanSksDosen(tahunAjaranId: number, params: DosenListParams = {}): Observable<BebanSksApiResponse> {
+        let httpParams = new HttpParams();
+        if (params.page) httpParams = httpParams.set('page', params.page.toString());
+        if (params.per_page) httpParams = httpParams.set('per_page', params.per_page.toString());
+        if (params.nama_or_nip && params.nama_or_nip.trim()) {
+            httpParams = httpParams.set('search', params.nama_or_nip.trim());
+        }
+        return this.apiService.getLaporanBebanSksDosen(tahunAjaranId, httpParams).pipe(
+            catchError(error => this.handleError(error))
+        );
+    }
+
+    getTahunAjaran(): Observable<TahunAjaran[]> {
+        return this.apiService.getAllTahunAjaran().pipe(
+            map((response: any) => response.data || []),
             catchError(error => this.handleError(error))
         );
     }
