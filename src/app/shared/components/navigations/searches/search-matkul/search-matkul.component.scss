@@ -16,7 +16,7 @@
   .search-header {
     display: flex;
     align-items: center;
-    background-color: var(--primary-white);
+    background: var(--primary-white);
     border: 1px solid var(--grey);
     border-radius: 10px;
     padding: 0 8px;
@@ -24,12 +24,12 @@
     z-index: 1001;
 
     .search-input {
-      flex-grow: 1;
+      flex: 1;
       border: none;
       outline: none;
       padding: 10px 5px;
       font-size: 1em;
-      background-color: transparent;
+      background: transparent;
     }
 
     .icon-button {
@@ -55,7 +55,7 @@
     top: calc(100% - 1px);
     left: 0;
     right: 0;
-    background-color: #fff;
+    background: #fff;
     border: 1px solid var(--grey);
     border-radius: 0 0 10px 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
@@ -68,11 +68,7 @@
     transform: scaleY(0.95) translateY(-10px);
     transform-origin: top center;
     visibility: hidden;
-    transition:
-      opacity 0.2s ease-out,
-      max-height 0.25s ease-out,
-      transform 0.2s ease-out,
-      visibility 0s 0.25s;
+    transition: opacity 0.2s ease-out, max-height 0.25s ease-out, transform 0.2s ease-out, visibility 0s 0.25s;
     min-width: 300px;
 
     &.is-open {
@@ -80,17 +76,13 @@
       max-height: 450px;
       transform: scaleY(1) translateY(0);
       visibility: visible;
-      transition:
-        opacity 0.2s ease-out,
-        max-height 0.25s ease-out,
-        transform 0.2s ease-out,
-        visibility 0s;
+      transition: opacity 0.2s ease-out, max-height 0.25s ease-out, transform 0.2s ease-out;
     }
 
     .content-area {
       display: flex;
       padding: 15px;
-      flex-grow: 1;
+      gap: 15px;
 
       .course-list-panel,
       .academic-year-panel {
@@ -107,13 +99,9 @@
           text-align: center;
           color: #757575;
 
-          .placeholder-image-wrapper {
+          img {
+            max-width: 150px;
             margin-bottom: 10px;
-
-            img.placeholder-svg {
-              max-width: 150px;
-              height: auto;
-            }
           }
 
           .placeholder-text {
@@ -123,8 +111,8 @@
 
         .course-list {
           list-style: none;
-          padding: 0;
           margin: 0;
+          padding: 0;
 
           li {
             padding: 8px 10px;
@@ -135,11 +123,11 @@
             text-overflow: ellipsis;
 
             &:hover {
-              background-color: #f0f0f0;
+              background: #f0f0f0;
             }
 
             &.selected {
-              background-color: #e0e0e0;
+              background: #e0e0e0;
               font-weight: bold;
             }
           }
@@ -148,10 +136,9 @@
 
       .academic-year-panel {
         flex: 1;
-        padding-left: 15px;
 
         .panel-title {
-          margin: 0 0 10px;
+          margin-bottom: 10px;
           font-size: 1em;
           font-weight: bold;
           color: var(--grey-alternative);
@@ -159,8 +146,8 @@
 
         .academic-year-list {
           list-style: none;
-          padding: 0;
           margin: 0;
+          padding: 0;
 
           li {
             margin-bottom: 10px;
@@ -168,10 +155,10 @@
             label {
               display: flex;
               align-items: center;
-              cursor: pointer;
               font-size: 0.9em;
+              cursor: pointer;
 
-              input[type='radio'] {
+              input {
                 margin-right: 8px;
               }
             }
@@ -184,7 +171,7 @@
       padding: 10px 15px;
       text-align: right;
       border-top: 1px solid var(--grey);
-      background-color: var(--primary-white);
+      background: var(--primary-white);
     }
 
     @media (max-width: 580px) {
@@ -197,14 +184,12 @@
 
         .course-list-panel,
         .academic-year-panel {
-          flex: 1;
           width: 100%;
         }
 
         .course-list-panel {
           padding-right: 0;
           margin-bottom: 15px;
-          padding-bottom: 15px;
           border-right: none;
           border-bottom: 1px solid var(--grey);
           max-height: 250px;
@@ -234,7 +219,7 @@
         }
       }
 
-      .placeholder-container img.placeholder-svg {
+      .placeholder-container img {
         max-width: 100px;
       }
     }

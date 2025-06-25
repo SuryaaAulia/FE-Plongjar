@@ -86,7 +86,7 @@ export class DetailDosenComponent implements OnInit {
       id: dosen.id,
       name: dosen.nama_dosen,
       lecturerCode: dosen.kode_dosen || '-',
-      email: dosen.email || '',
+      email: dosen.contact_person || '',
       jabatan: dosen.jabatan || '-',
       jabatanFungsionalAkademik: dosen.jfa || '-',
       home_base: dosen.homebase || '-',
