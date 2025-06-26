@@ -108,11 +108,11 @@ export const routes: Routes = [
               ).then((m) => m.PlottingComponent),
           },
           {
-            path: 'preview',
+            path: 'hasil-plotting',
             loadComponent: () =>
               import(
-                './features/shared-pages/preview/preview.component'
-              ).then((m) => m.PreviewComponent),
+                './features/shared-pages/hasil-plotting/hasil-plotting.component'
+              ).then((m) => m.HasilPlottingComponent),
           },
           {
             path: 'beban-sks',
@@ -132,13 +132,6 @@ export const routes: Routes = [
             path: '',
             redirectTo: 'list-dosen',
             pathMatch: 'full',
-          },
-          {
-            path: 'preview',
-            loadComponent: () =>
-              import(
-                './features/shared-pages/preview/preview.component'
-              ).then((m) => m.PreviewComponent),
           },
           {
             path: 'list-dosen',

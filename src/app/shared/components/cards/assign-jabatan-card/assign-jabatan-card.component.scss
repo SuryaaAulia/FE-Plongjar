@@ -1,4 +1,4 @@
-:host{
+:host {
     --margin-top: 0.5rem;
     --padding-top: 0rem;
 }
@@ -9,7 +9,6 @@
     font-size: var(--text-sm);
     margin: 0 0 0.25rem 0;
 }
-
 
 .assign-jabatan-footer {
     display: flex;
@@ -93,27 +92,16 @@
 
         .selected-jabatan-display {
             padding: 1rem;
-            
+
             .remove-btn {
                 width: 2rem;
                 height: 2rem;
                 font-size: var(--text-base);
-                
+
                 i {
                     font-size: var(--text-sm);
                 }
             }
         }
-    }
-}
-
-@keyframes slideInFromRight {
-    from {
-        opacity: 0;
-        transform: translateX(1rem);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
     }
 }

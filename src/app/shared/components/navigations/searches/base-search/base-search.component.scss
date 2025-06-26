@@ -29,22 +29,6 @@
         gap: 2rem;
         flex-wrap: wrap;
 
-        .search-field {
-            width: 200px;
-            padding: 0.5rem 0;
-            border: none;
-            border-bottom: 1px solid #000000;
-            border-radius: 0;
-            font-size: var(--text-sm);
-            background-color: transparent;
-            transition: border-bottom-color 0.2s ease;
-
-            &:focus {
-                outline: none;
-                border-color: var(--grey);
-            }
-        }
-
         .search-btn {
             display: flex;
             align-items: center;

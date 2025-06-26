@@ -24,6 +24,7 @@
     color: var(--grey-alternative);
   }
 }
+
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr auto;
@@ -83,7 +84,7 @@
 
   thead {
     color: var(--primary-white);
-    
+
     th {
       position: sticky;
       padding: 0.9rem 1rem;
@@ -98,6 +99,7 @@
 
   tbody tr {
     border-bottom: 1px solid var(--grey);
+
     &:last-child {
       border-bottom: none;
     }
@@ -110,23 +112,28 @@
     color: var(--primary-blue);
   }
 
-  .col-no { width: 8%; text-align: center; }
-  .col-tahun { width: 32%; }
-  .col-semester { width: 25%; }
-  .col-status { width: 20%; text-align: center; }
-  .col-action { width: 15%; text-align: center; }
-}
+  .col-no {
+    width: 8%;
+    text-align: center;
+  }
 
-.semester-select {
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid var(--grey);
-  border-radius: 4px;
-  background-color: var(--primary-white);
-  font-size: var(--text-base);
-  color: var(--primary-blue);
-  cursor: pointer;
-  min-width: 120px;
+  .col-tahun {
+    width: 32%;
+  }
+
+  .col-semester {
+    width: 25%;
+  }
+
+  .col-status {
+    width: 20%;
+    text-align: center;
+  }
+
+  .col-action {
+    width: 15%;
+    text-align: center;
+  }
 }
 
 .toggle-switch {
@@ -165,18 +172,11 @@
     }
   }
 
-  input:checked + .slider {
+  input:checked+.slider {
     background-color: var(--primary-blue);
   }
 
-  input:checked + .slider:before {
+  input:checked+.slider:before {
     transform: translateX(22px);
   }
-}
-
-.footer-submit-section {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  margin-top: 2rem;
 }

@@ -1,12 +1,3 @@
-$primary-color: #4A90E2;
-$secondary-color: #D9534F;
-$light-gray: #f8f9fa;
-$medium-gray: #dee2e6;
-$dark-gray: #495057;
-$modal-background: #fff;
-$text-color: #212529;
-$border-radius: 0.3rem;
-
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -21,9 +12,8 @@ $border-radius: 0.3rem;
 }
 
 .modal-container {
-    background-color: $modal-background;
-    border-radius: $border-radius;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    background-color: var(--primary-white);
+    border-radius: 10px;
     width: 90%;
     max-width: 500px;
     animation: fadeIn 0.3s ease-out;
@@ -46,13 +36,13 @@ $border-radius: 0.3rem;
     justify-content: space-between;
     align-items: center;
     padding: 1rem 1.5rem;
-    border-bottom: 1px solid $medium-gray;
+    border-bottom: 1px solid var(--grey);
 
     h2 {
         margin: 0;
         font-size: 1.5rem;
         font-weight: bold;
-        color: $text-color;
+        color: var(--primary-blue);
     }
 
     .close-button {
@@ -60,20 +50,20 @@ $border-radius: 0.3rem;
         border: none;
         font-size: 1.75rem;
         font-weight: bold;
-        color: $dark-gray;
+        color: var(--primary-blue);
         cursor: pointer;
         padding: 0.5rem;
         line-height: 1;
 
         &:hover {
-            color: darken($dark-gray, 15%);
+            color: var(--grey);
         }
     }
 }
 
 .modal-body {
     padding: 1.5rem;
-    color: $text-color;
+    color: var(--primary-blue);
     font-size: 1rem;
 
     p {
@@ -92,17 +82,17 @@ $border-radius: 0.3rem;
         align-items: center;
         margin-bottom: 0.5rem;
 
-        input[type="checkbox"] {
+        input[type='checkbox'] {
             margin-right: 0.5rem;
             width: 1.15rem;
             height: 1.15rem;
-            accent-color: $primary-color;
+            accent-color: var(--primary-blue);
             cursor: pointer;
         }
 
         label {
             font-size: 0.95rem;
-            color: $dark-gray;
+            color: var(--grey-alternative);
             cursor: pointer;
         }
     }
@@ -117,7 +107,7 @@ $border-radius: 0.3rem;
             color: var(--primary-blue);
         }
 
-        input[type="password"] {
+        input[type='password'] {
             width: 100%;
             padding: 0.75rem 1rem;
             font-size: 1rem;
@@ -130,7 +120,8 @@ $border-radius: 0.3rem;
             &:focus {
                 border-color: var(--blue);
                 outline: 0;
-                box-shadow: var(--input-focus-box-shadow, 0 0 0 0.25rem rgba(13, 110, 253, 0.25));
+                box-shadow: var(--input-focus-box-shadow,
+                        0 0 0 0.25rem rgba(13, 110, 253, 0.25));
             }
         }
     }
@@ -139,45 +130,10 @@ $border-radius: 0.3rem;
 .modal-footer {
     display: flex;
     justify-content: flex-end;
+    gap: 0.75rem;
     padding: 1rem 1.5rem;
-    border-top: 1px solid $medium-gray;
-    background-color: $light-gray;
-
-    .button {
-        padding: 0.65rem 1.25rem;
-        border: none;
-        border-radius: $border-radius;
-        font-size: 1rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: background-color 0.2s ease-in-out, opacity 0.2s ease-in-out;
-        margin-left: 0.75rem;
-
-        &:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-    }
-
-    .ok-button {
-        background-color: $primary-color;
-        color: white;
-
-        &:hover:not(:disabled) {
-            background-color: darken($primary-color, 10%);
-        }
-    }
-
-    .cancel-button {
-        background-color: $secondary-color;
-        color: white;
-
-        &:hover {
-            background-color: darken($secondary-color, 10%);
-        }
-    }
-}
-
-.underline {
-    text-decoration: underline;
+    border-top: 1px solid var(--grey);
+    background-color: #f8f9fa;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
 }

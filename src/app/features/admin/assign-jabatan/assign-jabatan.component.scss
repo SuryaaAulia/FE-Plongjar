@@ -45,11 +45,13 @@
   background-color: var(--grey);
   height: 100%;
 }
+
 .main-content {
   flex: 1;
   padding: 1.5rem;
   overflow-y: auto;
 }
+
 .jabatan-filter-list {
   display: flex;
   flex-direction: column;

@@ -1,16 +1,5 @@
 @import '../beban-sks/beban-sks.component.scss';
 
-.page-title-container {
-  margin-bottom: 1.5rem;
-
-  h1 {
-    font-size: 1.75rem;
-    font-weight: var(--font-semibold);
-    color: var(--primary-blue);
-    text-align: left;
-  }
-}
-
 ::ng-deep td.dosen-col {
   background-color: var(--mint-green) !important;
   font-weight: var(--font-extrabold) !important;

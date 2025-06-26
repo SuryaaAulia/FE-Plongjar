@@ -77,10 +77,12 @@
     grid-template-columns: 1fr;
     gap: 1rem;
   }
+
   @media (min-width: 577px) and (max-width: 768px) {
     grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
   }
+
   @media (min-width: 769px) and (max-width: 1024px) {
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   }
@@ -115,25 +117,4 @@
     font-size: var(--text-base, 1rem);
     margin: 0;
   }
-}
-
-.loading-state {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 200px;
-
-  .spinner {
-    width: 2rem;
-    height: 2rem;
-    border: 2px solid var(--border-light, #e9ecef);
-    border-top: 2px solid var(--primary-color, #007bff);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
 }

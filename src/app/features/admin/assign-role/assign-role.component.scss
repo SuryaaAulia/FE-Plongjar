@@ -12,19 +12,6 @@
     padding: 1rem calc(1rem - 0.1px);
   }
 
-  .header {
-    margin-bottom: 2rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-
-    h1 {
-      color: var(--primary-color, #007bff);
-      font-size: 1.75rem;
-      margin: 0;
-    }
-  }
-
   .user-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);

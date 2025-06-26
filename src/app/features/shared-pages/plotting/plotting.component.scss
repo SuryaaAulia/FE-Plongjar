@@ -163,20 +163,6 @@
     }
   }
 
-  select,
-  input[type="text"] {
-    padding: 8px;
-    border: 1px solid var(--primary-blue);
-    border-radius: 4px;
-    font-size: var(--text-base);
-    min-width: 200px;
-    flex-grow: 1;
-  }
-
-  select {
-    padding-right: 30px;
-  }
-
   .input-like-button {
     min-width: 120px;
     flex-grow: 1;
@@ -200,7 +186,8 @@
   cursor: pointer;
   box-sizing: border-box;
   text-align: center;
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease,
+    border-color 0.3s ease;
 
   .placeholder-text,
   .icon-hover {
@@ -331,28 +318,6 @@
   display: flex;
   justify-content: flex-end;
   gap: 15px;
-}
-
-select.ng-untouched.ng-pristine.ng-valid,
-select.ng-touched.ng-pristine.ng-valid {
-  color: #6c757d;
-
-  option {
-    color: initial;
-
-    &[disabled] {
-      color: #6c757d;
-    }
-  }
-}
-
-select:not([value="null"]) {
-  color: initial;
-}
-
-select[disabled] {
-  background-color: #e9ecef;
-  cursor: not-allowed;
 }
 
 .placeholder-cell {

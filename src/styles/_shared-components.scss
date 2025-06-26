@@ -1,0 +1,191 @@
+// 1. Layout & Containers
+.component-container {
+    position: relative;
+    overflow: hidden;
+    padding: 2rem;
+    max-width: 100%;
+    margin: 0 auto;
+    box-shadow: 0 0 17.3px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    background: var(--primary-white);
+}
+
+.controls-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.divider {
+    height: 1px;
+    background-color: var(--grey);
+    width: 100%;
+    margin: 1.5rem 0;
+}
+
+// 2. Base Card Component
+.base-card {
+    background-color: var(--primary-white);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    border: 2px solid transparent;
+
+    &.selected {
+        border-color: var(--blue);
+        box-shadow: 0px 4px 15px rgba(70, 128, 254, 0.25);
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    .card-title {
+        font-weight: var(--font-semibold);
+        color: var(--primary-blue);
+        font-size: var(--text-lg);
+    }
+
+    .card-subtitle {
+        color: var(--secondary-blue);
+        font-size: var(--text-sm);
+    }
+
+    .card-footer {
+        margin-top: 1rem;
+        padding-top: 0.75rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+}
+
+// 3. Form Controls
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--grey);
+    border-radius: 6px;
+    font-size: var(--text-base);
+    background-color: var(--primary-white);
+    color: var(--primary-blue);
+    transition: all 0.2s ease;
+
+    &:focus {
+        outline: none;
+        border-color: var(--blue);
+        box-shadow: 0 0 0 3px rgba(70, 128, 254, 0.15);
+    }
+
+    &:disabled {
+        background-color: var(--secondary-white);
+        cursor: not-allowed;
+    }
+}
+
+
+// 4. Buttons
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.65rem 1.25rem;
+    border: 1px solid transparent;
+    border-radius: 0.375rem;
+    font-size: var(--text-base);
+    font-weight: var(--font-medium);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    gap: 0.5rem;
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+}
+
+.btn-primary {
+    background-color: var(--blue);
+    color: var(--primary-white);
+
+    &:hover:not(:disabled) {
+        background-color: darken(#4680fe, 10%);
+    }
+}
+
+.btn-danger {
+    background-color: var(--red);
+    color: var(--primary-white);
+
+    &:hover:not(:disabled) {
+        background-color: darken(#df1f22, 10%);
+    }
+}
+
+.btn-icon {
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    border-radius: 50%;
+    font-size: 1.1em;
+}
+
+
+// 5. Table Styles
+.table-responsive {
+    overflow-x: auto;
+    max-height: 70vh;
+    border: 1px solid var(--grey);
+    border-radius: 8px;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+
+    thead th {
+        position: sticky;
+        top: 0;
+        padding: 0.75rem;
+        text-align: center;
+        background-color: var(--primary-blue);
+        color: var(--primary-white);
+        font-weight: var(--font-semibold);
+        box-shadow: inset 0 -1px 0 0 var(--black);
+        z-index: 10;
+    }
+
+    tbody tr {
+        border-bottom: 1px solid var(--grey);
+
+        &:hover {
+            background-color: var(--secondary-white);
+        }
+
+        &:last-child {
+            border-bottom: none;
+        }
+    }
+
+    td {
+        padding: 0.75rem;
+        text-align: center;
+        vertical-align: middle;
+        color: var(--secondary-blue);
+    }
+}

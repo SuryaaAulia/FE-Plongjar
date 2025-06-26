@@ -33,16 +33,17 @@
       </ng-container>
     </div>
     <div class="modal-footer">
-      <button
-        class="button ok-button"
-        (click)="onConfirm()"
+      <app-action-button
+        [text]="okButtonText"
+        backgroundColorVar="var(--blue)"
         [disabled]="isOkDisabled()"
-      >
-        {{ okButtonText }}
-      </button>
-      <button class="button cancel-button" (click)="onCancel()">
-        {{ cancelButtonText }}
-      </button>
+        (buttonClick)="onConfirm()"
+      ></app-action-button>
+      <app-action-button
+        [text]="cancelButtonText"
+        backgroundColorVar="var(--red)"
+        (buttonClick)="onCancel()"
+      ></app-action-button>
     </div>
   </div>
 </div>

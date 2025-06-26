@@ -1,13 +1,15 @@
 import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActionButtonComponent } from '../../index';
 
 @Component({
   selector: 'app-confirmation-modal',
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule
+    FormsModule,
+    ActionButtonComponent
   ],
   templateUrl: './confirmation-modal.component.html',
   styleUrls: ['./confirmation-modal.component.scss']
@@ -64,7 +66,7 @@ export class ConfirmationModalComponent implements OnChanges {
 
   onBackdropClick(event: MouseEvent): void {
     if (event.target === event.currentTarget) {
-      this.onCancel(); 
+      this.onCancel();
     }
   }
 
