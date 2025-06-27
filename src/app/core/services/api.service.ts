@@ -305,6 +305,11 @@ export class ApiService {
         return this.http.get(url!);
     }
 
+    getDataMappingKelasMatkul(matkulId: number, tahunAjaranId: number): Observable<any> {
+        const url = this.endpoint.getUrl('mapping_kelas_matkul', 'get_data_mapping', { matkulId, tahunAjaranId });
+        return this.http.get(url!);
+    }
+
     updateMappingKelasMatkul(id: number, data: any): Observable<any> {
         const url = this.endpoint.getUrl('mapping_kelas_matkul', 'update', { id });
         return this.http.put(url!, data);

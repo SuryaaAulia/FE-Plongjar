@@ -96,6 +96,18 @@ export class MatakuliahService {
         );
     }
 
+    getDataMappingKelasMatkul(matkulId: number, tahunAjaranId: number): Observable<any>{
+        return this.apiService.getDataMappingKelasMatkul(matkulId, tahunAjaranId).pipe(
+            map(response => {
+                if (response.success && response.data) {
+                    return response.data;
+                }
+                throw new Error('Invalid response format for data mapping kelas matkul');
+            }),
+            catchError(this.handleError('Error fetching data mapping kelas matkul'))
+        );
+    }
+
     getAllPics(): Observable<Pic[]> {
         return this.apiService.getAllPic().pipe(
             map(response => {

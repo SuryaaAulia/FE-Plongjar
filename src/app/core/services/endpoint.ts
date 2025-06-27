@@ -79,6 +79,7 @@ export class Endpoint {
                 get_by_matakuliah: `${API}/masterdata/mappingkelasmatakuliahs/by-matakuliah/${context?.matkulId || ':matkulId'}`,
                 get_by_matkul_tahun_prodi: `${API}/masterdata/mapping-kelas-matakuliah/matakuliah/${context?.matkulId || ':matkulId'}/tahun-ajaran/${context?.tahunAjaranId || ':tahunAjaranId'}/program-studi/${context?.prodiId || ':prodiId'}`,
                 get_by_matkul_tahun: `${API}/masterdata/mapping-kelas-matakuliah/by-matakuliah/${context?.matkulId || ':matkulId'}/tahun-ajaran/${context?.tahunAjaranId || ':tahunAjaranId'}`,
+                get_data_mapping: `${API}/masterdata/mapping-kelas-matakuliah/by-matakuliah/${context?.matkulId || ':matkulId'}/tahun-ajaran/${context?.tahunAjaranId || ':tahunAjaranId'}/logged-in-prodi`,
                 show: `${API}/masterdata/mappingkelasmatakuliahs/${context?.id || ':id'}`,
                 update: `${API}/masterdata/mappingkelasmatakuliahs/${context?.id || ':id'}`,
                 delete: `${API}/masterdata/mappingkelasmatakuliahs/${context?.id || ':id'}`,

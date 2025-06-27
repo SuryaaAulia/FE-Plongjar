@@ -101,7 +101,10 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let kelas of daftarKelas; let i = index">
+            <tr
+              *ngFor="let kelas of daftarKelas; let i = index"
+              [class.existing-row]="kelas.isExisting"
+            >
               <td class="col-no">{{ i + 1 }}</td>
               <td class="col-nama-kelas">{{ kelas.namaKelas }}</td>
               <td class="col-kuota">
@@ -111,6 +114,7 @@
                   [ngModelOptions]="{ standalone: true }"
                   min="1"
                   class="kuota-input"
+                  [disabled]="kelas.isExisting"
                 />
               </td>
               <td class="col-team-teaching">
@@ -119,6 +123,7 @@
                     type="checkbox"
                     [(ngModel)]="kelas.teamTeaching"
                     [ngModelOptions]="{ standalone: true }"
+                    [disabled]="kelas.isExisting"
                   />
                   <span class="slider round"></span>
                 </label>
@@ -131,6 +136,7 @@
                   [paddingScaleFactor]="0.4"
                   (buttonClick)="hapusKelas(i)"
                   title="Hapus Kelas"
+                  [disabled]="kelas.isExisting"
                 ></app-action-button>
               </td>
             </tr>
@@ -141,7 +147,7 @@
   </section>
   <footer class="footer-submit-section">
     <p class="data-summary">
-      Total {{ daftarKelas.length }} kelas akan ditambahkan ke sistem.
+      Total {{ newKelasCount }} kelas baru akan ditambahkan ke sistem.
     </p>
     <app-action-button
       text="Submit"
