@@ -60,7 +60,7 @@ export class MappingMatkulComponent implements OnInit {
   private loadDropdownData(): void {
     this.isLoading = true;
     forkJoin({
-      matakuliah: this.matakuliahService.getCoursesByAuthProdi(),
+      matakuliah: this.matakuliahService.getAllCoursesByPicAndAllKK(),
       tahunAjaran: this.matakuliahService.getTahunAjaran(),
       programStudi: this.matakuliahService.getProgramStudi()
     }).pipe(

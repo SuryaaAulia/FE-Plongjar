@@ -54,6 +54,18 @@ export class MatakuliahService {
         );
     }
 
+    getAllCoursesByPicAndAllKK(): Observable<Course[]> {
+        return this.apiService.getMatakuliahByPicAndAllKK().pipe(
+            map(response => {
+                if (response.success && response.data) {
+                    return this.mapApiCoursesToCourses(response.data);
+                }
+                throw new Error('Invalid response format for courses by PIC');
+            }),
+            catchError(this.handleError('Error loading courses by PIC'))
+        );
+    }
+
     getCourseById(id: number): Observable<any> {
         return this.apiService.getMatakuliahById(id).pipe(
             map(response => {

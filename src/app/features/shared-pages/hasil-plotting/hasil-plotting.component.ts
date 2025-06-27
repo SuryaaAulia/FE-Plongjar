@@ -29,6 +29,7 @@ export interface MataKuliah {
   hourTarget: number;
   tahunAjaran: string;
   mkEksepsi: string;
+  teamTeaching: string;
 }
 export interface ProgramStudi {
   id: number;
@@ -188,7 +189,8 @@ export class HasilPlottingComponent implements OnInit {
         semester: semester || '-',
         hourTarget: item.hour_target || 0,
         tahunAjaran: tahun || '-',
-        mkEksepsi: item.mk_eksepsi || '-',
+        mkEksepsi: item.mk_eksepsi === 'ya' ? 'Ya' : 'Tidak',
+        teamTeaching: item.team_teaching === 'Yes' ? 'Ya' : 'Tidak',
       };
     });
   }

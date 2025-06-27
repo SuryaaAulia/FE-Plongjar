@@ -56,6 +56,7 @@ export class Endpoint {
                 show: `${API}/masterdata/matakuliahs/${context?.id || ':id'}`,
                 update: `${API}/masterdata/matakuliahs/${context?.id || ':id'}`,
                 delete: `${API}/masterdata/matakuliahs/${context?.id || ':id'}`,
+                by_pic_and_all_kk: `${API}/masterdata/matakuliahs/by-auth-prodi-and-all-kk`,
             },
 
             program_studi: {

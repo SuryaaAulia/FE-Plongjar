@@ -1,14 +1,21 @@
-import { Component, EventEmitter, Output, Input, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, EventEmitter, Output, Input, inject, OnInit, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpParams } from '@angular/common/http';
 import { Subject, Subscription, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, tap, finalize, map } from 'rxjs/operators';
 import { ApiService } from '../../../../core/services/api.service';
+import { PlottingService } from '../../../../core/services/plotting.service';
 import { Lecturer } from '../../../../core/models/user.model';
 import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner.component';
 import { SearchNotFoundComponent } from '../../search-not-found/search-not-found.component';
 import { PaginationComponent } from '../../index';
+import { FormInputComponent, SelectOption } from '../../form-input/form-input.component';
+
+export interface TeamTeachingSelection {
+  lecturer: Lecturer;
+  sks: number;
+}
 
 @Component({
   selector: 'app-search-modal',
@@ -18,21 +25,27 @@ import { PaginationComponent } from '../../index';
     FormsModule,
     LoadingSpinnerComponent,
     SearchNotFoundComponent,
-    PaginationComponent
+    PaginationComponent,
+    FormInputComponent
   ],
   templateUrl: './search-modal.component.html',
   styleUrl: './search-modal.component.scss',
 })
-export class SearchModalComponent implements OnInit, OnDestroy {
+export class SearchModalComponent implements OnInit, OnDestroy, OnChanges {
   @Output() lecturerSelected = new EventEmitter<Lecturer>();
   @Output() closeModal = new EventEmitter<void>();
   @Output() coordinatorAssigned = new EventEmitter<Lecturer>();
+  @Output() teamLecturersSelected = new EventEmitter<TeamTeachingSelection[]>();
 
   @Input() mode: 'coordinator' | 'dosen' | null = null;
   @Input() courseId: number | null = null;
   @Input() academicYearId: number | null = null;
+  @Input() isTeamTeaching: boolean = false;
+  @Input() totalSks: number = 0;
+  @Input() initialSelections: TeamTeachingSelection[] = [];
 
   private apiService = inject(ApiService);
+  private plottingService = inject(PlottingService);
 
   searchNameTerm: string = '';
   searchCodeTerm: string = '';
@@ -46,22 +59,51 @@ export class SearchModalComponent implements OnInit, OnDestroy {
   itemsPerPage: number = 5;
   totalItems: number = 0;
 
+  selectedLecturers = new Map<number, TeamTeachingSelection>();
+  sksOptions: SelectOption[] = [];
+
   private searchTerms$ = new Subject<void>();
   private searchSubscription!: Subscription;
 
   ngOnInit(): void {
-    if (this.mode === 'coordinator') {
-      if (this.courseId === null || this.academicYearId === null) {
-        throw new Error('courseId and academicYearId are required in coordinator mode.');
-      }
+    if (this.mode === 'coordinator' && (this.courseId === null || this.academicYearId === null)) {
+      throw new Error('courseId and academicYearId are required in coordinator mode.');
     }
-
+    this.generateSksOptions();
     this.setupSearchDebounce();
+    this.populateInitialSelections();
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['totalSks']) {
+      this.generateSksOptions();
+    }
+  }
 
   ngOnDestroy(): void {
     this.searchSubscription.unsubscribe();
+  }
+
+  private populateInitialSelections(): void {
+    this.selectedLecturers.clear();
+
+    if (this.initialSelections && this.initialSelections.length > 0) {
+      this.initialSelections.forEach(selection => {
+        if (selection.lecturer && typeof selection.lecturer.id === 'number') {
+          this.selectedLecturers.set(selection.lecturer.id, {
+            lecturer: selection.lecturer,
+            sks: selection.sks
+          });
+        }
+      });
+    }
+  }
+
+  private generateSksOptions(): void {
+    this.sksOptions = Array.from({ length: this.totalSks }, (_, i) => {
+      const sks = i + 1;
+      return { value: sks, label: `${sks} SKS` };
+    });
   }
 
   private setupSearchDebounce(): void {
@@ -77,7 +119,6 @@ export class SearchModalComponent implements OnInit, OnDestroy {
       switchMap(() => this.fetchData(1))
     ).subscribe();
   }
-
   private fetchData(page: number) {
     const name = this.searchNameTerm.trim();
     const code = this.searchCodeTerm.trim();
@@ -120,67 +161,68 @@ export class SearchModalComponent implements OnInit, OnDestroy {
       finalize(() => this.isLoading = false)
     );
   }
-
   onSearchTermChange(): void {
     this.searchTerms$.next();
   }
-
-  nextPage(): void {
-    if (this.currentPage * this.itemsPerPage < this.totalItems) {
-      this.fetchData(this.currentPage + 1).subscribe();
-    }
-  }
-
-  prevPage(): void {
-    if (this.currentPage > 1) {
-      this.fetchData(this.currentPage - 1).subscribe();
-    }
-  }
-
-  private handleError(message: string): void {
-    this.error = message;
-    this.searchResults = [];
-    this.totalItems = 0;
-  }
-
   selectAndClose(lecturer: Lecturer): void {
-    console.log('Mode:', this.mode, 'Course ID:', this.courseId, 'Year ID:', this.academicYearId);
-
     if (this.mode === 'coordinator' && this.courseId && this.academicYearId) {
-      this.isLoading = true;
-      const payload = {
-        id_dosen: lecturer.id,
-        id_tahun_ajaran: this.academicYearId,
-        id_matakuliah: this.courseId
+      const data = {
+        id: this.courseId,
+        tahun_ajaran_id: this.academicYearId,
+        id_dosen: lecturer.id
       };
-
-      this.apiService.assignKoordinatorByProdiAuth(payload).subscribe({
-        next: (response) => {
-          console.log('Coordinator assigned successfully via modal:', response);
-          this.coordinatorAssigned.emit(lecturer);
-          this.resetModalState(true);
-        },
-        error: (err) => {
-          console.error('Failed to assign coordinator via modal:', err);
-          alert(`Failed to assign coordinator: ${err.message || 'Unknown error'}. The lecturer will be selected in the UI, but the assignment failed.`);
-          this.lecturerSelected.emit(lecturer);
-          this.resetModalState(true);
-        }
-      });
+      this.plottingService.assignCoordinator(data);
     } else {
       this.lecturerSelected.emit(lecturer);
       this.resetModalState(true);
     }
   }
 
-  requestClose(): void {
+  toggleLecturerSelection(lecturer: Lecturer, event: Event): void {
+    const isChecked = (event.target as HTMLInputElement).checked;
+    if (isChecked) {
+      this.selectedLecturers.set(lecturer.id, { lecturer, sks: 1 });
+    } else {
+      this.selectedLecturers.delete(lecturer.id);
+    }
+  }
+
+  updateSks(lecturerId: number, sksValue: string | number): void {
+    const sksAsNumber = typeof sksValue === 'string' ? parseInt(sksValue, 10) : sksValue;
+    if (this.selectedLecturers.has(lecturerId)) {
+      const selection = this.selectedLecturers.get(lecturerId)!;
+      selection.sks = sksAsNumber;
+    }
+  }
+
+  handleSubmitTeamTeaching(): void {
+    const selections = Array.from(this.selectedLecturers.values());
+    if (selections.length === 0) {
+      alert('Please select at least one lecturer.');
+      return;
+    }
+
+    const totalAssignedSks = selections.reduce((sum, item) => sum + item.sks, 0);
+    if (totalAssignedSks > this.totalSks) {
+      alert(`Total assigned SKS (${totalAssignedSks}) cannot exceed the course's total SKS (${this.totalSks}).`);
+      return;
+    }
+
+    this.teamLecturersSelected.emit(selections);
     this.resetModalState(true);
   }
 
+  requestClose(): void {
+    this.resetModalState(true);
+  }
   onPageChange(page: number): void {
     this.fetchData(page).subscribe();
   }
-
+  private handleError(message: string): void {
+    this.error = message;
+    this.searchResults = [];
+    this.totalItems = 0;
+  }
   private resetModalState(shouldEmitClose: boolean): void {
     this.searchNameTerm = '';
     this.searchCodeTerm = '';
@@ -191,8 +233,12 @@ export class SearchModalComponent implements OnInit, OnDestroy {
     this.searchResults = [];
     this.totalItems = 0;
     this.currentPage = 1;
+    this.selectedLecturers.clear();
     if (shouldEmitClose) {
       this.closeModal.emit();
     }
+  }
+  getSelectedSks(lecturerId: number): number {
+    return this.selectedLecturers.get(lecturerId)?.sks || 1;
   }
 }

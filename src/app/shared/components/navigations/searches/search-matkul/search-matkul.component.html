@@ -109,7 +109,9 @@
                 name="academicYear"
                 [value]="year"
                 [(ngModel)]="selectedAcademicYear"
+                (change)="onAcademicYearSelect()"
               />
+
               {{ year.tahun_ajaran }} - {{ year.semester }}
             </label>
           </li>

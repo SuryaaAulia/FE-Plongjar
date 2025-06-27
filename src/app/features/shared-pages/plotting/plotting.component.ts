@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { SearchModalComponent, SearchMatkulComponent, ActionButtonComponent, LoadingSpinnerComponent } from '../../../shared/components/index';
+import { SearchModalComponent, SearchMatkulComponent, ActionButtonComponent, LoadingSpinnerComponent, TeamTeachingSelection } from '../../../shared/components/index';
 import { Lecturer, Course } from '../../../core/models/user.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { PlottingService } from '../../../core/services/plotting.service';
@@ -20,6 +20,8 @@ interface CourseRow {
   pic: string;
   semester: string;
   onlineOnsite: string;
+  teamTeaching?: boolean;
+  assignedLecturers?: TeamTeachingSelection[];
 }
 
 interface ProdiOption {
@@ -52,6 +54,7 @@ export class PlottingComponent implements OnInit {
   coordinatorObject?: Pick<Lecturer, 'id' | 'name' | 'lecturerCode'>;
 
   tableData: CourseRow[] = [];
+  initialLecturerSelections: TeamTeachingSelection[] = [];
   isLoadingTableData: boolean = false;
 
   showLecturerSearchModal: boolean = false;
@@ -162,20 +165,31 @@ export class PlottingComponent implements OnInit {
         next: (apiData) => {
           if (apiData && apiData.length > 0) {
             this.tableData = apiData.map((item: any, index: number): CourseRow => {
-              const existingPlot = item.plottingan_pengajarans?.[0];
+              const assignedLecturers: TeamTeachingSelection[] = (item.plottingan_pengajarans || []).map((plot: any) => ({
+                lecturer: {
+                  id: plot.dosen.id,
+                  name: plot.dosen.name,
+                  lecturerCode: plot.dosen.lecturer_code
+                },
+                sks: plot.beban_sks
+              }));
+
+              const lecturerCodes = assignedLecturers.map(sel => sel.lecturer.lecturerCode).join(', ');
+
               return {
                 no: index + 1,
                 mappingId: item.id,
-                plottingId: existingPlot?.id,
+                plottingId: item.plottingan_pengajarans?.[0]?.id,
                 kelas: item.nama_kelas,
-                dosen: existingPlot?.dosen.lecturer_code || '',
-                dosenObject: existingPlot ? existingPlot.dosen : undefined,
-                praktikum: 'MEREUN',
+                teamTeaching: item?.team_teaching,
+                dosen: lecturerCodes || '',
+                assignedLecturers: assignedLecturers,
+                praktikum: item.matakuliah.praktikum ? 'YA' : 'TIDAK',
                 kuota: item.kuota,
                 kredit: item.matakuliah.sks,
-                pic: item.matakuliah.pic || 'ANDI',
+                pic: item.matakuliah.pic.name,
                 semester: item.tahun_ajaran.semester.toUpperCase(),
-                onlineOnsite: '1170'
+                onlineOnsite: item.matakuliah.mode_perkuliahan.toUpperCase()
               };
             });
           }
@@ -196,16 +210,15 @@ export class PlottingComponent implements OnInit {
   }
 
   openLecturerModal(field: 'coordinator' | 'dosen', index?: number): void {
-    if (field === 'coordinator' && (!this.currentSelectedCourse || !this.currentSelectedAcademicYear)) {
-      alert('Pilih Mata Kuliah & Tahun Ajaran terlebih dahulu.');
-      return;
-    }
     this.editingField = field;
     if (field === 'dosen' && index !== undefined) {
       this.editingDosenIndex = index;
+      const rowData = this.tableData[index];
+      this.initialLecturerSelections = rowData.assignedLecturers || [];
     }
     this.showLecturerSearchModal = true;
   }
+
 
   handleCoordinatorAssigned(lecturer: Lecturer): void {
     this.coordinatorName = lecturer.lecturerCode;
@@ -214,13 +227,12 @@ export class PlottingComponent implements OnInit {
 
   handleLecturerSelected(lecturer: Lecturer): void {
     if (this.editingField === 'coordinator') {
-      this.coordinatorName = lecturer.lecturerCode;
-      this.coordinatorObject = lecturer;
+      this.handleCoordinatorAssigned(lecturer);
       this.closeLecturerModal();
       return;
     }
 
-    if (this.editingField === 'dosen' && this.editingDosenIndex !== null) {
+    if (this.editingDosenIndex !== null) {
       const rowIndex = this.editingDosenIndex;
       const rowData = this.tableData[rowIndex];
 
@@ -251,6 +263,7 @@ export class PlottingComponent implements OnInit {
     this.showLecturerSearchModal = false;
     this.editingField = null;
     this.editingDosenIndex = null;
+    this.initialLecturerSelections = [];
   }
 
   onBack(): void {
@@ -267,5 +280,67 @@ export class PlottingComponent implements OnInit {
 
   get currentUserRole(): string {
     return this.authService.getCurrentRole()?.role_name || '';
+  }
+
+  // --- START: Methods for Team Teaching Modal ---
+  public isCurrentRowTeamTeaching(): boolean {
+    if (this.editingDosenIndex === null) {
+      return false;
+    }
+    return this.tableData[this.editingDosenIndex]?.teamTeaching ?? false;
+  }
+
+  public getCurrentRowSks(): number {
+    if (this.editingDosenIndex === null) {
+      return 3; // Return a safe default
+    }
+    return this.tableData[this.editingDosenIndex]?.kredit ?? 3;
+  }
+
+  public handleTeamLecturersSelected(selections: TeamTeachingSelection[]): void {
+    if (this.editingDosenIndex === null) return;
+
+    const rowIndex = this.editingDosenIndex;
+    const rowData = this.tableData[rowIndex];
+
+    console.log(`Assigning ${selections.length} lecturers to class ${rowData.kelas}:`, selections);
+
+    const payloads = selections.map(selection => ({
+      id_dosen: selection.lecturer.id,
+      id_mapping_kelas_matakuliah: rowData.mappingId,
+      beban_sks: selection.sks
+    }));
+
+    // TODO: Replace this loop with a more efficient single API call that accepts an array of assignments.
+    let successfulAssignments: string[] = [];
+    let failedAssignments: string[] = [];
+    let completedCalls = 0;
+
+    payloads.forEach((payload, index) => {
+      this.plottingService.assignLecturerToClassMapping(payload).subscribe({
+        next: () => {
+          successfulAssignments.push(selections[index].lecturer.lecturerCode);
+        },
+        error: (err) => {
+          failedAssignments.push(selections[index].lecturer.name);
+          console.error(`Failed to assign ${selections[index].lecturer.name}`, err);
+        },
+        complete: () => {
+          completedCalls++;
+          if (completedCalls === payloads.length) {
+            if (successfulAssignments.length > 0) {
+              this.tableData[rowIndex].dosen = successfulAssignments.join(', ');
+            }
+            if (failedAssignments.length > 0) {
+              alert(`Gagal menyimpan penugasan untuk: ${failedAssignments.join(', ')}.`);
+            } else {
+              alert('Tim dosen berhasil di-plot.');
+            }
+          }
+        }
+      });
+    });
+
+    this.closeLecturerModal();
   }
 }

@@ -1,7 +1,9 @@
 <div class="lecturer-search-overlay">
   <div class="lecturer-search-modal">
     <div class="header">
-      <h1 class="title">Cari Dosen</h1>
+      <h1 class="title">
+        {{ isTeamTeaching ? "Pilih Tim Dosen" : "Cari Dosen" }}
+      </h1>
       <button class="close-button" (click)="requestClose()">
         <i class="fas fa-times"></i>
       </button>
@@ -51,23 +53,52 @@
       </div>
 
       <div *ngIf="!isLoading && !error">
-        <div
-          *ngIf="searchResults.length > 0; else noResults"
-          class="results-list"
-        >
-          <div
-            *ngFor="let lecturer of searchResults"
-            class="result-item"
-            (click)="selectAndClose(lecturer)"
-          >
-            <span class="lecturer-name">{{ lecturer.name }}</span>
-            <span class="lecturer-code">{{ lecturer.lecturerCode }}</span>
-            <button
-              class="add-button-modal"
-              (click)="$event.stopPropagation(); selectAndClose(lecturer)"
+        <div *ngIf="searchResults.length > 0; else noResults">
+          <div *ngIf="!isTeamTeaching" class="results-list">
+            <div
+              *ngFor="let lecturer of searchResults"
+              class="result-item"
+              (click)="selectAndClose(lecturer)"
             >
-              <i class="fas fa-plus"></i>
-            </button>
+              <span class="lecturer-name">{{ lecturer.name }}</span>
+              <span class="lecturer-code">{{ lecturer.lecturerCode }}</span>
+              <button
+                class="add-button-modal"
+                (click)="$event.stopPropagation(); selectAndClose(lecturer)"
+              >
+                <i class="fas fa-plus"></i>
+              </button>
+            </div>
+          </div>
+          <div *ngIf="isTeamTeaching" class="results-list-team">
+            <div
+              *ngFor="let lecturer of searchResults"
+              class="result-item-team"
+            >
+              <input
+                type="checkbox"
+                class="lecturer-checkbox"
+                [id]="'lecturer-' + lecturer.id"
+                [checked]="selectedLecturers.has(lecturer.id)"
+                (change)="toggleLecturerSelection(lecturer, $event)"
+              />
+              <label [for]="'lecturer-' + lecturer.id" class="lecturer-info">
+                <span class="lecturer-name">{{ lecturer.name }}</span>
+                <span class="lecturer-code">{{ lecturer.lecturerCode }}</span>
+              </label>
+              <div
+                class="sks-selector-wrapper"
+                *ngIf="selectedLecturers.has(lecturer.id)"
+                (click)="$event.stopPropagation()"
+              >
+                <app-form-input
+                  type="select"
+                  [id]="'sks-select-' + lecturer.id"
+                  [options]="sksOptions"
+                  (inputChange)="updateSks(lecturer.id, $event)"
+                ></app-form-input>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -87,6 +118,15 @@
           (pageChange)="onPageChange($event)"
         ></app-pagination>
       </div>
+    </div>
+
+    <div
+      *ngIf="isTeamTeaching && !isLoading && hasSearched"
+      class="modal-footer-team"
+    >
+      <button class="submit-team-button" (click)="handleSubmitTeamTeaching()">
+        Assign Selected Lecturers
+      </button>
     </div>
   </div>
 </div>

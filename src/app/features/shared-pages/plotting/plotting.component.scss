@@ -50,7 +50,7 @@
   overflow: hidden;
 
   &:before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
@@ -141,10 +141,11 @@
 
 .form-group {
   display: flex;
+  flex-direction: row;
   align-items: center;
+  gap: 10px;
 
   label {
-    margin-right: 10px;
     font-weight: var(--font-bold);
     font-size: var(--text-xl);
     color: var(--primary-blue);
@@ -309,6 +310,18 @@
   }
 }
 
+.team-teaching-icon {
+  margin-right: 5px;
+}
+
+.label-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--text-lg);
+  color: var(--primary-blue);
+}
+
 .footer {
   padding: 25px 25px;
   background-color: #f8f9fa;
@@ -316,8 +329,17 @@
   border-bottom-left-radius: 12px;
   border-bottom-right-radius: 12px;
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   gap: 15px;
+}
+
+.footer-text {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--text-lg);
+  color: var(--primary-blue);
+
 }
 
 .placeholder-cell {

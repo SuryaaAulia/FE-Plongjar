@@ -170,7 +170,13 @@ export class SearchMatkulComponent implements OnInit {
 
   selectCourse(course: Course): void {
     this.selectedCourse = course;
-    this.searchTerm = `${course.code} - ${course.name}`;
+
+    if (this.selectedAcademicYear) {
+      this.searchTerm = `${course.code} - ${course.name} | TA ${this.selectedAcademicYear.tahun_ajaran}/${this.selectedAcademicYear.semester}`;
+    } else {
+      this.searchTerm = `${course.code} - ${course.name}`;
+    }
+
   }
 
   clearSearch(): void {
@@ -221,7 +227,7 @@ export class SearchMatkulComponent implements OnInit {
             course: this.selectedCourse!,
             academicYear: {
               id: this.selectedAcademicYear!.id,
-              value: `${this.selectedAcademicYear!.tahun_ajaran}-${this.selectedAcademicYear!.semester}`
+              value: `TA ${this.selectedAcademicYear!.tahun_ajaran}/${this.selectedAcademicYear!.semester}`
             },
             coordinator
           });
@@ -247,6 +253,13 @@ export class SearchMatkulComponent implements OnInit {
       this.selectionClosed.emit();
     }
   }
+
+  onAcademicYearSelect(): void {
+    if (this.selectedCourse && this.selectedAcademicYear) {
+      this.searchTerm = `${this.selectedCourse.code} - ${this.selectedCourse.name} | TA ${this.selectedAcademicYear.tahun_ajaran} - ${this.selectedAcademicYear.semester}`;
+    }
+  }
+
 
   showPlaceholder(): boolean {
     return this.searchTerm.trim().length < 2 && this.filteredCourses.length === 0 && !this.selectedCourse && this.showDropdown && !this.isLoading && !this.isSearching;

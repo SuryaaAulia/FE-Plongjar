@@ -93,7 +93,14 @@
       >
         <tr *ngFor="let row of tableData; let i = index">
           <td>{{ row.no }}</td>
-          <td>{{ row.kelas }}</td>
+          <td class="class-cell">
+            <i
+              *ngIf="row.teamTeaching"
+              class="fas fa-users team-teaching-icon"
+              title="Team Teaching"
+            ></i>
+            <span>{{ row.kelas }}</span>
+          </td>
           <td>
             <button
               class="input-like-button has-hover-icon"
@@ -152,6 +159,10 @@
   </div>
 
   <div class="footer">
+    <div class="footer-text">
+      <i class="fa fa-users"> </i>
+      <span> : Team Teaching </span>
+    </div>
     <app-action-button
       text="Back"
       backgroundColorVar="var(--red)"
@@ -175,4 +186,8 @@
   [mode]="editingField"
   [courseId]="parseCourseId(currentSelectedCourse)"
   [academicYearId]="currentSelectedAcademicYear.id"
+  [isTeamTeaching]="isCurrentRowTeamTeaching()"
+  [totalSks]="getCurrentRowSks()"
+  [initialSelections]="initialLecturerSelections"
+  (teamLecturersSelected)="handleTeamLecturersSelected($event)"
 />

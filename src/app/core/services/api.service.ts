@@ -165,7 +165,7 @@ export class ApiService {
 
     getLaporanBebanSksDosen(tahunAjaranId: number, params?: HttpParams): Observable<any> {
         const url = this.endpoint.getUrl('dosen', 'laporan_beban_sks', { tahunAjaranId });
-        return this.http.get(url!, {params});
+        return this.http.get(url!, { params });
     }
 
     getRiwayatPengajaran(dosenId: number): Observable<any> {
@@ -203,6 +203,11 @@ export class ApiService {
 
     getMatakuliahById(id: number): Observable<any> {
         const url = this.endpoint.getUrl('matakuliah', 'show', { id });
+        return this.http.get(url!);
+    }
+
+    getMatakuliahByPicAndAllKK(): Observable<any> {
+        const url = this.endpoint.getUrl('matakuliah', 'by_pic_and_all_kk');
         return this.http.get(url!);
     }
 

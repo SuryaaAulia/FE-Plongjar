@@ -9,3 +9,8 @@
   background-color: var(--pastel-blue) !important;
   font-weight: var(--font-extrabold) !important;
 }
+
+.action-buttons-container {
+  display: flex;
+  gap: 1rem;
+}
