@@ -221,8 +221,35 @@ export class PlottingComponent implements OnInit {
 
 
   handleCoordinatorAssigned(lecturer: Lecturer): void {
-    this.coordinatorName = lecturer.lecturerCode;
-    this.coordinatorObject = lecturer;
+    if (!this.currentSelectedCourse || !this.currentSelectedAcademicYear) {
+      alert("Mata kuliah atau tahun ajaran belum dipilih.");
+      return;
+    }
+
+    const payload = {
+      id_matakuliah: this.parseCourseId(this.currentSelectedCourse),
+      id_tahun_ajaran: this.currentSelectedAcademicYear.id,
+      id_dosen: lecturer.id
+    };
+
+    this.isLoadingTableData = true;
+
+    this.plottingService.assignCoordinator(payload)
+      .pipe(finalize(() => {
+        this.isLoadingTableData = false;
+        this.closeLecturerModal();
+      }))
+      .subscribe({
+        next: () => {
+          this.coordinatorName = lecturer.lecturerCode;
+          this.coordinatorObject = lecturer;
+          alert(`Koordinator ${lecturer.name} berhasil di-plot.`);
+        },
+        error: (err) => {
+          console.error('Failed to assign coordinator', err);
+          alert(`Gagal menyimpan koordinator: ${err.error?.message || 'Error tidak diketahui'}`);
+        }
+      });
   }
 
   handleLecturerSelected(lecturer: Lecturer): void {
@@ -282,7 +309,6 @@ export class PlottingComponent implements OnInit {
     return this.authService.getCurrentRole()?.role_name || '';
   }
 
-  // --- START: Methods for Team Teaching Modal ---
   public isCurrentRowTeamTeaching(): boolean {
     if (this.editingDosenIndex === null) {
       return false;
@@ -292,7 +318,7 @@ export class PlottingComponent implements OnInit {
 
   public getCurrentRowSks(): number {
     if (this.editingDosenIndex === null) {
-      return 3; // Return a safe default
+      return 3;
     }
     return this.tableData[this.editingDosenIndex]?.kredit ?? 3;
   }
@@ -311,7 +337,6 @@ export class PlottingComponent implements OnInit {
       beban_sks: selection.sks
     }));
 
-    // TODO: Replace this loop with a more efficient single API call that accepts an array of assignments.
     let successfulAssignments: string[] = [];
     let failedAssignments: string[] = [];
     let completedCalls = 0;

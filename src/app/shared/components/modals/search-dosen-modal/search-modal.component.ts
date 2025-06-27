@@ -165,13 +165,9 @@ export class SearchModalComponent implements OnInit, OnDestroy, OnChanges {
     this.searchTerms$.next();
   }
   selectAndClose(lecturer: Lecturer): void {
-    if (this.mode === 'coordinator' && this.courseId && this.academicYearId) {
-      const data = {
-        id: this.courseId,
-        tahun_ajaran_id: this.academicYearId,
-        id_dosen: lecturer.id
-      };
-      this.plottingService.assignCoordinator(data);
+    if (this.mode === 'coordinator') {
+      this.coordinatorAssigned.emit(lecturer);
+      this.resetModalState(true);
     } else {
       this.lecturerSelected.emit(lecturer);
       this.resetModalState(true);
