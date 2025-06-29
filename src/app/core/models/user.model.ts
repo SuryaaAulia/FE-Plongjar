@@ -10,6 +10,7 @@ export interface User {
   nip: string;
   role?: Role;
 }
+
 export interface PaginatedUsers {
   users: User[];
   total: number;
@@ -21,6 +22,7 @@ export interface KelompokKeahlian {
   id: number;
   nama: string;
 }
+
 export interface Lecturer {
   id: number;
   name: string;
@@ -58,6 +60,7 @@ export interface Course {
   praktikum: string;
   koordinator?: Lecturer;
 }
+
 export interface JabatanStruktural {
   id: number;
   nama: string;
