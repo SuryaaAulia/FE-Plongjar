@@ -1,11 +1,10 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule as NgFormsModule, AbstractControl } from '@angular/forms';
-import { finalize, forkJoin, combineLatest, switchMap, debounceTime, filter, startWith } from 'rxjs';
+import { finalize, forkJoin, combineLatest, switchMap, debounceTime, filter, startWith, distinctUntilChanged } from 'rxjs';
 import { ActionButtonComponent, FormInputComponent, SelectOption, LoadingSpinnerComponent } from '../../../shared/components/index';
 import { MatakuliahService } from '../../../core/services/kaprodi/matakuliah.service';
 import { Course, TahunAjaran } from '../../../core/models/user.model';
-import { TestRequest } from '@angular/common/http/testing';
 interface KelasEntry {
   id: string;
   namaKelas: string;
@@ -35,6 +34,7 @@ export class MappingMatkulComponent implements OnInit {
   daftarKelas: KelasEntry[] = [];
   isLoading = false;
   showTable = false;
+  isTableLoading = false
 
   mataKuliahOptions: SelectOption[] = [];
   tahunAjaranOptions: SelectOption[] = [];
@@ -95,12 +95,18 @@ export class MappingMatkulComponent implements OnInit {
 
     combineLatest([mataKuliah$, tahunAjaran$]).pipe(
       debounceTime(300),
+      distinctUntilChanged((prev, curr) => prev[0] === curr[0] && prev[1] === curr[1]),
       filter(([matkulId, tahunAjaranId]) => !!matkulId && !!tahunAjaranId),
       switchMap(([matkulId, tahunAjaranId]) => {
-        this.isLoading = true;
+        this.isTableLoading = true;
+        this.showTable = false;
+
         this.daftarKelas = this.daftarKelas.filter(k => !k.isExisting);
+
         return this.matakuliahService.getDataMappingKelasMatkul(matkulId, tahunAjaranId).pipe(
-          finalize(() => this.isLoading = false)
+          finalize(() => {
+            this.isTableLoading = false;
+          })
         );
       })
     ).subscribe({
@@ -109,14 +115,16 @@ export class MappingMatkulComponent implements OnInit {
           id: crypto.randomUUID(),
           namaKelas: k.nama_kelas,
           kuota: k.kuota,
-          teamTeaching: k.team_teaching,
-          isExisting: TestRequest
+          teamTeaching: !!k.team_teaching,
+          isExisting: true
         }));
+
         this.daftarKelas.unshift(...fetchedKelas);
         this.showTable = this.daftarKelas.length > 0;
       },
       error: (err) => {
         console.error("Failed to fetch existing class data", err);
+        this.showTable = false;
       }
     });
   }
@@ -184,6 +192,8 @@ export class MappingMatkulComponent implements OnInit {
           team_teaching: k.teamTeaching
         }))
     };
+
+    console.log('Final Payload to be sent:', JSON.stringify(payload, null, 2));
 
     this.matakuliahService.submitMapping(payload)
       .pipe(finalize(() => this.isLoading = false))

@@ -4,10 +4,7 @@
     <p>Isi form untuk menambahkan mapping kelas matakuliah</p>
   </header>
 
-  <div *ngIf="isLoading" class="loading-overlay">
-    <app-loading-spinner></app-loading-spinner>
-  </div>
-  <form [formGroup]="mainForm" *ngIf="!isLoading">
+  <form [formGroup]="mainForm">
     <section class="form-grid top-filters">
       <app-form-input
         label="Mata Kuliah"
@@ -37,7 +34,8 @@
       ></app-form-input>
     </section>
   </form>
-  <section class="tambah-kelas-section" *ngIf="!isLoading">
+
+  <section class="tambah-kelas-section">
     <h3>Tambah Kelas</h3>
     <form
       [formGroup]="kelasForm"
@@ -77,17 +75,22 @@
       </div>
     </form>
   </section>
+
   <section class="dynamic-content-area">
-    <div *ngIf="!showTable && !isLoading" class="no-data-placeholder">
+    <div *ngIf="isTableLoading" class="table-loading-placeholder">
+      <app-loading-spinner></app-loading-spinner>
+    </div>
+
+    <div *ngIf="!isTableLoading && !showTable" class="no-data-placeholder">
       <img
         src="assets/images/search_plotting.svg"
         alt="Belum ada data"
         class="placeholder-image"
       />
-      <p>Belum Ada Kelas yang Ditambahkan!</p>
+      <p>Belum Ada Kelas yang Ditambahkan atau Ditemukan!</p>
     </div>
 
-    <div *ngIf="showTable" class="daftar-kelas-section">
+    <div *ngIf="!isTableLoading && showTable" class="daftar-kelas-section">
       <h3>Daftar Kelas ({{ daftarKelas.length }})</h3>
       <div class="table-container">
         <table class="daftar-kelas-table">
@@ -145,6 +148,7 @@
       </div>
     </div>
   </section>
+
   <footer class="footer-submit-section">
     <p class="data-summary">
       Total {{ newKelasCount }} kelas baru akan ditambahkan ke sistem.
