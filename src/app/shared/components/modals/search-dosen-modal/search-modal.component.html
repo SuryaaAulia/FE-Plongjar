@@ -36,6 +36,34 @@
       </button>
     </div>
 
+    <div
+      *ngIf="isTeamTeaching && hasChanges && selectedLecturers.size > 0"
+      class="selected-lecturers-container"
+    >
+      <h3 class="selected-title">
+        Dosen Terpilih ({{ selectedLecturers.size }})
+      </h3>
+      <div class="selected-list">
+        <div
+          *ngFor="let selection of selectedLecturersArray"
+          class="selected-item"
+        >
+          <span class="lecturer-name">{{ selection.lecturer.name }}</span>
+          <span class="lecturer-code">{{
+            selection.lecturer.lecturerCode
+          }}</span>
+          <span class="sks-display">{{ selection.sks }} SKS</span>
+          <button
+            class="remove-button"
+            (click)="removeLecturer(selection.lecturer.id)"
+            title="Hapus Dosen"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div *ngIf="!hasSearched" class="initial-state-modal">
       <img
         src="assets/images/search_dosen.svg"
@@ -58,45 +86,97 @@
             <div
               *ngFor="let lecturer of searchResults"
               class="result-item"
-              (click)="selectAndClose(lecturer)"
+              (click)="
+                !isAlreadyAssigned(lecturer.id) && selectAndClose(lecturer)
+              "
+              [class.is-already-assigned]="isAlreadyAssigned(lecturer.id)"
             >
               <span class="lecturer-name">{{ lecturer.name }}</span>
               <span class="lecturer-code">{{ lecturer.lecturerCode }}</span>
-              <button
-                class="add-button-modal"
-                (click)="$event.stopPropagation(); selectAndClose(lecturer)"
+              <ng-container
+                *ngIf="isAlreadyAssigned(lecturer.id); else assignButton"
               >
-                <i class="fas fa-plus"></i>
-              </button>
+                <button
+                  class="unassign-button-modal"
+                  (click)="
+                    $event.stopPropagation(); unassignLecturer(lecturer.id)
+                  "
+                  title="Unassign Dosen"
+                >
+                  <i class="fas fa-times"></i>
+                </button>
+              </ng-container>
+              <ng-template #assignButton>
+                <button
+                  class="add-button-modal"
+                  (click)="$event.stopPropagation(); selectAndClose(lecturer)"
+                  title="Assign Dosen"
+                >
+                  <i class="fas fa-plus"></i>
+                </button>
+              </ng-template>
             </div>
           </div>
+
           <div *ngIf="isTeamTeaching" class="results-list-team">
             <div
               *ngFor="let lecturer of searchResults"
               class="result-item-team"
+              [class.is-already-assigned]="isAlreadyAssigned(lecturer.id)"
             >
-              <input
-                type="checkbox"
-                class="lecturer-checkbox"
-                [id]="'lecturer-' + lecturer.id"
-                [checked]="selectedLecturers.has(lecturer.id)"
-                (change)="toggleLecturerSelection(lecturer, $event)"
-              />
               <label [for]="'lecturer-' + lecturer.id" class="lecturer-info">
                 <span class="lecturer-name">{{ lecturer.name }}</span>
                 <span class="lecturer-code">{{ lecturer.lecturerCode }}</span>
+                <span
+                  *ngIf="isAlreadyAssigned(lecturer.id)"
+                  class="sks-display"
+                >
+                  {{ getInitialSks(lecturer.id) }} SKS
+                </span>
               </label>
+
               <div
                 class="sks-selector-wrapper"
-                *ngIf="selectedLecturers.has(lecturer.id)"
-                (click)="$event.stopPropagation()"
+                *ngIf="
+                  selectedLecturers.has(lecturer.id) &&
+                  !isAlreadyAssigned(lecturer.id)
+                "
               >
                 <app-form-input
                   type="select"
                   [id]="'sks-select-' + lecturer.id"
                   [options]="sksOptions"
+                  [ngModel]="getSelectedSks(lecturer.id)"
                   (inputChange)="updateSks(lecturer.id, $event)"
                 ></app-form-input>
+              </div>
+
+              <div class="selection-control">
+                <ng-container
+                  *ngIf="
+                    !isAlreadyAssigned(lecturer.id);
+                    else unassignTeamButton
+                  "
+                >
+                  <input
+                    type="checkbox"
+                    class="lecturer-checkbox"
+                    [id]="'lecturer-' + lecturer.id"
+                    [checked]="selectedLecturers.has(lecturer.id)"
+                    (change)="toggleLecturerSelection(lecturer, $event)"
+                  />
+                </ng-container>
+                <ng-template #unassignTeamButton>
+                  <button
+                    class="unassign-button-modal"
+                    (click)="
+                      $event.stopPropagation(); unassignLecturer(lecturer.id)
+                    "
+                    title="Unassign Dosen"
+                  >
+                    <i class="fas fa-times"></i>
+                  </button>
+                </ng-template>
               </div>
             </div>
           </div>
@@ -124,7 +204,11 @@
       *ngIf="isTeamTeaching && !isLoading && hasSearched"
       class="modal-footer-team"
     >
-      <button class="submit-team-button" (click)="handleSubmitTeamTeaching()">
+      <button
+        class="submit-team-button"
+        (click)="handleSubmitTeamTeaching()"
+        [disabled]="!hasChanges"
+      >
         Submit
       </button>
     </div>
