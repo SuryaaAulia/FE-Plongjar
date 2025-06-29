@@ -66,6 +66,21 @@ export class PlottingService {
         );
     }
 
+    getAllProgramStudi(): Observable<any[]> {
+        return this.apiService.getAllProgramStudi().pipe(
+            map(response => {
+                if (response.status === 'success' && response.data) {
+                    return response.data;
+                }
+                throw new Error('Invalid response format');
+            }),
+            catchError(error => {
+                console.error('Error loading programs:', error);
+                return throwError(() => error);
+            })
+        );
+    }
+
     getAcademicYears(): Observable<any[]> {
         return this.apiService.getAllTahunAjaran().pipe(
             map(response => {

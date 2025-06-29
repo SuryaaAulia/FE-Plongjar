@@ -24,17 +24,7 @@
   <div
     *ngIf="isKelompokKeahlianUser && selectedProdi"
     class="selected-prodi-indicator"
-  >
-    <div class="selected-prodi-info">
-      <span class="selected-prodi-label">Program Studi Terpilih:</span>
-      <div
-        class="selected-prodi-badge"
-        [style.background-color]="selectedProdi.color"
-      >
-        {{ selectedProdi.name }}
-      </div>
-    </div>
-  </div>
+  ></div>
 
   <div class="form-section">
     <div class="form-group">
@@ -53,12 +43,7 @@
         class="input-like-button"
         (click)="openLecturerModal('coordinator')"
         id="coordinator"
-        [disabled]="
-          !currentSelectedCourse ||
-          (!isLoadingTableData &&
-            currentSelectedCourse &&
-            tableData.length === 0)
-        "
+        [disabled]="!currentSelectedCourse"
       >
         <span *ngIf="coordinatorName; else pilihKoordinatorTextCoordinator">{{
           coordinatorName
@@ -86,9 +71,10 @@
           <th>Online/Onsite</th>
         </tr>
       </thead>
+
       <tbody
         *ngIf="
-          !isLoadingTableData && currentSelectedCourse && tableData.length > 0
+          !isLoadingTableData && !showPlaceholderContent && tableData.length > 0
         "
       >
         <tr *ngFor="let row of tableData; let i = index">
@@ -140,15 +126,25 @@
                   class="placeholder-image"
                 />
                 <p *ngIf="!currentSelectedCourse" class="placeholder-message">
-                  Silakan pilih Mata Kuliah & Tahun Ajaran untuk menampilkan
-                  detail plotting.
+                  Silakan pilih Mata Kuliah & Tahun Ajaran untuk memulai.
                 </p>
+
                 <p
-                  *ngIf="currentSelectedCourse && tableData.length === 0"
+                  *ngIf="currentSelectedCourse && !coordinatorObject"
                   class="placeholder-message"
                 >
-                  Belum ada data mapping kelas untuk mata kuliah yang dipilih
-                  pada T.A. ini.
+                  Pilih Koordinator Mata Kuliah untuk menampilkan daftar kelas.
+                </p>
+
+                <p
+                  *ngIf="
+                    currentSelectedCourse &&
+                    coordinatorObject &&
+                    tableData.length === 0
+                  "
+                  class="placeholder-message"
+                >
+                  Belum ada data mapping kelas untuk mata kuliah ini.
                 </p>
               </ng-container>
             </div>
