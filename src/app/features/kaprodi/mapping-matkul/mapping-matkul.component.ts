@@ -38,7 +38,6 @@ export class MappingMatkulComponent implements OnInit {
 
   mataKuliahOptions: SelectOption[] = [];
   tahunAjaranOptions: SelectOption[] = [];
-  programStudiOptions: SelectOption[] = [];
 
   private fb = inject(FormBuilder);
   private matakuliahService = inject(MatakuliahService);
@@ -47,7 +46,6 @@ export class MappingMatkulComponent implements OnInit {
     this.mainForm = this.fb.group({
       mataKuliah: ['', Validators.required],
       tahunAjaran: ['', Validators.required],
-      programStudi: ['', Validators.required],
     });
 
     this.kelasForm = this.fb.group({
@@ -63,12 +61,11 @@ export class MappingMatkulComponent implements OnInit {
     this.isLoading = true;
     forkJoin({
       matakuliah: this.matakuliahService.getAllCoursesByPicAndAllKK(),
-      tahunAjaran: this.matakuliahService.getTahunAjaran(),
-      programStudi: this.matakuliahService.getProgramStudi()
+      tahunAjaran: this.matakuliahService.getTahunAjaran()
     }).pipe(
       finalize(() => this.isLoading = false)
     ).subscribe({
-      next: ({ matakuliah, tahunAjaran, programStudi }) => {
+      next: ({ matakuliah, tahunAjaran }) => {
         this.mataKuliahOptions = matakuliah.map((mk: Course) => ({
           value: mk.id,
           label: `${mk.code} - ${mk.name}`
@@ -76,10 +73,6 @@ export class MappingMatkulComponent implements OnInit {
         this.tahunAjaranOptions = tahunAjaran.map((ta: TahunAjaran) => ({
           value: ta.id,
           label: `${ta.tahun_ajaran} - ${ta.semester}`
-        }));
-        this.programStudiOptions = programStudi.map((ps: any) => ({
-          value: ps.id,
-          label: ps.nama
         }));
       },
       error: err => {
@@ -183,7 +176,6 @@ export class MappingMatkulComponent implements OnInit {
     const payload = {
       id_matakuliah: formValue.mataKuliah,
       id_tahun_ajaran: formValue.tahunAjaran,
-      id_program_studi: formValue.programStudi,
       classes: this.daftarKelas
         .filter(k => !k.isExisting)
         .map(k => ({
