@@ -91,7 +91,7 @@ export class Endpoint {
                 assign_by_prodi_auth: `${API}/masterdata/koordinator-matakuliah/assign-by-program-studi/by-auth-prodi`,
                 show: `${API}/masterdata/koordinator-matakuliah/${context?.id || ':id'}`,
                 update: `${API}/masterdata/koordinator-matakuliah/${context?.id || ':id'}`,
-                delete: `${API}/masterdata/koordinator-matakuliah/${context?.id || ':id'}`,
+                unassign: `${API}/masterdata/koordinator-matakuliah/revoke-by-program-studi`,
             },
 
             tahun_ajaran: {
@@ -112,6 +112,7 @@ export class Endpoint {
 
             plottingan_pengajaran: {
                 resource: `${API}/plottingan-pengajaran/start-plottingan-pengajaran`,
+                unassign_dosen: `${API}/plottingan-pengajaran/unassign/${context?.plottinganPengajaran || ':plottinganPengajaranId'}`,
                 get_hasil: `${API}/plottingan-pengajaran/get-hasil-plottingan-pengajaran/${context?.tahunAjaranId || ':tahunAjaranId'}`,
                 get_hasil_by_prodi: `${API}/plottingan-pengajaran/tahun-ajaran/${context?.tahunAjaranId || ':tahunAjaranId'}/program-studi/${context?.prodiId || ':prodiId'}`,
                 export: `${API}/plottingan-pengajaran/export/tahun-ajaran/${context?.tahunAjaranId || ':tahunAjaranId'}`,

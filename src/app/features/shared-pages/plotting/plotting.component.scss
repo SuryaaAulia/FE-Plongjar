@@ -16,9 +16,9 @@
   }
 
   .prodi-subtitle {
+    text-align: center;
     font-size: var(--text-lg);
-    color: #666;
-    font-style: italic;
+    color: var(--grey-alternative);
     margin: 0;
   }
 }
@@ -368,4 +368,3 @@
   color: #5a6268;
   margin-top: 10px;
 }
-

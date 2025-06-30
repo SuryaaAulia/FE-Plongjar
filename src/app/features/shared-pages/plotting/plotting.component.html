@@ -2,7 +2,8 @@
   <div class="prodi-header">
     <h1 class="prodi-title">Plotting Koordinator dan Dosen Matkul</h1>
     <p class="prodi-subtitle">
-      *Pilih program studi yang ingin anda mulai plottingnya
+      <span style="color: var(--red)">*</span>
+      Pilih program studi yang ingin anda mulai plottingnya
     </p>
   </div>
 
@@ -72,11 +73,7 @@
         </tr>
       </thead>
 
-      <tbody
-        *ngIf="
-          !isLoadingTableData && !showPlaceholderContent && tableData.length > 0
-        "
-      >
+      <tbody *ngIf="!isLoadingTableData && tableData.length > 0">
         <tr *ngFor="let row of tableData; let i = index">
           <td>{{ row.no }}</td>
           <td class="class-cell">
@@ -111,7 +108,8 @@
           <td>{{ row.onlineOnsite }}</td>
         </tr>
       </tbody>
-      <tbody *ngIf="showPlaceholderContent || isLoadingTableData">
+
+      <tbody *ngIf="isLoadingTableData || tableData.length === 0">
         <tr>
           <td [attr.colspan]="9" class="placeholder-cell">
             <div class="placeholder-content-area">
@@ -128,14 +126,12 @@
                 <p *ngIf="!currentSelectedCourse" class="placeholder-message">
                   Silakan pilih Mata Kuliah & Tahun Ajaran untuk memulai.
                 </p>
-
                 <p
                   *ngIf="currentSelectedCourse && !coordinatorObject"
                   class="placeholder-message"
                 >
                   Pilih Koordinator Mata Kuliah untuk menampilkan daftar kelas.
                 </p>
-
                 <p
                   *ngIf="
                     currentSelectedCourse &&
@@ -171,19 +167,17 @@
 </div>
 
 <app-search-modal
-  *ngIf="
-    showLecturerSearchModal &&
-    currentSelectedCourse &&
-    currentSelectedAcademicYear
-  "
+  *ngIf="showLecturerSearchModal"
   (lecturerSelected)="handleLecturerSelected($event)"
   (closeModal)="closeLecturerModal()"
   (coordinatorAssigned)="handleCoordinatorAssigned($event)"
+  (teamLecturersSelected)="handleTeamLecturersSelected($event)"
+  (assignmentChanged)="handleAssignmentChanged()"
+  (coordinatorUnassigned)="unassignCoordinator()"
   [mode]="editingField"
-  [courseId]="parseCourseId(currentSelectedCourse)"
-  [academicYearId]="currentSelectedAcademicYear.id"
+  [courseId]="parseCourseId(currentSelectedCourse!)"
+  [academicYearId]="currentSelectedAcademicYear!.id"
   [isTeamTeaching]="isCurrentRowTeamTeaching()"
   [totalSks]="getCurrentRowSks()"
   [initialSelections]="initialLecturerSelections"
-  (teamLecturersSelected)="handleTeamLecturersSelected($event)"
 />

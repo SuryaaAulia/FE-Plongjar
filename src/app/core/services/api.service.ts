@@ -353,9 +353,9 @@ export class ApiService {
         return this.http.put(url!, data);
     }
 
-    deleteKoordinatorMatakuliah(id: number): Observable<any> {
-        const url = this.endpoint.getUrl('koordinator_matakuliah', 'delete', { id });
-        return this.http.delete(url!);
+    deleteKoordinatorMatakuliah(data: any): Observable<any> {
+        const url = this.endpoint.getUrl('koordinator_matakuliah', 'unassign');
+        return this.http.post(url!, data);
     }
 
     // =================================================================
@@ -468,8 +468,10 @@ export class ApiService {
         return this.http.put(url!, data);
     }
 
-    deletePlottinganPengajaran(id: number): Observable<any> {
-        const url = this.endpoint.getUrl('plottingan_pengajaran', 'delete', { id });
+    unassignDosenFromPlotting(plottinganPengajaranId: number): Observable<any> {
+        const context = { plottinganPengajaran: plottinganPengajaranId };
+        const url = this.endpoint.getUrl('plottingan_pengajaran', 'unassign_dosen', context);
+
         return this.http.delete(url!);
     }
 }

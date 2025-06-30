@@ -3,6 +3,7 @@ import { Observable, throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { Course, Lecturer } from '../models/user.model';
+import { AuthService } from './auth.service';
 
 export interface PlottingData {
     course: Course;
@@ -50,7 +51,7 @@ export interface SubmitPlottingRequest {
 })
 export class PlottingService {
 
-    constructor(private apiService: ApiService) { }
+    constructor(private apiService: ApiService, private authService: AuthService) { }
     getCoursesByAuthProdi(): Observable<Course[]> {
         return this.apiService.getMatakuliahByAuthProdi().pipe(
             map(response => {
@@ -135,10 +136,28 @@ export class PlottingService {
     }
 
     assignCoordinator(data: any): Observable<any> {
+        const currentRole = this.authService.getCurrentRole()?.role_name;
+        if (currentRole === 'KelompokKeahlian') {
+            return this.apiService.assignKoordinatorByProdi(data).pipe(
+                catchError(error => {
+                    console.error('Error assigning coordinator for KK role:', error);
+                    return throwError(() => error);
+                })
+            );
+        }
         return this.apiService.assignKoordinatorByProdiAuth(data).pipe(
             catchError(error => {
-                console.error('Error assigning coordinator:', error);
+                console.error('Error assigning coordinator for Auth Role:', error);
                 return throwError(() => error);
+            })
+        );
+    }
+
+    unassignCoordinator(data: any): Observable<any> {
+        return this.apiService.deleteKoordinatorMatakuliah(data).pipe(
+            catchError(error => {
+                console.error('Error unassigning coordinator:', error);
+                return throwError(() => new Error('Failed to unassign coordinator.'));
             })
         );
     }
@@ -173,5 +192,14 @@ export class PlottingService {
             'hybrid': 'Hybrid'
         };
         return modeMapping[mode] || 'Daring';
+    }
+
+    unassignDosenFromPlotting(plottinganPengajaranId: number): Observable<any> {
+        return this.apiService.unassignDosenFromPlotting(plottinganPengajaranId).pipe(
+            catchError(error => {
+                console.error('Error unassigning dosen from plotting:', error);
+                return throwError(() => error);
+            })
+        );
     }
 }
