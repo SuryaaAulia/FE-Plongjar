@@ -5,6 +5,7 @@ import { HttpParams } from '@angular/common/http';
 import { Subject, Subscription, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, tap, finalize, map } from 'rxjs/operators';
 import { ApiService } from '../../../../core/services/api.service';
+import { PlottingService } from '../../../../core/services/plotting.service';
 import { Lecturer } from '../../../../core/models/user.model';
 import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner.component';
 import { SearchNotFoundComponent } from '../../search-not-found/search-not-found.component';
@@ -33,12 +34,15 @@ export interface TeamTeachingSelection {
 })
 export class SearchModalComponent implements OnInit, OnDestroy, OnChanges {
 
-  constructor(private apiService: ApiService) { }
+  private apiService = inject(ApiService);
+  private plottingService = inject(PlottingService);
 
   @Output() lecturerSelected = new EventEmitter<Lecturer>();
   @Output() closeModal = new EventEmitter<void>();
   @Output() coordinatorAssigned = new EventEmitter<Lecturer>();
   @Output() teamLecturersSelected = new EventEmitter<TeamTeachingSelection[]>();
+  @Output() coordinatorUnassigned = new EventEmitter<void>();
+  @Output() assignmentChanged = new EventEmitter<void>();
 
   @Input() mode: 'coordinator' | 'dosen' | null = null;
   @Input() courseId: number | null = null;
@@ -59,7 +63,6 @@ export class SearchModalComponent implements OnInit, OnDestroy, OnChanges {
   currentPage: number = 1;
   itemsPerPage: number = 5;
   totalItems: number = 0;
-
   selectedLecturers = new Map<number, TeamTeachingSelection>();
   sksOptions: SelectOption[] = [];
 
@@ -69,7 +72,7 @@ export class SearchModalComponent implements OnInit, OnDestroy, OnChanges {
 
   ngOnInit(): void {
     if (this.mode === 'coordinator' && (this.courseId === null || this.academicYearId === null)) {
-      throw new Error('courseId and academicYearId are required in coordinator mode.');
+      throw new Error('courseId and academicYearId are required for coordinator mode.');
     }
     this.generateSksOptions();
     this.setupSearchDebounce();
@@ -79,6 +82,9 @@ export class SearchModalComponent implements OnInit, OnDestroy, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['totalSks']) {
       this.generateSksOptions();
+    }
+    if (changes['initialSelections']) {
+      this.populateInitialSelections();
     }
   }
 
@@ -98,9 +104,8 @@ export class SearchModalComponent implements OnInit, OnDestroy, OnChanges {
     if (this.initialSelections && this.initialSelections.length > 0) {
       this.searchResults = this.initialSelections.map(selection => selection.lecturer);
       this.hasSearched = true;
-
       this.initialSelections.forEach(selection => {
-        if (selection.lecturer && typeof selection.lecturer.id === 'number') {
+        if (selection.lecturer?.id) {
           this.selectedLecturers.set(selection.lecturer.id, selection);
           this.assignedLecturerIds.add(selection.lecturer.id);
         }
@@ -109,10 +114,7 @@ export class SearchModalComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   private generateSksOptions(): void {
-    this.sksOptions = Array.from({ length: this.totalSks }, (_, i) => {
-      const sks = i + 1;
-      return { value: sks, label: `${sks} SKS` };
-    });
+    this.sksOptions = Array.from({ length: this.totalSks }, (_, i) => ({ value: i + 1, label: `${i + 1} SKS` }));
   }
 
   private setupSearchDebounce(): void {
@@ -120,11 +122,7 @@ export class SearchModalComponent implements OnInit, OnDestroy, OnChanges {
       debounceTime(400),
       map(() => `${this.searchNameTerm.trim()}|${this.searchCodeTerm.trim()}`),
       distinctUntilChanged(),
-      tap(() => {
-        const name = this.searchNameTerm.trim();
-        const code = this.searchCodeTerm.trim();
-        this.searchKeyword = [name, code].filter(Boolean).join(', ');
-      }),
+      tap(() => this.searchKeyword = [this.searchNameTerm.trim(), this.searchCodeTerm.trim()].filter(Boolean).join(', ')),
       switchMap(() => this.fetchData(1))
     ).subscribe();
   }
@@ -158,12 +156,8 @@ export class SearchModalComponent implements OnInit, OnDestroy, OnChanges {
         next: (response: any) => {
           if (response.success && response.data) {
             this.searchResults = response.data.data.map((item: any) => ({
-              id: item.id,
-              name: item.name,
-              lecturerCode: item.lecturer_code,
-              nip: item.nip || '',
-              nidn: item.nidn || '',
-              email: item.email || '',
+              id: item.id, name: item.name, lecturerCode: item.lecturer_code,
+              nip: item.nip || '', nidn: item.nidn || '', email: item.email || '',
               jabatanFungsionalAkademik: item.jabatanFungsionalAkademik || '',
               idJabatanStruktural: item.idJabatanStruktural || null,
               statusPegawai: item.statusPegawai || '',
@@ -176,10 +170,7 @@ export class SearchModalComponent implements OnInit, OnDestroy, OnChanges {
             this.handleError('Received a successful response but with no data.');
           }
         },
-        error: (err) => {
-          this.handleError('Failed to fetch lecturers. Please try again later.');
-          console.error(err);
-        }
+        error: (err) => this.handleError('Failed to fetch lecturers. Please try again later.')
       }),
       finalize(() => this.isLoading = false)
     );
@@ -221,24 +212,21 @@ export class SearchModalComponent implements OnInit, OnDestroy, OnChanges {
     this.hasChanges = true;
     const sksAsNumber = typeof sksValue === 'string' ? parseInt(sksValue, 10) : sksValue;
     if (this.selectedLecturers.has(lecturerId)) {
-      const selection = this.selectedLecturers.get(lecturerId)!;
-      selection.sks = sksAsNumber;
+      this.selectedLecturers.get(lecturerId)!.sks = sksAsNumber;
     }
   }
 
   handleSubmitTeamTeaching(): void {
-    const selections = Array.from(this.selectedLecturers.values());
+    const selections = this.selectedLecturersArray;
     if (selections.length === 0) {
       alert('Please select at least one lecturer.');
       return;
     }
-
     const totalAssignedSks = selections.reduce((sum, item) => sum + item.sks, 0);
     if (totalAssignedSks > this.totalSks) {
       alert(`Total assigned SKS (${totalAssignedSks}) cannot exceed the course's total SKS (${this.totalSks}).`);
       return;
     }
-
     this.teamLecturersSelected.emit(selections);
     this.resetModalState(true);
   }
@@ -258,15 +246,9 @@ export class SearchModalComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   private resetModalState(shouldEmitClose: boolean, clearSelections: boolean = true): void {
-    this.searchNameTerm = '';
-    this.searchCodeTerm = '';
-    this.searchKeyword = '';
-    this.hasSearched = false;
-    this.isLoading = false;
-    this.error = null;
-    this.searchResults = [];
-    this.totalItems = 0;
-    this.currentPage = 1;
+    this.searchNameTerm = ''; this.searchCodeTerm = ''; this.searchKeyword = '';
+    this.hasSearched = false; this.isLoading = false; this.error = null;
+    this.searchResults = []; this.totalItems = 0; this.currentPage = 1;
     if (clearSelections) {
       this.selectedLecturers.clear();
     }
@@ -281,14 +263,36 @@ export class SearchModalComponent implements OnInit, OnDestroy, OnChanges {
 
   removeLecturer(lecturerId: number): void {
     this.hasChanges = true;
-    if (this.selectedLecturers.has(lecturerId)) {
-      this.selectedLecturers.delete(lecturerId);
-    }
+    this.selectedLecturers.delete(lecturerId);
   }
 
   public unassignLecturer(lecturerId: number): void {
-    this.hasChanges = true;
-    this.removeLecturer(lecturerId);
-    this.assignedLecturerIds.delete(lecturerId);
+    const selection = this.selectedLecturers.get(lecturerId);
+    if (!selection) return;
+    if (this.mode === 'coordinator') {
+      this.coordinatorUnassigned.emit();
+      this.closeModal.emit();
+      return;
+    }
+    const plottinganPengajaranId = selection.plottingId;
+    if (!plottinganPengajaranId) {
+      this.removeLecturer(lecturerId);
+      return;
+    }
+
+    if (confirm(`Anda yakin ingin menghapus dosen "${selection.lecturer.name}" dari kelas ini?`)) {
+      this.isLoading = true;
+      this.plottingService.unassignDosenFromPlotting(plottinganPengajaranId)
+        .pipe(finalize(() => this.isLoading = false))
+        .subscribe({
+          next: () => {
+            alert(`Dosen "${selection.lecturer.name}" berhasil dihapus.`);
+            this.assignmentChanged.emit();
+          },
+          error: (err) => {
+            alert(`Gagal menghapus dosen. Silakan coba lagi. Error: ${err.message}`);
+          }
+        });
+    }
   }
 }
