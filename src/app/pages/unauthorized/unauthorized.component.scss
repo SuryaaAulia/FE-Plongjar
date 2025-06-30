@@ -1,0 +1,31 @@
+body {
+    background-color: var(--primary-white);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    text-align: center;
+}
+
+.container {
+    max-width: 400px;
+    padding: 20px;
+
+    img {
+        width: 250px;
+        margin-bottom: 40px;
+    }
+
+    h1 {
+        font-size: var(--text-2xl);
+        font-weight: var(--font-semibold);
+        color: var(--primary-blue);
+        margin-bottom: 10px;
+    }
+
+    p {
+        font-size: var(--text-base);
+        color: var(--secondary-blue);
+    }
+}

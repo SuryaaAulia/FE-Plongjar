@@ -2,9 +2,10 @@ import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChange
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BaseCardComponent } from '../base-card/base-card.component';
-import { FormInputComponent, SelectOption, RoleTagComponent, ActionButtonComponent } from '../../../../shared/components/index';
+import { RoleTagComponent, ActionButtonComponent } from '../../../../shared/components/index';
 import { User } from '../../../../core/models/user.model';
 import { RoleService } from '../../../../core/services/admin/role.service';
+import { FormInputComponent, SelectOption } from '../../form-input/form-input.component';
 
 export interface ScopeOption {
   id: number;

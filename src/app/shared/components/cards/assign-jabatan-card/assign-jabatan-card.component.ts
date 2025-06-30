@@ -1,10 +1,9 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, ViewEncapsulation } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BaseCardComponent } from '../base-card/base-card.component';
 import { Lecturer } from '../../../../core/models/user.model';
-import { FormInputComponent, SelectOption } from '../../../../shared/components/index';
-
+import { FormInputComponent, SelectOption } from '../../form-input/form-input.component';
 export interface JabatanOption {
   id: number;
   name: string;

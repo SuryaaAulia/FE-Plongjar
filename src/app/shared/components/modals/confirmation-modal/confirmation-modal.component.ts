@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActionButtonComponent } from '../../index';
+import { ActionButtonComponent } from '../../buttons/action-button/action-button.component';
 
 @Component({
   selector: 'app-confirmation-modal',

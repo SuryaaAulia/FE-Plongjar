@@ -6,7 +6,9 @@ import { ApiService } from '../../../../../core/services/api.service';
 import { AuthService } from '../../../../../core/services/auth.service';
 import { HttpParams } from '@angular/common/http';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
-import { LoadingSpinnerComponent, SearchNotFoundComponent, ActionButtonComponent } from '../../../index';
+import { ActionButtonComponent } from '../../../buttons/action-button/action-button.component';
+import { LoadingSpinnerComponent } from '../../../loading-spinner/loading-spinner.component';
+import { SearchNotFoundComponent } from '../../../search-not-found/search-not-found.component';
 
 @Component({
   selector: 'app-search-matkul',

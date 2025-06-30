@@ -1,6 +1,6 @@
 import { Component, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy, ViewEncapsulation } from '@angular/core';
 import { CommonModule, NgStyle, NgClass } from '@angular/common';
-import { LoadingSpinnerComponent } from '../index';
+import { LoadingSpinnerComponent } from '../loading-spinner/loading-spinner.component';
 
 export interface ColumnConfig {
   key: string;
