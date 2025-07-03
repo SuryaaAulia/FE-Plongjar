@@ -1,0 +1,42 @@
+<div class="container">
+  <header class="header-section">
+    <h2>Tambah Program Studi Baru</h2>
+    <p>Isi form untuk menambahkan program studi baru</p>
+  </header>
+
+  <form [formGroup]="prodiForm" (ngSubmit)="onSubmit()" class="form-section">
+    <div class="form-group">
+      <div class="input-row">
+        <app-form-input
+          class="tingkat-input"
+          type="select"
+          placeholder="S1/S2/S3"
+          formControlName="tingkat"
+          [control]="getControl('tingkat')"
+          [options]="tingkatOptions"
+          [required]="true"
+          label="Strata"
+        ></app-form-input>
+
+        <app-form-input
+          class="nama-prodi-input"
+          type="text"
+          placeholder="Rekayasa Perangkat Lunak"
+          formControlName="namaProdi"
+          [control]="getControl('namaProdi')"
+          [required]="true"
+          label="Nama Program Studi"
+        ></app-form-input>
+      </div>
+    </div>
+
+    <div class="button-container">
+      <app-action-button
+        text="Submit"
+        type="submit"
+        [disabled]="prodiForm.invalid || isLoading"
+        [loading]="isLoading"
+      ></app-action-button>
+    </div>
+  </form>
+</div>

@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActionButtonComponent, FormInputComponent, SelectOption, LoadingSpinnerComponent } from '../../../shared/components/index';
-import { MatakuliahService, Pic, CreateMatakuliahPayload } from '../../../core/services/kaprodi/matakuliah.service';
+import { MatakuliahService, Pic, CreateMatakuliahPayload } from '../../../core/services/matakuliah.service';
 
 @Component({
   selector: 'app-tambah-matkul',

@@ -64,7 +64,6 @@ export class DetailDosenComponent implements OnInit {
           if (apiResponse.success && apiResponse.data && (apiResponse.data.kode_dosen || apiResponse.data.id)) {
             try {
               this.lecturer = this.mapDosenDetailResponseToLecturer(apiResponse.data);
-              console.log('DetailDosenComponent: Mapped lecturer data:', this.lecturer);
             } catch (mappingError) {
               console.error('DetailDosenComponent: Error mapping DosenDetailResponse to Lecturer:', mappingError, apiResponse.data);
               this.lecturer = null;

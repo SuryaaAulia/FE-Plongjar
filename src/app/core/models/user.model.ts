@@ -9,6 +9,10 @@ export interface User {
   email: string;
   nip: string;
   role?: Role;
+  assignment_detail?: {
+    id: number;
+    nama: string;
+  };
 }
 
 export interface PaginatedUsers {
@@ -59,6 +63,7 @@ export interface Course {
   metodePerkuliahan: string;
   praktikum: string;
   koordinator?: Lecturer;
+  tahun_ajaran?: string;
 }
 
 export interface JabatanStruktural {

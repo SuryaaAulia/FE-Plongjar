@@ -159,7 +159,6 @@ export class AssignRoleComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (response) => {
-          console.log('Role assigned successfully:', response);
           this.loadData();
         },
         error: (error) => {
@@ -181,11 +180,6 @@ export class AssignRoleComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const roleDisplayName = this.roleService.getRoleDisplayName(user.role.name);
-
-    console.log(`Proceeding to remove the ${roleDisplayName} role from ${user.name}.`);
-
-
     this.isLoading = true;
     this.roleService.revokeRole(user.id, user.role.id)
       .pipe(
@@ -194,7 +188,6 @@ export class AssignRoleComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (response) => {
-          console.log('Role revoked successfully:', response);
           this.loadData();
         },
         error: (error) => {

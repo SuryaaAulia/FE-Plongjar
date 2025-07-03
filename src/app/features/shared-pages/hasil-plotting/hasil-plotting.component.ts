@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import {
   DynamicTableComponent,
@@ -9,9 +8,10 @@ import {
   ActionButtonComponent,
   PaginationComponent,
 } from '../../../shared/components';
-import { MatakuliahService } from '../../../core/services/kaprodi/matakuliah.service';
+import { MatakuliahService } from '../../../core/services/matakuliah.service';
 import { TahunAjaran } from '../../../core/models/user.model';
 import { finalize } from 'rxjs/operators';
+import { Location } from '@angular/common';
 
 export interface MataKuliah {
   no: number;
@@ -76,7 +76,7 @@ export class HasilPlottingComponent implements OnInit {
   private colMkEksepsiWidth: string = '140px';
 
   constructor(
-    private router: Router,
+    private location: Location,
     private matakuliahService: MatakuliahService
   ) { }
 
@@ -116,7 +116,6 @@ export class HasilPlottingComponent implements OnInit {
       .subscribe({
         next: ({ prodi, tahun }) => {
           this.programStudiOptions = prodi;
-          console.log('Program Studi Options:', this.programStudiOptions);
           if (prodi.length > 0) {
             this.selectedProdiId = prodi[0].id;
           }
@@ -173,7 +172,6 @@ export class HasilPlottingComponent implements OnInit {
   private mapApiResponseToMataKuliah(apiData: any[]): MataKuliah[] {
     return apiData.map((item) => {
       const [tahun, semester] = (item.tahun_ajaran || ' - ').split(' - ');
-      console.log('item', item);
       return {
         no: 0,
         idMatkul: item.kode_matakuliah || '-',
@@ -225,7 +223,7 @@ export class HasilPlottingComponent implements OnInit {
   }
 
   onBack(): void {
-    this.router.navigate(['/plotting']);
+    this.location.back();
   }
 
   onDownloadExcel(): void {

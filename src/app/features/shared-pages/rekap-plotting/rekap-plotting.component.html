@@ -4,12 +4,15 @@
       <label for="program-studi">Program Studi:</label>
       <select
         id="program-studi"
-        [value]="selectedProgramStudi"
-        (change)="onProgramStudiChange($event)"
         class="filter-select"
+        [(ngModel)]="selectedProgramStudiId"
+        (ngModelChange)="onFilterChange()"
       >
-        <option *ngFor="let option of programStudiOptions" [value]="option">
-          {{ option }}
+        <option
+          *ngFor="let option of programStudiOptions"
+          [value]="option.value"
+        >
+          {{ option.label }}
         </option>
       </select>
     </div>
@@ -18,46 +21,43 @@
       <label for="tahun-ajaran">Tahun Ajaran:</label>
       <select
         id="tahun-ajaran"
-        [value]="selectedTahunAjaran"
-        (change)="onTahunAjaranChange($event)"
         class="filter-select"
+        [(ngModel)]="selectedTahunAjaranId"
+        (ngModelChange)="onFilterChange()"
       >
-        <option *ngFor="let option of tahunAjaranOptions" [value]="option">
-          {{ option }}
-        </option>
-      </select>
-    </div>
-    
-    <div class="filter-group">
-      <label for="semester">Semester:</label>
-      <select
-        id="semester"
-        [value]="selectedSemester"
-        (change)="onSemesterChange($event)"
-        class="filter-select"
-      >
-        <option *ngFor="let option of semesterOptions" [value]="option">
-          {{ option }}
+        <option
+          *ngFor="let option of tahunAjaranOptions"
+          [value]="option.value"
+        >
+          {{ option.label }}
         </option>
       </select>
     </div>
   </div>
 
-  <div class="courses-grid">
-    <app-plotting-result-card
-      *ngFor="let course of courses; trackBy: trackByCourseId"
-      [course]="course"
-      (showDetails)="onShowCourseDetails($event)"
-      (downloadExcel)="onDownloadCourseExcel($event)"
-    >
-    </app-plotting-result-card>
-  </div>
-
-  <div *ngIf="courses.length === 0" class="empty-state">
-    <div class="empty-state-content">
-      <i class="fas fa-book-open empty-icon"></i>
-      <h3>No courses found</h3>
-      <p>No courses match the selected filters.</p>
+  <ng-container *ngIf="!isLoading; else loadingState">
+    <div *ngIf="courses.length > 0; else emptyState" class="courses-grid">
+      <app-plotting-result-card
+        *ngFor="let course of courses; trackBy: trackByCourseId"
+        [course]="course"
+      >
+      </app-plotting-result-card>
     </div>
-  </div>
+  </ng-container>
+
+  <ng-template #loadingState>
+    <div class="state-container">
+      <app-loading-spinner></app-loading-spinner>
+    </div>
+  </ng-template>
+
+  <ng-template #emptyState>
+    <div class="state-container">
+      <div class="empty-state-content">
+        <i class="fas fa-book-open empty-icon"></i>
+        <h3>Tidak Ada Mata Kuliah</h3>
+        <p>Tidak ada mata kuliah yang cocok dengan filter yang dipilih.</p>
+      </div>
+    </div>
+  </ng-template>
 </div>

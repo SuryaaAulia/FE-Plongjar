@@ -11,7 +11,7 @@ import {
   SearchNotFoundComponent,
   SearchHeaderComponent
 } from '../../../shared/components/index';
-import { MatakuliahService } from '../../../core/services/kaprodi/matakuliah.service';
+import { MatakuliahService } from '../../../core/services/matakuliah.service';
 import { HttpParams } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
 
@@ -72,7 +72,7 @@ export class ManageMatkulComponent implements OnInit {
       params = params.set('pic', this.currentSearchPic);
     }
 
-    this.matakuliahService.getAllCourses(params).pipe(
+    this.matakuliahService.getAllCoursesAuthProdi(params).pipe(
       finalize(() => { this.isLoading = false; })
     ).subscribe({
       next: (response) => {

@@ -16,18 +16,12 @@
         (ngModelChange)="onScopeChange()"
       ></app-form-input>
     </div>
+
     <div *ngIf="!showDropdown && selectedScope" class="selected-scope-display">
       <span class="selected-scope-name">{{ selectedScope.name }}</span>
-      <button
-        class="remove-scope-btn"
-        (click)="onRemoveScope()"
-        title="Remove Scope"
-        type="button"
-      >
-        <i class="fas fa-times"></i>
-      </button>
     </div>
   </div>
+
   <div class="card-footer-layout">
     <app-role-tag
       *ngIf="user.role"

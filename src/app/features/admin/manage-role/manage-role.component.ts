@@ -114,7 +114,15 @@ export class ManageRoleComponent implements OnInit, OnDestroy {
   private transformUsersForDisplay(users: UserWithRoles[]): User[] {
     return users.map(user => {
       const userRole = (user.roles && user.roles.length > 0) ? user.roles[0] : undefined;
-      return { ...user, role: userRole } as User;
+      const assignmentDetail = (user as any).assignment_detail
+        ? { id: (user as any).assignment_detail.id, nama: (user as any).assignment_detail.nama }
+        : undefined;
+
+      return {
+        ...user,
+        role: userRole,
+        assignment_detail: assignmentDetail
+      } as User;
     });
   }
 
@@ -159,15 +167,10 @@ export class ManageRoleComponent implements OnInit, OnDestroy {
       .pipe(finalize(() => this.isLoading = false))
       .subscribe({
         next: () => {
-          console.log('Scope assigned successfully');
           this.loadUsersByRole(this.activeRoleId!);
         },
         error: (err) => console.error('Failed to assign scope', err)
       });
-  }
-
-  onRemoveScope(event: { userId: number }): void {
-    console.log('Remove scope for user:', event.userId);
   }
 
   onRemoveRole(user: User): void {
@@ -178,7 +181,6 @@ export class ManageRoleComponent implements OnInit, OnDestroy {
 
     const roleDisplayName = this.roleService.getRoleDisplayName(user.role.name);
 
-    console.log(`Requesting to remove the ${roleDisplayName} role from ${user.name}...`);
 
     this.isLoading = true;
     this.roleService.revokeRole(user.id, user.role.id)
@@ -188,7 +190,6 @@ export class ManageRoleComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (response) => {
-          console.log('Role revoked successfully:', response);
           if (this.activeRoleId) {
             this.loadUsersByRole(this.activeRoleId);
           }

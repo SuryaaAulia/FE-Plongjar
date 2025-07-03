@@ -173,7 +173,7 @@ export class ApiService {
         return this.http.get(url!);
     }
 
-    getBebanSksDosenAktif(dosenId: number): Observable<any> {
+    getBebanSksDosenTahunAjaranAktif(dosenId: number): Observable<any> {
         const url = this.endpoint.getUrl('dosen', 'beban_sks_aktif', { dosenId });
         return this.http.get(url!);
     }
@@ -363,6 +363,11 @@ export class ApiService {
     // =================================================================
     getAllTahunAjaran(params?: HttpParams): Observable<any> {
         const url = this.endpoint.getUrl('tahun_ajaran', 'resource');
+        return this.http.get(url!, { params });
+    }
+
+    getAllTahunAjaranKaurLAAK(params?: HttpParams): Observable<any> {
+        const url = this.endpoint.getUrl('tahun_ajaran', 'get_all_kaur_laak');
         return this.http.get(url!, { params });
     }
 

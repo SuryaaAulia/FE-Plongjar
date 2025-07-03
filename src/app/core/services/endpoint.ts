@@ -96,6 +96,7 @@ export class Endpoint {
 
             tahun_ajaran: {
                 resource: `${API}/masterdata/tahunajarans`,
+                get_all_kaur_laak: `${API}/masterdata/get-all-tahun-ajaran`,
                 get_active: `${API}/masterdata/tahun-ajaran/aktif`,
                 set_active: `${API}/masterdata/tahun-ajaran/${context?.id || ':id'}/set-active`,
                 show: `${API}/masterdata/tahunajarans/${context?.id || ':id'}`,

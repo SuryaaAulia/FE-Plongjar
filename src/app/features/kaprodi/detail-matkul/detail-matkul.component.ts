@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { ActionButtonComponent, LoadingSpinnerComponent, FormInputComponent } from '../../../shared/components/index'; // Import FormInputComponent
 import { Course } from '../../../core/models/user.model';
-import { MatakuliahService } from '../../../core/services/kaprodi/matakuliah.service';
+import { MatakuliahService } from '../../../core/services/matakuliah.service';
 import { finalize } from 'rxjs/operators';
 
 @Component({

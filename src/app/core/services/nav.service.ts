@@ -25,6 +25,7 @@ export class NavService {
         ],
       },
       { label: 'Tahun Ajaran', icon: 'calendar-days', routerLink: '/admin/tahun-ajaran' },
+      { label: 'Tambah Prodi', icon: 'building-circle-arrow-right', routerLink: '/admin/tambah-prodi' },
       { label: 'Switch App', icon: 'dashboard', routerLink: '/switch-app' },
     ],
     ketua_kk: [
@@ -85,12 +86,9 @@ export class NavService {
     laak: [
       { label: 'Home', icon: 'house', routerLink: '/home' },
       {
-        label: 'Layanan Akademik',
-        icon: 'academic-cap',
-        routerLink: '',
-        children: [
-          { label: 'Dashboard', routerLink: '/laak/dashboard' },
-        ],
+        label: 'Hasil Plotting',
+        icon: 'table-list',
+        routerLink: '/laak/rekap-hasil-plotting'
       },
     ],
   };

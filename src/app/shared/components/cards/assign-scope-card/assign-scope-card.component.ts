@@ -50,16 +50,13 @@ export class AssignScopeCardComponent implements OnInit, OnChanges {
   }
 
   private initializeState(): void {
-    const currentScopeId = (this.user.role as any)?.pivot?.roleable_id;
-    if (currentScopeId && this.scopeOptions.length > 0) {
-      const matchedScope = this.scopeOptions.find(option => option.id === currentScopeId);
-      if (matchedScope) {
-        this.selectedScope = matchedScope;
-        this.selectedScopeId = matchedScope.id;
-        this.showDropdown = false;
-      } else {
-        this.resetToDropdown();
-      }
+    if (this.user.assignment_detail) {
+      this.selectedScope = {
+        id: this.user.assignment_detail.id,
+        name: this.user.assignment_detail.nama
+      };
+      this.selectedScopeId = this.user.assignment_detail.id;
+      this.showDropdown = false;
     } else {
       this.resetToDropdown();
     }

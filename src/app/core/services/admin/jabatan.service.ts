@@ -45,11 +45,9 @@ export class JabatanService {
     constructor(private apiService: ApiService) { }
 
     getAllJabatanStruktural(): Observable<JabatanStruktural[]> {
-        console.log('JabatanService: Fetching all jabatan struktural');
 
         return this.apiService.getAllJabatanStruktural().pipe(
             tap(response => {
-                console.log('JabatanService: Raw API response:', response);
             }),
             map((response: any) => {
                 if (response && response.success && response.data) {
@@ -63,9 +61,6 @@ export class JabatanService {
                     return [];
                 }
             }),
-            tap(data => {
-                console.log('JabatanService: Transformed jabatan data:', data);
-            }),
             catchError(error => {
                 console.error('Error fetching jabatan struktural:', error);
                 return this.handleError(error);
@@ -74,12 +69,7 @@ export class JabatanService {
     }
 
     createJabatanStruktural(data: JabatanCreateRequest): Observable<JabatanCreateResponse> {
-        console.log('JabatanService: Creating jabatan struktural:', data);
-
         return this.apiService.createJabatanStruktural(data).pipe(
-            tap(response => {
-                console.log('JabatanService: Create response:', response);
-            }),
             map((response: any) => {
                 if (!response.success && !response.data) {
                     return {
@@ -98,12 +88,7 @@ export class JabatanService {
     }
 
     assignJabatanToDosen(assignment: JabatanAssignment): Observable<AssignmentResponse> {
-        console.log('JabatanService: Assigning jabatan:', assignment);
-
         return this.apiService.assignJabatanDosen(assignment).pipe(
-            tap(response => {
-                console.log('JabatanService: Assignment response:', response);
-            }),
             catchError(error => {
                 console.error('Error assigning jabatan to dosen:', error);
                 return this.handleError(error);
@@ -112,13 +97,8 @@ export class JabatanService {
     }
 
     revokeJabatanFromDosen(dosenId: number): Observable<AssignmentResponse> {
-        console.log('JabatanService: Revoking jabatan from dosen:', dosenId);
-
         const data = { id_dosen: dosenId };
         return this.apiService.revokeJabatanDosen(data).pipe(
-            tap(response => {
-                console.log('JabatanService: Revoke response:', response);
-            }),
             catchError(error => {
                 console.error('Error revoking jabatan from dosen:', error);
                 return this.handleError(error);

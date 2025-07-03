@@ -103,7 +103,6 @@ export class RiwayatMengajarComponent implements OnInit {
   }
 
   loadMockDataForLecturer(lecturerCode: string): TeachingRecord[] {
-    console.log(`Simulating fetch for lecturer: ${lecturerCode}`);
     const subjects = [
       { code: 'CRI3I3', name: 'PEMROGRAMAN PERANGKAT BERGERAK', credits: 3 },
       { code: 'CII2J4', name: 'DASAR PEMROGRAMAN', credits: 4 },

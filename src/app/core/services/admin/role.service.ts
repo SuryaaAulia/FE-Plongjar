@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Observable, BehaviorSubject, of } from 'rxjs';
 import { map, tap, catchError } from 'rxjs/operators';
 import { ApiService } from '../api.service';
 import { Role, User } from '../../models/user.model';
@@ -91,10 +91,10 @@ export class RoleService {
         return this.apiService.getAllUsersByRole(roleId).pipe(
             map((response: any) => {
                 let users: any[] = [];
-
+                
                 if (Array.isArray(response)) {
                     users = response;
-                } else if (response && response.data) {
+                } else if (response?.data) {
                     if (response.data.data && Array.isArray(response.data.data)) {
                         users = response.data.data;
                     } else if (Array.isArray(response.data)) {
@@ -102,30 +102,23 @@ export class RoleService {
                     }
                 }
 
-                const transformedUsers: UserWithRoles[] = [];
-
-                if (Array.isArray(users)) {
-                    const currentRoles = this.rolesSubject.value;
-                    const currentRole = currentRoles.find(role => role.id === roleId);
-
-                    users.forEach((user: any) => {
-                        const transformedUser: UserWithRoles = {
-                            id: user.id,
-                            name: user.name,
-                            email: user.email,
-                            nip: user.nip,
-                            roles: currentRole ? [currentRole] : []
-                        };
-
-                        transformedUsers.push(transformedUser);
-                    });
+                if (!Array.isArray(users)) {
+                    return [];
                 }
 
-                return transformedUsers;
+                const currentRoles = this.rolesSubject.value;
+                const currentRole = currentRoles.find(role => role.id === roleId);
+
+                return users.map((user: any): UserWithRoles => {
+                    return {
+                        ...user,
+                        roles: currentRole ? [currentRole] : []
+                    };
+                });
             }),
             catchError(error => {
                 console.error('Error fetching users by role:', error);
-                throw error;
+                return of([]);
             })
         );
     }
@@ -161,7 +154,6 @@ export class RoleService {
 
         return this.apiService.assignRole(payload).pipe(
             tap((response) => {
-                console.log('Role assigned successfully:', response);
                 this.getAllAssignedUserRoles().subscribe();
             }),
             catchError(error => {
@@ -173,9 +165,6 @@ export class RoleService {
 
     assignScopedRole(assignment: ScopedRoleAssignment): Observable<any> {
         return this.apiService.assignScopedRole(assignment).pipe(
-            tap((response) => {
-                console.log('Scoped role assigned successfully:', response);
-            }),
             catchError(error => {
                 console.error('Error assigning scoped role:', error);
                 throw error;
@@ -191,7 +180,6 @@ export class RoleService {
         };
         return this.apiService.revokeRole(data).pipe(
             tap((response) => {
-                console.log('Role revoked successfully:', response);
                 this.getAllAssignedUserRoles().subscribe();
             }),
             catchError(error => {
