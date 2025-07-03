@@ -1,7 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import {
   DynamicTableComponent,
@@ -9,9 +8,11 @@ import {
   ActionButtonComponent,
   PaginationComponent,
 } from '../../../shared/components';
-import { MatakuliahService } from '../../../core/services/kaprodi/matakuliah.service';
+import { MatakuliahService } from '../../../core/services/matakuliah.service';
 import { TahunAjaran } from '../../../core/models/user.model';
 import { finalize } from 'rxjs/operators';
+import { Location } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 
 export interface MataKuliah {
   no: number;
@@ -75,13 +76,21 @@ export class HasilPlottingComponent implements OnInit {
   private colKelasWidth: string = '160px';
   private colMkEksepsiWidth: string = '140px';
 
+  private route = inject(ActivatedRoute);
+
   constructor(
-    private router: Router,
+    private location: Location,
     private matakuliahService: MatakuliahService
   ) { }
 
   ngOnInit(): void {
     this.setupColumnConfigs();
+    const prodiIdFromRoute = this.route.snapshot.paramMap.get('prodiId');
+    const tahunIdFromRoute = this.route.snapshot.paramMap.get('tahunAjaranId');
+
+    this.selectedProdiId = prodiIdFromRoute ? +prodiIdFromRoute : null;
+    this.selectedTahunAjaranId = tahunIdFromRoute ? +tahunIdFromRoute : null;
+
     this.loadFilterOptions();
   }
 
@@ -116,13 +125,12 @@ export class HasilPlottingComponent implements OnInit {
       .subscribe({
         next: ({ prodi, tahun }) => {
           this.programStudiOptions = prodi;
-          console.log('Program Studi Options:', this.programStudiOptions);
-          if (prodi.length > 0) {
+          this.tahunAjaranOptions = tahun;
+
+          if (this.selectedProdiId === null && prodi.length > 0) {
             this.selectedProdiId = prodi[0].id;
           }
-
-          this.tahunAjaranOptions = tahun;
-          if (tahun.length > 0) {
+          if (this.selectedTahunAjaranId === null && tahun.length > 0) {
             this.selectedTahunAjaranId = tahun[0].id;
           }
 
@@ -173,7 +181,6 @@ export class HasilPlottingComponent implements OnInit {
   private mapApiResponseToMataKuliah(apiData: any[]): MataKuliah[] {
     return apiData.map((item) => {
       const [tahun, semester] = (item.tahun_ajaran || ' - ').split(' - ');
-      console.log('item', item);
       return {
         no: 0,
         idMatkul: item.kode_matakuliah || '-',
@@ -225,7 +232,7 @@ export class HasilPlottingComponent implements OnInit {
   }
 
   onBack(): void {
-    this.router.navigate(['/plotting']);
+    this.location.back();
   }
 
   onDownloadExcel(): void {

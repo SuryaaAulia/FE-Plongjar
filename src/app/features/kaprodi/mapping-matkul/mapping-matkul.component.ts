@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule as NgFormsModule, AbstractControl } from '@angular/forms';
 import { finalize, forkJoin, combineLatest, switchMap, debounceTime, filter, startWith, distinctUntilChanged } from 'rxjs';
 import { ActionButtonComponent, FormInputComponent, SelectOption, LoadingSpinnerComponent } from '../../../shared/components/index';
-import { MatakuliahService } from '../../../core/services/kaprodi/matakuliah.service';
+import { MatakuliahService } from '../../../core/services/matakuliah.service';
 import { Course, TahunAjaran } from '../../../core/models/user.model';
 interface KelasEntry {
   id: string;
@@ -184,8 +184,6 @@ export class MappingMatkulComponent implements OnInit {
           team_teaching: k.teamTeaching
         }))
     };
-
-    console.log('Final Payload to be sent:', JSON.stringify(payload, null, 2));
 
     this.matakuliahService.submitMapping(payload)
       .pipe(finalize(() => this.isLoading = false))

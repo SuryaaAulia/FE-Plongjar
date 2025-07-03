@@ -46,7 +46,6 @@
           placeholder="Pilih Program Studi"
           [roleService]="roleService"
           (assignScope)="onAssignScope($event)"
-          (removeScope)="onRemoveScope($event)"
           (removeRole)="onRemoveRole(user)"
         ></app-assign-scope-card>
         } @else if (activeRoleFilter === 'Ket. KK') {
@@ -56,7 +55,6 @@
           placeholder="Pilih Kelompok Keahlian"
           [roleService]="roleService"
           (assignScope)="onAssignScope($event)"
-          (removeScope)="onRemoveScope($event)"
           (removeRole)="onRemoveRole(user)"
         ></app-assign-scope-card>
         } @else {

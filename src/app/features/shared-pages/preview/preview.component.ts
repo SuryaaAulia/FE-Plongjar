@@ -179,12 +179,10 @@ export class PreviewComponent implements OnInit {
   }
 
   handleModalConfirm(): void {
-    console.log('Data submission confirmed by user!');
     this.isConfirmationModalVisible = false;
   }
 
   handleModalCancel(): void {
-    console.log('Data submission cancelled by user.');
     this.isConfirmationModalVisible = false;
   }
 }

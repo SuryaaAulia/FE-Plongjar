@@ -67,6 +67,13 @@ export const routes: Routes = [
                 (m) => m.ManageTahunAjaranComponent
               ),
           },
+          {
+            path: 'tambah-prodi',
+            loadComponent: () =>
+              import('./features/admin/tambah-prodi/tambah-prodi.component').then(
+                (m) => m.TambahProdiComponent
+              ),
+          },
         ]
       },
       {
@@ -229,7 +236,7 @@ export const routes: Routes = [
               ).then((m) => m.RekapPlottingComponent),
           },
           {
-            path: 'hasil-plotting/:id',
+            path: 'hasil-plotting/:courseId/:prodiId/:tahunAjaranId',
             loadComponent: () =>
               import(
                 './features/shared-pages/hasil-plotting/hasil-plotting.component'
@@ -253,6 +260,20 @@ export const routes: Routes = [
               import('./pages/dashboard/dashboard.component').then(
                 (c) => c.DashboardComponent
               ),
+          },
+          {
+            path: 'rekap-hasil-plotting',
+            loadComponent: () =>
+              import(
+                './features/shared-pages/rekap-plotting/rekap-plotting.component'
+              ).then((m) => m.RekapPlottingComponent),
+          },
+          {
+            path: 'hasil-plotting/:courseId/:prodiId/:tahunAjaranId',
+            loadComponent: () =>
+              import(
+                './features/shared-pages/hasil-plotting/hasil-plotting.component'
+              ).then((m) => m.HasilPlottingComponent),
           },
         ]
       },

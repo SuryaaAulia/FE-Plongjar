@@ -11,9 +11,6 @@
   >
     <div class="form-grid">
       <div class="form-group">
-        <label for="dariTahun" class="required">
-          <span style="color: var(--red)">* </span>Mulai Tahun Ajaran</label
-        >
         <app-form-input
           type="select"
           id="dariTahun"
@@ -21,13 +18,12 @@
           formControlName="dariTahun"
           [control]="getControl('dariTahun')"
           [options]="tahunOptions"
+          label="Mulai Tahun Ajaran"
+          [required]="true"
         ></app-form-input>
       </div>
 
       <div class="form-group">
-        <label for="sampaiTahun" class="required">
-          <span style="color: var(--red)">* </span>Selesai Tahun Ajaran</label
-        >
         <app-form-input
           type="select"
           id="sampaiTahun"
@@ -35,13 +31,12 @@
           formControlName="sampaiTahun"
           [control]="getControl('sampaiTahun')"
           [options]="sampaiTahunOptions"
+          label="Selesai Tahun Ajaran"
+          [required]="true"
         ></app-form-input>
       </div>
 
       <div class="form-group">
-        <label for="semester" class="required">
-          <span style="color: var(--red)">* </span> Semester</label
-        >
         <app-form-input
           type="select"
           id="semester"
@@ -49,6 +44,8 @@
           formControlName="semester"
           [control]="getControl('semester')"
           [options]="semesterOptions"
+          label="Semester"
+          [required]="true"
         ></app-form-input>
       </div>
     </div>

@@ -52,6 +52,7 @@ export class Endpoint {
             matakuliah: {
                 get_all: `${API}/getAllMatakuliah`,
                 by_auth_prodi: `${API}/masterdata/matakuliahs/by-auth-prodi`,
+                by_auth_kk: `${API}/masterdata/matakuliahs/by-auth-kk`,
                 resource: `${API}/masterdata/matakuliahs`,
                 show: `${API}/masterdata/matakuliahs/${context?.id || ':id'}`,
                 update: `${API}/masterdata/matakuliahs/${context?.id || ':id'}`,
@@ -96,6 +97,7 @@ export class Endpoint {
 
             tahun_ajaran: {
                 resource: `${API}/masterdata/tahunajarans`,
+                get_all_kaur_laak: `${API}/masterdata/get-all-tahun-ajaran`,
                 get_active: `${API}/masterdata/tahun-ajaran/aktif`,
                 set_active: `${API}/masterdata/tahun-ajaran/${context?.id || ':id'}/set-active`,
                 show: `${API}/masterdata/tahunajarans/${context?.id || ':id'}`,

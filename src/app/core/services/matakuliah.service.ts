@@ -1,9 +1,10 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
-import { ApiService } from '../../../core/services/api.service';
+import { ApiService } from './api.service';
 import { catchError, map } from 'rxjs/operators';
-import { Course, TahunAjaran, PaginatedUsers } from '../../../core/models/user.model';
+import { Course, TahunAjaran } from '../models/user.model';
 import { HttpParams } from '@angular/common/http';
+import { AuthService } from './auth.service';
 
 export interface Pic {
     id: number;
@@ -32,11 +33,14 @@ export interface CreateMatakuliahPayload {
 @Injectable({
     providedIn: 'root'
 })
+
 export class MatakuliahService {
+
+    private authService = inject(AuthService);
 
     constructor(private apiService: ApiService) { }
 
-    getAllCourses(params: HttpParams): Observable<PaginatedCourses> {
+    getAllCoursesAuthProdi(params: HttpParams): Observable<PaginatedCourses> {
         return this.apiService.getMatakuliahByAuthProdi(params).pipe(
             map(response => {
                 if (response.success && response.data) {
@@ -96,7 +100,7 @@ export class MatakuliahService {
         );
     }
 
-    getDataMappingKelasMatkul(matkulId: number, tahunAjaranId: number): Observable<any>{
+    getDataMappingKelasMatkul(matkulId: number, tahunAjaranId: number): Observable<any> {
         return this.apiService.getDataMappingKelasMatkul(matkulId, tahunAjaranId).pipe(
             map(response => {
                 if (response.success && response.data) {
@@ -122,15 +126,27 @@ export class MatakuliahService {
     }
 
 
-    getCoursesByAuthProdi(): Observable<Course[]> {
-        return this.apiService.getMatakuliahByAuthProdi().pipe(
+    getCourses(params?: HttpParams): Observable<Course[]> {
+        const currentRole = this.authService.getCurrentRole()?.role_name;
+
+        let apiCall: Observable<any>;
+
+        if (currentRole === 'KelompokKeahlian') {
+            apiCall = this.apiService.getMatakuliahByAuthKK(params);
+        } else {
+            apiCall = this.apiService.getMatakuliahByAuthProdi(params);
+        }
+        return apiCall.pipe(
             map(response => {
-                if (response.success && response.data && response.data.data) {
-                    return this.mapApiCoursesToCourses(response.data.data);
+                if (response.success && response.data) {
+                    const coursesData = Array.isArray(response.data) ? response.data : response.data.data;
+
+                    if (Array.isArray(coursesData)) {
+                        return this.mapApiCoursesToCourses(coursesData);
+                    }
                 }
-                throw new Error('Invalid response format');
+                throw new Error('Invalid response format for courses');
             }),
-            catchError(this.handleError('Error loading courses by auth prodi'))
         );
     }
 
@@ -138,6 +154,13 @@ export class MatakuliahService {
         return this.apiService.getAllTahunAjaran().pipe(
             map((response: any) => response.data || []),
             catchError(this.handleError('Error fetching Tahun Ajaran'))
+        );
+    }
+
+    getTahunAjaranKaurLAAK(): Observable<TahunAjaran[]> {
+        return this.apiService.getAllTahunAjaranKaurLAAK().pipe(
+            map((response: any) => response.data || []),
+            catchError(this.handleError('Error fetching Tahun Ajaran Kaur LAAK'))
         );
     }
 
@@ -150,7 +173,19 @@ export class MatakuliahService {
 
     getHasilPlottinganByProdi(tahunAjaranId: number, prodiId: number): Observable<any> {
         return this.apiService.getHasilPlottinganByProdi(tahunAjaranId, prodiId).pipe(
-            catchError(this.handleError('Error fetching hasil plottingan by prodi'))
+            map(response => {
+                if ((response.success || response.status === 'success') && response.data) {
+                    const paginatedData = response.data;
+                    return {
+                        current_page: paginatedData.current_page,
+                        data: this.mapApiCoursesToCourses(paginatedData.data),
+                        total: paginatedData.total,
+                        per_page: paginatedData.per_page,
+                    };
+                }
+                throw new Error('Invalid response format for rekap plotting');
+            }),
+            catchError(this.handleError('Error loading rekap plotting data'))
         );
     }
 
@@ -172,7 +207,7 @@ export class MatakuliahService {
         return apiCourses.map(apiCourse => ({
             id: apiCourse.id,
             name: apiCourse.nama_matakuliah,
-            code: apiCourse.kode_matkul,
+            code: apiCourse.kode_matkul || apiCourse.kode_matakuliah,
             sks: apiCourse.sks,
             pic: apiCourse.pic ? apiCourse.pic.name : 'N/A',
             id_pic: apiCourse.id_pic,

@@ -214,8 +214,8 @@ export class DosenService {
         );
     }
 
-    getBebanSksDosenAktif(dosenId: number): Observable<any> {
-        return this.apiService.getBebanSksDosenAktif(dosenId).pipe(
+    getBebanSksDosenTahunAjaranAktif(dosenId: number): Observable<any> {
+        return this.apiService.getBebanSksDosenTahunAjaranAktif(dosenId).pipe(
             catchError(error => this.handleError(error))
         );
     }

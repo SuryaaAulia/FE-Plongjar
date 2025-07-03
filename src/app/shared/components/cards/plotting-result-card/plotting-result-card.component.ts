@@ -2,7 +2,6 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BaseCardComponent } from '../base-card/base-card.component';
 import { Course } from '../../../../core/models/user.model';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-plotting-result-card',
