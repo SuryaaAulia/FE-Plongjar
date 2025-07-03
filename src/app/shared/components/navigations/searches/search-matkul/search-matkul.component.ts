@@ -1,12 +1,13 @@
-import { Component, OnInit, Output, EventEmitter, ElementRef, HostListener, ViewChild, Input } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ElementRef, HostListener, ViewChild, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Course, Lecturer, TahunAjaran } from '../../../../../core/models/user.model';
 import { ApiService } from '../../../../../core/services/api.service';
 import { AuthService } from '../../../../../core/services/auth.service';
 import { HttpParams } from '@angular/common/http';
-import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, finalize, Subject } from 'rxjs';
 import { LoadingSpinnerComponent, SearchNotFoundComponent, ActionButtonComponent } from '../../../index';
+import { MatakuliahService } from '../../../../../core/services/matakuliah.service';
 
 @Component({
   selector: 'app-search-matkul',
@@ -36,11 +37,11 @@ export class SearchMatkulComponent implements OnInit {
 
   private searchSubject = new Subject<string>();
   @ViewChild('searchInput') searchInput!: ElementRef;
+  private matakuliahService = inject(MatakuliahService);
 
   constructor(
     private elementRef: ElementRef,
     private apiService: ApiService,
-    private authService: AuthService
   ) {
     this.searchSubject.pipe(debounceTime(300), distinctUntilChanged()).subscribe(searchTerm => {
       if (this.selectedCourse && searchTerm === `${this.selectedCourse.code} - ${this.selectedCourse.name}`) return;
@@ -68,45 +69,20 @@ export class SearchMatkulComponent implements OnInit {
     const params = new HttpParams()
       .set('nama_matakuliah', searchTerm)
       .set('per_page', '50');
-    const currentRole = this.authService.getCurrentRole()?.role_name;
-
-    if (currentRole === 'ProgramStudi') {
-      this.apiService.getMatakuliahByAuthProdi(params).subscribe({
-        next: (response) => {
-          if (response.success && response.data) {
-            const coursesData = response.data.data || response.data;
-            this.filteredCourses = this.mapApiCoursesToCourses(coursesData);
-          } else {
-            this.filteredCourses = [];
-          }
-          this.isSearching = false;
+    this.matakuliahService.getCourses(params)
+      .pipe(
+        finalize(() => this.isSearching = false)
+      )
+      .subscribe({
+        next: (courses) => {
+          this.filteredCourses = courses;
         },
         error: (error) => {
           this.errorMessage = 'Error searching courses';
           console.error('Error searching courses:', error);
           this.filteredCourses = [];
-          this.isSearching = false;
         }
       });
-    } else {
-      this.apiService.getAllMatakuliah(params).subscribe({
-        next: (response) => {
-          if (response.success && response.data) {
-            const coursesData = response.data.data || response.data;
-            this.filteredCourses = this.mapApiCoursesToCourses(coursesData);
-          } else {
-            this.filteredCourses = [];
-          }
-          this.isSearching = false;
-        },
-        error: (error) => {
-          this.errorMessage = 'Error searching courses';
-          console.error('Error searching courses:', error);
-          this.filteredCourses = [];
-          this.isSearching = false;
-        }
-      });
-    }
   }
 
   private loadAcademicYears(): void {

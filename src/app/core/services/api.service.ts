@@ -196,6 +196,11 @@ export class ApiService {
         return this.http.get(url!, { params });
     }
 
+    getMatakuliahByAuthKK(params?: HttpParams): Observable<any> {
+        const url = this.endpoint.getUrl('matakuliah', 'by_auth_kk');
+        return this.http.get(url!, { params });
+    }
+
     createMatakuliah(data: any): Observable<any> {
         const url = this.endpoint.getUrl('matakuliah', 'resource');
         return this.http.post(url!, data);

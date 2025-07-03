@@ -82,6 +82,7 @@ export class NavService {
         icon: 'table-list',
         routerLink: '/kaur-lab/rekap-hasil-plotting'
       },
+      { label: 'Switch App', icon: 'dashboard', routerLink: '/switch-app' },
     ],
     laak: [
       { label: 'Home', icon: 'house', routerLink: '/home' },
@@ -90,6 +91,7 @@ export class NavService {
         icon: 'table-list',
         routerLink: '/laak/rekap-hasil-plotting'
       },
+      { label: 'Switch App', icon: 'dashboard', routerLink: '/switch-app' },
     ],
   };
 

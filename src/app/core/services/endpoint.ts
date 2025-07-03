@@ -52,6 +52,7 @@ export class Endpoint {
             matakuliah: {
                 get_all: `${API}/getAllMatakuliah`,
                 by_auth_prodi: `${API}/masterdata/matakuliahs/by-auth-prodi`,
+                by_auth_kk: `${API}/masterdata/matakuliahs/by-auth-kk`,
                 resource: `${API}/masterdata/matakuliahs`,
                 show: `${API}/masterdata/matakuliahs/${context?.id || ':id'}`,
                 update: `${API}/masterdata/matakuliahs/${context?.id || ':id'}`,

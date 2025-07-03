@@ -1,9 +1,10 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { ApiService } from './api.service';
 import { catchError, map } from 'rxjs/operators';
-import { Course, TahunAjaran, PaginatedUsers } from '../models/user.model';
+import { Course, TahunAjaran } from '../models/user.model';
 import { HttpParams } from '@angular/common/http';
+import { AuthService } from './auth.service';
 
 export interface Pic {
     id: number;
@@ -32,7 +33,10 @@ export interface CreateMatakuliahPayload {
 @Injectable({
     providedIn: 'root'
 })
+
 export class MatakuliahService {
+
+    private authService = inject(AuthService);
 
     constructor(private apiService: ApiService) { }
 
@@ -122,15 +126,27 @@ export class MatakuliahService {
     }
 
 
-    getCoursesByAuthProdi(): Observable<Course[]> {
-        return this.apiService.getMatakuliahByAuthProdi().pipe(
+    getCourses(params?: HttpParams): Observable<Course[]> {
+        const currentRole = this.authService.getCurrentRole()?.role_name;
+
+        let apiCall: Observable<any>;
+
+        if (currentRole === 'KelompokKeahlian') {
+            apiCall = this.apiService.getMatakuliahByAuthKK(params);
+        } else {
+            apiCall = this.apiService.getMatakuliahByAuthProdi(params);
+        }
+        return apiCall.pipe(
             map(response => {
-                if (response.success && response.data && response.data.data) {
-                    return this.mapApiCoursesToCourses(response.data.data);
+                if (response.success && response.data) {
+                    const coursesData = Array.isArray(response.data) ? response.data : response.data.data;
+
+                    if (Array.isArray(coursesData)) {
+                        return this.mapApiCoursesToCourses(coursesData);
+                    }
                 }
-                throw new Error('Invalid response format');
+                throw new Error('Invalid response format for courses');
             }),
-            catchError(this.handleError('Error loading courses by auth prodi'))
         );
     }
 

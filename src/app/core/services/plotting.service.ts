@@ -52,20 +52,6 @@ export interface SubmitPlottingRequest {
 export class PlottingService {
 
     constructor(private apiService: ApiService, private authService: AuthService) { }
-    getCoursesByAuthProdi(): Observable<Course[]> {
-        return this.apiService.getMatakuliahByAuthProdi().pipe(
-            map(response => {
-                if (response.success && response.data && response.data.data) {
-                    return this.mapApiCoursesToCourses(response.data.data);
-                }
-                throw new Error('Invalid response format');
-            }),
-            catchError(error => {
-                console.error('Error loading courses:', error);
-                return throwError(() => error);
-            })
-        );
-    }
 
     getAllProgramStudi(): Observable<any[]> {
         return this.apiService.getAllProgramStudi().pipe(
