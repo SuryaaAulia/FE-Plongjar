@@ -116,4 +116,6 @@ export class RekapPlottingComponent implements OnInit {
       this.selectedTahunAjaranId
     ]);
   }
+
+  onDownloadCourseExcel(course: Course): void { }
 }

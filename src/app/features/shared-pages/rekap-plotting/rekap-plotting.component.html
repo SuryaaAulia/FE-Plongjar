@@ -40,6 +40,8 @@
       <app-plotting-result-card
         *ngFor="let course of courses; trackBy: trackByCourseId"
         [course]="course"
+        (showDetails)="onShowCourseDetails($event)"
+        (downloadExcel)="onDownloadCourseExcel($event)"
       >
       </app-plotting-result-card>
     </div>
