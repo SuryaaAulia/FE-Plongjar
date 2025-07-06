@@ -66,10 +66,14 @@ export class MappingMatkulComponent implements OnInit {
       finalize(() => this.isLoading = false)
     ).subscribe({
       next: ({ matakuliah, tahunAjaran }) => {
-        this.mataKuliahOptions = matakuliah.map((mk: Course) => ({
-          value: mk.id,
-          label: `${mk.code} - ${mk.name}`
-        }));
+        console.log("Loaded Matakuliah and Tahun Ajaran data", matakuliah, tahunAjaran);
+        this.mataKuliahOptions = matakuliah
+          .filter((mk: Course) => mk.id !== null && mk.id !== undefined)
+          .map((mk: Course) => ({
+            value: mk.id,
+            label: `${mk.code} - ${mk.name}`
+          }));
+
         this.tahunAjaranOptions = tahunAjaran.map((ta: TahunAjaran) => ({
           value: ta.id,
           label: `${ta.tahun_ajaran} - ${ta.semester}`
