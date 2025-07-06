@@ -1,37 +1,54 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { PlottingResultCardComponent, LoadingSpinnerComponent, SearchNotFoundComponent } from '../../../shared/components/index';
-import { Course } from '../../../core/models/user.model';
-import { MatakuliahService } from '../../../core/services/matakuliah.service';
+import { PlottingResultCardComponent, LoadingSpinnerComponent, SearchNotFoundComponent, PaginationComponent } from '../../../shared/components/index';
 import { forkJoin } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { PlottingService } from '../../../core/services/plotting.service';
+import { MatakuliahService } from '../../../core/services/matakuliah.service';
+import { HttpParams } from '@angular/common/http';
 
 interface SelectOption {
   value: number;
   label: string;
 }
+export interface PlottingSummary {
+  id_program_studi: number;
+  nama_program_studi: string;
+  id_tahun_ajaran: number;
+  tahun_ajaran: string;
+  semester: string;
+}
 
 @Component({
   selector: 'app-rekap-plotting',
   standalone: true,
-  imports: [CommonModule, FormsModule, PlottingResultCardComponent, LoadingSpinnerComponent, SearchNotFoundComponent],
+  imports: [CommonModule, FormsModule, PlottingResultCardComponent, LoadingSpinnerComponent, SearchNotFoundComponent, PaginationComponent],
   templateUrl: './rekap-plotting.component.html',
   styleUrl: './rekap-plotting.component.scss'
 })
 export class RekapPlottingComponent implements OnInit {
-  private matakuliahService = inject(MatakuliahService);
+  private plottingService = inject(PlottingService);
+  private matakuliahService = inject(MatakuliahService)
   private router = inject(Router);
 
   isLoading = true;
-  courses: Course[] = [];
+
+  summaries: PlottingSummary[] = [];
 
   programStudiOptions: SelectOption[] = [];
   tahunAjaranOptions: SelectOption[] = [];
 
-  selectedProgramStudiId: number | null = null;
-  selectedTahunAjaranId: number | null = null;
+  selectedProgramStudiId: number | 'all' = 'all';
+  selectedTahunAjaranId: number | 'all' = 'all';
+
+  currentPage = 1;
+  itemsPerPage = 15;
+  totalItems = 0;
+
+  showDropdown = false;
+  pageSizeOptions: number[] = [9, 15, 30, 50];
 
   ngOnInit(): void {
     this.loadInitialFilterData();
@@ -41,81 +58,115 @@ export class RekapPlottingComponent implements OnInit {
     this.isLoading = true;
     forkJoin({
       programStudi: this.matakuliahService.getProgramStudi(),
-      tahunAjaran: this.matakuliahService.getTahunAjaranKaurLAAK()
+      tahunAjaran: this.matakuliahService.getTahunAjaranKaurLAAK(),
     }).pipe(
       finalize(() => this.isLoading = false)
     ).subscribe({
       next: ({ programStudi, tahunAjaran }) => {
-        this.programStudiOptions = programStudi.map(ps => ({
-          value: ps.id,
-          label: ps.nama
-        }));
-
-        this.tahunAjaranOptions = tahunAjaran.map(ta => ({
-          value: ta.id,
-          label: `${ta.tahun_ajaran} (${ta.semester})`
-        }));
-
-        if (this.programStudiOptions.length > 0) {
-          this.selectedProgramStudiId = this.programStudiOptions[0].value;
-        }
-        if (this.tahunAjaranOptions.length > 0) {
-          this.selectedTahunAjaranId = this.tahunAjaranOptions[0].value;
-        }
-
-        this.loadCourses();
+        this.programStudiOptions = programStudi.map(ps => ({ value: ps.id, label: ps.nama }));
+        this.tahunAjaranOptions = tahunAjaran.map(ta => ({ value: ta.id, label: `${ta.tahun_ajaran} (${ta.semester})` }));
+        this.loadSummaries();
       },
       error: (err) => {
         console.error("Failed to load filter data", err);
-        alert("Gagal memuat data filter. Silakan coba lagi.");
+        alert("Gagal memuat data filter.");
+        this.summaries = [];
       }
     });
   }
 
-  loadCourses(): void {
-    if (!this.selectedProgramStudiId || !this.selectedTahunAjaranId) {
-      this.courses = [];
-      return;
+  loadSummaries(): void {
+    this.isLoading = true;
+    let params = new HttpParams()
+      .set('page', this.currentPage.toString())
+      .set('per_page', this.itemsPerPage.toString());
+
+    if (this.selectedProgramStudiId !== 'all') {
+      params = params.set('id_program_studi', this.selectedProgramStudiId.toString());
+    }
+    if (this.selectedTahunAjaranId !== 'all') {
+      params = params.set('id_tahun_ajaran', this.selectedTahunAjaranId.toString());
     }
 
-    this.isLoading = true;
-
-    this.matakuliahService.getHasilPlottinganByProdi(this.selectedTahunAjaranId, this.selectedProgramStudiId)
+    this.plottingService.getPlottinganSummary(params)
       .pipe(finalize(() => this.isLoading = false))
       .subscribe({
         next: (response) => {
-          this.courses = response.data;
-          console.log("Loaded courses:", this.courses);
+          if (response && response.data) {
+            this.summaries = response.data;
+            this.totalItems = response.total;
+            this.currentPage = response.current_page;
+          } else {
+            this.summaries = [];
+            this.totalItems = 0;
+            this.currentPage = 1;
+          }
         },
         error: (err) => {
-          console.error("Failed to load courses", err);
-          this.courses = [];
+          console.error("Failed to load plotting summaries", err);
+          this.summaries = [];
+          this.totalItems = 0;
+          this.currentPage = 1;
         }
       });
   }
 
   onFilterChange(): void {
-    this.loadCourses();
+    this.currentPage = 1;
+    this.loadSummaries();
   }
 
-  trackByCourseId(index: number, course: Course): string {
-    return course.id;
+  onPageChange(page: number): void {
+    this.currentPage = page;
+    this.loadSummaries();
   }
 
-  onShowCourseDetails(course: Course): void {
-    if (!this.selectedProgramStudiId || !this.selectedTahunAjaranId) {
-      console.error("Cannot show details, filter selections are missing.");
-      alert("Silakan pilih Program Studi dan Tahun Ajaran terlebih dahulu.");
-      return;
-    }
-
+  onShowSummaryDetails(summary: PlottingSummary): void {
     this.router.navigate([
       '/kaur-lab/hasil-plotting',
-      course.code,
-      this.selectedProgramStudiId,
-      this.selectedTahunAjaranId
+      summary.id_program_studi,
+      summary.id_tahun_ajaran
     ]);
   }
 
-  onDownloadCourseExcel(course: Course): void { }
+  onDownloadSummaryExcel(summary: PlottingSummary): void {
+    this.isLoading = true;
+    this.matakuliahService
+      .exportPlottinganByProdi(
+        summary.id_tahun_ajaran,
+        summary.id_program_studi
+      )
+      .pipe(finalize(() => (this.isLoading = false)))
+      .subscribe({
+        next: (blob) => {
+          const prodiName = summary.nama_program_studi.replace(/\s/g, '_');
+          const tahunAjaranName = summary.tahun_ajaran.replace(/[\/\s]/g, '_');
+          const fileName = `hasil_plotting_${prodiName}_${tahunAjaranName}.xlsx`;
+
+          const a = document.createElement('a');
+          const objectUrl = URL.createObjectURL(blob);
+          a.href = objectUrl;
+          a.download = fileName;
+          document.body.appendChild(a);
+          a.click();
+
+          document.body.removeChild(a);
+          URL.revokeObjectURL(objectUrl);
+        },
+        error: (err) => {
+          console.error('Error downloading excel file:', err);
+          alert('Gagal mengunduh file Excel.');
+        },
+      });
+  }
+
+  toggleDropdown(): void {
+    this.showDropdown = !this.showDropdown;
+  }
+
+  changeItemsPerPage(option: number): void {
+    this.itemsPerPage = option;
+    this.showDropdown = false;
+    this.onFilterChange();
+  }
 }

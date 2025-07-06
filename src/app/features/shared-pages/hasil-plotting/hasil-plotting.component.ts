@@ -8,30 +8,14 @@ import {
   ActionButtonComponent,
   PaginationComponent,
 } from '../../../shared/components';
-import { MatakuliahService } from '../../../core/services/matakuliah.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { MatakuliahService, HasilPlottingRow } from '../../../core/services/matakuliah.service';
 import { TahunAjaran } from '../../../core/models/user.model';
 import { finalize } from 'rxjs/operators';
 import { Location } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 
-export interface MataKuliah {
-  no: number;
-  idMatkul: string;
-  matkul: string;
-  pic: string;
-  dosen: string;
-  mandatory: string;
-  tingkatMatkul: string;
-  kredit: number;
-  kelas: string;
-  praktikum: string;
-  koordinator: string;
-  semester: string;
-  hourTarget: number;
-  tahunAjaran: string;
-  mkEksepsi: string;
-  teamTeaching: string;
-}
+
 export interface ProgramStudi {
   id: number;
   nama: string;
@@ -52,8 +36,8 @@ export interface ProgramStudi {
   styleUrls: ['./hasil-plotting.component.scss'],
 })
 export class HasilPlottingComponent implements OnInit {
-  mataKuliahData: MataKuliah[] = [];
-  paginatedData: MataKuliah[] = [];
+  mataKuliahData: HasilPlottingRow[] = [];
+  paginatedData: HasilPlottingRow[] = [];
   currentPage: number = 1;
   pageSize: number = 12;
   pageSizeOptions: number[] = [12, 24, 36, 50];
@@ -63,6 +47,10 @@ export class HasilPlottingComponent implements OnInit {
   programStudiOptions: ProgramStudi[] = [];
   selectedTahunAjaranId: number | null = null;
   selectedProdiId: number | null = null;
+
+  selectedProdiName: string = '';
+  selectedTahunAjaranName: string = '';
+  currentUserRole: string | null = null;
 
   isLoading: boolean = false;
 
@@ -77,6 +65,7 @@ export class HasilPlottingComponent implements OnInit {
   private colMkEksepsiWidth: string = '140px';
 
   private route = inject(ActivatedRoute);
+  private authService = inject(AuthService);
 
   constructor(
     private location: Location,
@@ -84,6 +73,8 @@ export class HasilPlottingComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    this.currentUserRole = this.authService.getCurrentUser()?.currentRole?.role_name!;
+
     this.setupColumnConfigs();
     const prodiIdFromRoute = this.route.snapshot.paramMap.get('prodiId');
     const tahunIdFromRoute = this.route.snapshot.paramMap.get('tahunAjaranId');
@@ -91,13 +82,21 @@ export class HasilPlottingComponent implements OnInit {
     this.selectedProdiId = prodiIdFromRoute ? +prodiIdFromRoute : null;
     this.selectedTahunAjaranId = tahunIdFromRoute ? +tahunIdFromRoute : null;
 
-    this.loadFilterOptions();
+    if (this.isSpecialRole) {
+      this.loadHasilPlottingan();
+    } else {
+      this.loadFilterOptions();
+    }
+  }
+
+  get isSpecialRole(): boolean {
+    return this.currentUserRole === 'KepalaUrusanLab' || this.currentUserRole === 'LayananAkademik';
   }
 
   setupColumnConfigs(): void {
     this.mataKuliahColumnConfigs = [
       { key: 'no', label: 'No', isSticky: true, stickyOrder: 0, width: this.stickyCol0Width, minWidth: this.stickyCol0Width, customClass: 'text-center' },
-      { key: 'idMatkul', label: 'ID Matkul', isSticky: true, stickyOrder: 1, width: this.stickyCol1Width, minWidth: this.stickyCol1Width },
+      { key: 'idMatkul', label: 'Kode Matkul', isSticky: true, stickyOrder: 1, width: this.stickyCol1Width, minWidth: this.stickyCol1Width },
       { key: 'matkul', label: 'Matkul', isSticky: true, stickyOrder: 2, width: this.stickyCol2Width, minWidth: this.stickyCol2Width },
       { key: 'pic', label: 'PIC', isSticky: true, stickyOrder: 3, width: this.stickyCol3Width, minWidth: this.stickyCol3Width },
       { key: 'dosen', label: 'Dosen', isSticky: true, stickyOrder: 4, width: this.stickyCol4Width, minWidth: this.stickyCol4Width, cellCustomClass: 'dosen-col' },
@@ -151,17 +150,12 @@ export class HasilPlottingComponent implements OnInit {
 
     this.isLoading = true;
     this.matakuliahService
-      .getHasilPlottinganByProdi(
-        this.selectedTahunAjaranId,
-        this.selectedProdiId
-      )
+      .getHasilPlottinganByProdi(this.selectedTahunAjaranId, this.selectedProdiId)
       .pipe(finalize(() => (this.isLoading = false)))
       .subscribe({
         next: (response) => {
-          if (response?.success && response.data?.data) {
-            this.mataKuliahData = this.mapApiResponseToMataKuliah(
-              response.data.data
-            );
+          if (Array.isArray(response.data)) {
+            this.mataKuliahData = response.data;
             this.totalItems = this.mataKuliahData.length;
           } else {
             this.mataKuliahData = [];
@@ -176,30 +170,6 @@ export class HasilPlottingComponent implements OnInit {
           this.updatePaginatedData();
         },
       });
-  }
-
-  private mapApiResponseToMataKuliah(apiData: any[]): MataKuliah[] {
-    return apiData.map((item) => {
-      const [tahun, semester] = (item.tahun_ajaran || ' - ').split(' - ');
-      return {
-        no: 0,
-        idMatkul: item.kode_matakuliah || '-',
-        matkul: item.nama_matakuliah || '-',
-        pic: item.pic_matakuliah || '-',
-        dosen: item.kode_dosen_pengajar || '-',
-        mandatory: item.mandatory_status === 'wajib_prodi' ? 'Wajib Prodi' : 'Pilihan',
-        tingkatMatkul: item.tingkat_matakuliah || '-',
-        kredit: item.sks_matakuliah || 0,
-        kelas: item.nama_kelas || '-',
-        praktikum: item.praktikum ? 'Ya' : 'Tidak',
-        koordinator: item.kode_koordinator || '-',
-        semester: semester || '-',
-        hourTarget: item.hour_target || 0,
-        tahunAjaran: tahun || '-',
-        mkEksepsi: item.mk_eksepsi === 'ya' ? 'Ya' : 'Tidak',
-        teamTeaching: item.team_teaching === 'Yes' ? 'Ya' : 'Tidak',
-      };
-    });
   }
 
   onFilterChange(): void {

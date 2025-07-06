@@ -484,4 +484,9 @@ export class ApiService {
 
         return this.http.delete(url!);
     }
+
+    getHasilPlottinganKaurLAAK(params?: HttpParams): Observable<any> {
+        const url = this.endpoint.getUrl('plottingan_pengajaran', 'get_hasil_laak_kaur');
+        return this.http.get(url!, {params});
+    }
 }

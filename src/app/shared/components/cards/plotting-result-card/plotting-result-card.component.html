@@ -1,7 +1,8 @@
 <app-base-card
-  [title]="course.name"
-  [subtitle]="course.code"
+  [title]="summary.nama_program_studi"
+  [subtitle]="summary.tahun_ajaran + ' (' + summary.semester + ')'"
   [clickable]="true"
+  (click)="onCardClick()"
   [footerActionsTemplate]="actionsTemplate"
 >
 </app-base-card>
@@ -10,14 +11,14 @@
   <button
     class="details-btn"
     (click)="onShowDetailsClick($event)"
-    title="Show Details Table"
+    title="Lihat Detail Plotting"
   >
     <i class="fas fa-eye"></i>
   </button>
   <button
     class="download-btn"
     (click)="onDownloadExcelClick($event)"
-    title="Download Excel"
+    title="Unduh Rekap Excel"
   >
     <i class="fas fa-file-excel"></i>
   </button>

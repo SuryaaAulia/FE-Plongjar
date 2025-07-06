@@ -236,7 +236,7 @@ export const routes: Routes = [
               ).then((m) => m.RekapPlottingComponent),
           },
           {
-            path: 'hasil-plotting/:courseId/:prodiId/:tahunAjaranId',
+            path: 'hasil-plotting/:prodiId/:tahunAjaranId',
             loadComponent: () =>
               import(
                 './features/shared-pages/hasil-plotting/hasil-plotting.component'
@@ -269,7 +269,7 @@ export const routes: Routes = [
               ).then((m) => m.RekapPlottingComponent),
           },
           {
-            path: 'hasil-plotting/:courseId/:prodiId/:tahunAjaranId',
+            path: 'hasil-plotting/:prodiId/:tahunAjaranId',
             loadComponent: () =>
               import(
                 './features/shared-pages/hasil-plotting/hasil-plotting.component'

@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BaseCardComponent } from '../base-card/base-card.component';
-import { Course } from '../../../../core/models/user.model';
+import { PlottingSummary } from '../../../../features/shared-pages/rekap-plotting/rekap-plotting.component';
 
 @Component({
   selector: 'app-plotting-result-card',
@@ -12,22 +12,23 @@ import { Course } from '../../../../core/models/user.model';
 })
 export class PlottingResultCardComponent {
 
-  @Input() course!: Course;
-  @Output() cardClick = new EventEmitter<Course>();
-  @Output() showDetails = new EventEmitter<Course>();
-  @Output() downloadExcel = new EventEmitter<Course>();
+  @Input() summary!: PlottingSummary;
+
+  @Output() cardClick = new EventEmitter<PlottingSummary>();
+  @Output() showDetails = new EventEmitter<PlottingSummary>();
+  @Output() downloadExcel = new EventEmitter<PlottingSummary>();
 
   onCardClick(): void {
-    this.cardClick.emit(this.course);
+    this.cardClick.emit(this.summary);
   }
 
   onShowDetailsClick(event: Event): void {
     event.stopPropagation();
-    this.showDetails.emit(this.course);
+    this.showDetails.emit(this.summary);
   }
 
   onDownloadExcelClick(event: Event): void {
     event.stopPropagation();
-    this.downloadExcel.emit(this.course);
+    this.downloadExcel.emit(this.summary);
   }
 }

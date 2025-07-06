@@ -119,6 +119,7 @@ export class Endpoint {
                 get_hasil_by_prodi: `${API}/plottingan-pengajaran/tahun-ajaran/${context?.tahunAjaranId || ':tahunAjaranId'}/program-studi/${context?.prodiId || ':prodiId'}`,
                 export: `${API}/plottingan-pengajaran/export/tahun-ajaran/${context?.tahunAjaranId || ':tahunAjaranId'}`,
                 export_by_prodi: `${API}/plottingan-pengajaran/export/tahun-ajaran/${context?.tahunAjaranId || ':tahunAjaranId'}/program-studi/${context?.prodiId || ':prodiId'}`,
+                get_hasil_laak_kaur: `${API}/plottingan-pengajaran/summary`,
             },
         };
 
