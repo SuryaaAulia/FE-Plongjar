@@ -35,12 +35,15 @@ jobs:
             docker compose build angular-frontend
 
             echo "🚀 Deploying frontend..."
-
             docker compose stop angular-frontend reverse-proxy
 
+            # Start frontend with health check wait
             docker compose up -d angular-frontend
 
-            echo "⏳ Waiting for frontend..."
+            echo "⏳ Waiting for frontend container to start..."
+            sleep 10
+
+            echo "⏳ Waiting for frontend to be ready..."
             for i in {1..30}; do
               if docker compose exec angular-frontend wget -qO- http://localhost/ > /dev/null 2>&1; then
                 echo "Frontend is ready!"
@@ -50,18 +53,37 @@ jobs:
               sleep 2
             done
 
+            # Check if frontend is actually running
+            if ! docker compose ps angular-frontend | grep -q "Up"; then
+              echo "❌ Frontend container failed to start!"
+              docker compose logs --tail=50 angular-frontend
+              exit 1
+            fi
+
+            echo "🔄 Starting reverse proxy..."
             docker compose up -d reverse-proxy
 
             echo "⏳ Waiting for reverse proxy..."
-            sleep 5
+            sleep 10
 
+            # Final health check
             if docker compose ps angular-frontend | grep -q "Up"; then
               echo "✅ Frontend deployment successful!"
               
+              # Test external accessibility
               if curl -f -m 10 http://localhost/ > /dev/null 2>&1; then
                 echo "🌐 Site is accessible!"
+                
+                # Optional: Test specific endpoints
+                if curl -f -m 10 http://localhost/api/v1/health > /dev/null 2>&1; then
+                  echo "🔗 Backend API is accessible!"
+                else
+                  echo "⚠️ Backend API test failed"
+                fi
               else
                 echo "⚠️ Site accessibility test failed, but containers are running"
+                echo "📊 Container status:"
+                docker compose ps
               fi
             else
               echo "❌ Frontend deployment failed!"
@@ -69,6 +91,7 @@ jobs:
               exit 1
             fi
 
+            # Cleanup
             docker image prune -f
 
             echo "✨ Frontend deployment completed!"
