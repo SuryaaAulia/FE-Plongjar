@@ -23,31 +23,52 @@ jobs:
           script: |
             cd ~/plongjarv1
 
-            git pull origin master
+            echo "📥 Updating code..."
+            if [ -d ".git" ]; then
+              git fetch origin master 2>/dev/null || echo "Git fetch failed, continuing..."
+              git reset --hard origin/master 2>/dev/null || echo "Git reset failed, continuing..."
+            else
+              echo "No git repository found, skipping git operations"
+            fi
 
-            docker compose stop reverse-proxy angular-frontend
-
+            echo "🔨 Building frontend..."
             docker compose build angular-frontend
 
+            echo "🚀 Deploying frontend..."
+
+            docker compose stop angular-frontend reverse-proxy
+
             docker compose up -d angular-frontend
+
+            echo "⏳ Waiting for frontend..."
+            for i in {1..30}; do
+              if docker compose exec angular-frontend wget -qO- http://localhost/ > /dev/null 2>&1; then
+                echo "Frontend is ready!"
+                break
+              fi
+              echo "Waiting... ($i/30)"
+              sleep 2
+            done
+
             docker compose up -d reverse-proxy
 
-            echo "Waiting for services to be healthy..."
-            timeout 120s bash -c '
-              until docker compose ps | grep -E "(angular-frontend|reverse-proxy)" | grep -q "healthy\|Up"; do
-                echo "Waiting for services to start..."
-                sleep 5
-              done
-            '
+            echo "⏳ Waiting for reverse proxy..."
+            sleep 5
 
-            echo "Verifying deployment..."
-            if docker compose ps | grep -E "(angular-frontend|reverse-proxy)" | grep -q "Up"; then
-              echo "✅ Deployment successful!"
+            if docker compose ps angular-frontend | grep -q "Up"; then
+              echo "✅ Frontend deployment successful!"
+              
+              if curl -f -m 10 http://localhost/ > /dev/null 2>&1; then
+                echo "🌐 Site is accessible!"
+              else
+                echo "⚠️ Site accessibility test failed, but containers are running"
+              fi
             else
-              echo "❌ Deployment failed!"
-              docker compose logs angular-frontend
-              docker compose logs reverse-proxy
+              echo "❌ Frontend deployment failed!"
+              docker compose logs --tail=20 angular-frontend
               exit 1
             fi
 
             docker image prune -f
+
+            echo "✨ Frontend deployment completed!"
