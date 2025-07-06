@@ -23,6 +23,4 @@ jobs:
           script: |
             cd ~/plongjarv1/FE-Plongjar
             git pull origin master
-            docker compose -f compose.yaml down
-            docker rm -f fe-plongjar || true
-            docker compose -f compose.yaml up --build --remove-orphans --force-recreate -d
+            docker compose -f compose.yaml up --build --force-recreate -d --remove-orphans
