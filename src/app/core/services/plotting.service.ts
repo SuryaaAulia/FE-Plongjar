@@ -4,6 +4,7 @@ import { map, catchError } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { Course, Lecturer } from '../models/user.model';
 import { AuthService } from './auth.service';
+import { HttpParams } from '@angular/common/http';
 
 export interface PlottingData {
     course: Course;
@@ -185,6 +186,17 @@ export class PlottingService {
             catchError(error => {
                 console.error('Error unassigning dosen from plotting:', error);
                 return throwError(() => error);
+            })
+        );
+    }
+
+    getPlottinganSummary(params: HttpParams): Observable<any> {
+        return this.apiService.getHasilPlottinganKaurLAAK(params).pipe(
+            map(response => {
+                if (response.success && response.data) {
+                    return response.data;
+                }
+                throw new Error('Invalid response format for plotting summary');
             })
         );
     }

@@ -30,6 +30,24 @@ export interface CreateMatakuliahPayload {
     tingkat_matakuliah: string;
 }
 
+export interface HasilPlottingRow {
+    no: number;
+    idMatkul: string;
+    matkul: string;
+    pic: string;
+    dosen: string;
+    mandatory: string;
+    tingkatMatkul: string;
+    kredit: number;
+    kelas: string;
+    praktikum: string;
+    koordinator: string;
+    semester: string;
+    hourTarget: number;
+    tahunAjaran: string;
+    mkEksepsi: string;
+    teamTeaching: string;
+}
 @Injectable({
     providedIn: 'root'
 })
@@ -171,21 +189,16 @@ export class MatakuliahService {
         );
     }
 
-    getHasilPlottinganByProdi(tahunAjaranId: number, prodiId: number): Observable<any> {
+    getHasilPlottinganByProdi(tahunAjaranId: number, prodiId: number): Observable<{ data: HasilPlottingRow[] }> {
         return this.apiService.getHasilPlottinganByProdi(tahunAjaranId, prodiId).pipe(
             map(response => {
-                if ((response.success || response.status === 'success') && response.data) {
-                    const paginatedData = response.data;
-                    return {
-                        current_page: paginatedData.current_page,
-                        data: this.mapApiCoursesToCourses(paginatedData.data),
-                        total: paginatedData.total,
-                        per_page: paginatedData.per_page,
-                    };
+                if ((response.success || response.status === 'success') && response.data?.data) {
+                    const mataKuliahMapped = this.mapApiResponseToMataKuliah(response.data.data);
+                    return { data: mataKuliahMapped };
                 }
-                throw new Error('Invalid response format for rekap plotting');
+                throw new Error('Invalid response format');
             }),
-            catchError(this.handleError('Error loading rekap plotting data'))
+            catchError(this.handleError('Error loading hasil plottingan'))
         );
     }
 
@@ -205,19 +218,45 @@ export class MatakuliahService {
 
     private mapApiCoursesToCourses(apiCourses: any[]): Course[] {
         return apiCourses.map(apiCourse => ({
-            id: apiCourse.id,
+            id: apiCourse.id_plottingan.toString(),
             name: apiCourse.nama_matakuliah,
-            code: apiCourse.kode_matkul || apiCourse.kode_matakuliah,
-            sks: apiCourse.sks,
-            pic: apiCourse.pic ? apiCourse.pic.name : 'N/A',
-            id_pic: apiCourse.id_pic,
+            code: apiCourse.kode_matakuliah || apiCourse.kode_matkul || '-',
+            sks: apiCourse.sks_matakuliah ?? 0,
+            pic: apiCourse.pic_matakuliah || 'N/A',
+            id_pic: apiCourse.id_pic ?? null,
             statusMatkul: apiCourse.mandatory_status,
             metodePerkuliahan: this.mapModePerkuliahan(apiCourse.mode_perkuliahan),
-            praktikum: apiCourse.praktikum === 1 ? 'Ya' : 'Tidak',
-            matakuliah_eksepsi: apiCourse.matakuliah_eksepsi,
-            tingkat_matakuliah: apiCourse.tingkat_matakuliah,
+            praktikum: apiCourse.praktikum ? 'Ya' : 'Tidak',
+            matakuliah_eksepsi: apiCourse.mk_eksepsi === 'ya' ? 'Ya' : 'Tidak',
+            tingkat_matakuliah: apiCourse.tingkat_matakuliah || '-',
             mode_perkuliahan_key: apiCourse.mode_perkuliahan,
+            tahun_ajaran: apiCourse.tahun_ajaran || '-',
+            koordinator: apiCourse.kode_koordinator || '-',
         }));
+    }
+
+    private mapApiResponseToMataKuliah(apiData: any[]): HasilPlottingRow[] {
+        return apiData.map((item) => {
+            const [tahun, semester] = (item.tahun_ajaran || ' - ').split(' - ');
+            return {
+                no: 0,
+                idMatkul: item.kode_matakuliah || '-',
+                matkul: item.nama_matakuliah || '-',
+                pic: item.pic_matakuliah || '-',
+                dosen: item.kode_dosen_pengajar || '-',
+                mandatory: item.mandatory_status === 'wajib_prodi' ? 'Wajib Prodi' : 'Pilihan',
+                tingkatMatkul: item.tingkat_matakuliah || '-',
+                kredit: item.sks_matakuliah || 0,
+                kelas: item.nama_kelas || '-',
+                praktikum: item.praktikum ? 'Ya' : 'Tidak',
+                koordinator: item.kode_koordinator || '-',
+                semester: semester || '-',
+                hourTarget: item.hour_target || 0,
+                tahunAjaran: tahun || '-',
+                mkEksepsi: item.mk_eksepsi === 'ya' ? 'Ya' : 'Tidak',
+                teamTeaching: item.team_teaching === 'Yes' ? 'Ya' : 'Tidak',
+            };
+        });
     }
 
     private mapModePerkuliahan(mode: string): string {

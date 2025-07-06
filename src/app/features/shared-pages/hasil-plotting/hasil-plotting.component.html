@@ -1,5 +1,5 @@
 <div class="top-controls-wrapper">
-  <div class="left-controls">
+  <div class="left-controls" *ngIf="!isSpecialRole">
     <div class="filter-dropdown-wrapper">
       <label for="prodi">Program Studi:</label>
       <div class="custom-select-wrapper">
@@ -32,7 +32,7 @@
           [disabled]="isLoading"
         >
           <option *ngFor="let tahun of tahunAjaranOptions" [ngValue]="tahun.id">
-            {{ tahun.tahun_ajaran }}
+            {{ tahun.tahun_ajaran }} ({{ tahun.semester }})
           </option>
         </select>
         <i class="fa fa-chevron-down dropdown-icon"></i>
