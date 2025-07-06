@@ -43,14 +43,14 @@ jobs:
             echo "⏳ Waiting for frontend container to start..."
             sleep 10
 
-            echo "⏳ Waiting for frontend to be ready..."
+            echo "⏳ Waiting for frontend..."
             for i in {1..30}; do
-              if docker compose exec angular-frontend wget -qO- http://localhost/ > /dev/null 2>&1; then
-                echo "Frontend is ready!"
-                break
-              fi
-              echo "Waiting... ($i/30)"
-              sleep 2
+                if docker compose exec angular-frontend wget -qO- http://127.0.0.1/ > /dev/null 2>&1; then
+                    echo "Frontend is ready!"
+                    break
+                fi
+                echo "Waiting... ($i/30)"
+                sleep 2
             done
 
             # Check if frontend is actually running
