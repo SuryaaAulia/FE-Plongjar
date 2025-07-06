@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
-import { map, catchError, tap } from 'rxjs/operators';
+import { catchError, tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { ApiService } from './api.service';
+import { NavService } from './nav.service';
 
 export type UserRole = 'Superadmin' | 'ProgramStudi' | 'KelompokKeahlian' | 'LayananAkademik' | 'KepalaUrusanLab';
 
@@ -103,6 +104,22 @@ export class AuthService {
     }
 
     private handleLoginSuccess(response: LoginResponse): void {
+        if (!response.roles || response.roles.length === 0) {
+            const authUserWithoutRole: AuthUser = {
+                id: response.user.id,
+                name: response.user.name,
+                email: response.user.email,
+                roles: [],
+                token: response.token.plainTextToken
+            };
+
+            localStorage.setItem(this.TOKEN_KEY, response.token.plainTextToken);
+            localStorage.setItem(this.USER_KEY, JSON.stringify(authUserWithoutRole));
+            this.currentUserSubject.next(authUserWithoutRole);
+
+            this.router.navigate(['/no-role']);
+            return;
+        }
         const authUser: AuthUser = {
             id: response.user.id,
             name: response.user.name,
@@ -197,8 +214,12 @@ export class AuthService {
         }
     }
 
-    getNavRole(): keyof typeof import('../services/nav.service').NavService.prototype.menuConfig {
+    getNavRole(): keyof typeof NavService.prototype.menuConfig {
         const currentRole = this.getCurrentRole()?.role_name;
+
+        if (!currentRole) {
+            return 'no_role';
+        }
 
         const roleMapping: Record<UserRole, string> = {
             'Superadmin': 'admin',
@@ -208,7 +229,7 @@ export class AuthService {
             'KepalaUrusanLab': 'kaur_lab'
         };
 
-        return (roleMapping[currentRole!] as any) || 'admin';
+        return (roleMapping[currentRole] as any) || 'no_role';
     }
 
     getAllRoles(): Observable<any> {

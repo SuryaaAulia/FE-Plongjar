@@ -14,14 +14,14 @@ export class AuthGuard implements CanActivate, CanActivateChild {
     canActivate(
         route: ActivatedRouteSnapshot,
         state: RouterStateSnapshot
-    ): Observable<boolean> | Promise<boolean> | boolean {
+    ): Observable<boolean> {
         return this.checkAuth(route, state);
     }
 
     canActivateChild(
         route: ActivatedRouteSnapshot,
         state: RouterStateSnapshot
-    ): Observable<boolean> | Promise<boolean> | boolean {
+    ): Observable<boolean> {
         return this.checkAuth(route, state);
     }
 
@@ -30,15 +30,20 @@ export class AuthGuard implements CanActivate, CanActivateChild {
             take(1),
             map(user => {
                 if (!user || !this.authService.isAuthenticated()) {
-                    this.router.navigate(['/auth/login'], {
-                        queryParams: { returnUrl: state.url }
-                    });
+                    this.router.navigate(['/auth/login'], { queryParams: { returnUrl: state.url } });
                     return false;
                 }
+                if (!this.authService.getCurrentRole()) {
+                    if (state.url === '/no-role') {
+                        return true;
+                    }
+                    this.router.navigate(['/no-role']);
+                    return false;
+                }
+
                 const requiredRoles = route.data?.['roles'] as UserRole[];
                 if (requiredRoles && requiredRoles.length > 0) {
-                    const hasRequiredRole = this.authService.hasAnyRole(requiredRoles);
-                    if (!hasRequiredRole) {
+                    if (!this.authService.hasAnyRole(requiredRoles)) {
                         this.router.navigate(['/unauthorized']);
                         return false;
                     }
@@ -94,10 +99,11 @@ export class LoginGuard implements CanActivate {
                     if (currentRole) {
                         this.router.navigate([this.getRoleBasedRoute(currentRole.role_name)]);
                     } else {
-                        this.router.navigate(['/home']);
+                        this.router.navigate(['/no-role']);
                     }
                     return false;
                 }
+
                 return true;
             })
         );
