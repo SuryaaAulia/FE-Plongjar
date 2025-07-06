@@ -12,7 +12,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.0
@@ -21,6 +21,33 @@ jobs:
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            cd ~/plongjarv1/FE-Plongjar
+            cd ~/plongjarv1
+
             git pull origin master
-            docker compose -f compose.yaml up --build --force-recreate -d --remove-orphans
+
+            docker compose stop reverse-proxy angular-frontend
+
+            docker compose build angular-frontend
+
+            docker compose up -d angular-frontend
+            docker compose up -d reverse-proxy
+
+            echo "Waiting for services to be healthy..."
+            timeout 120s bash -c '
+              until docker compose ps | grep -E "(angular-frontend|reverse-proxy)" | grep -q "healthy\|Up"; do
+                echo "Waiting for services to start..."
+                sleep 5
+              done
+            '
+
+            echo "Verifying deployment..."
+            if docker compose ps | grep -E "(angular-frontend|reverse-proxy)" | grep -q "Up"; then
+              echo "✅ Deployment successful!"
+            else
+              echo "❌ Deployment failed!"
+              docker compose logs angular-frontend
+              docker compose logs reverse-proxy
+              exit 1
+            fi
+
+            docker image prune -f
