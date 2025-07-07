@@ -158,7 +158,15 @@ export class SearchModalComponent implements OnInit, OnDestroy, OnChanges {
       tap({
         next: (response: any) => {
           if (response.success && response.data) {
-            this.searchResults = response.data.data.map((item: any) => ({ /* ... mapping logic ... */ }));
+            this.searchResults = response.data.data.map((item: any) => ({
+              id: item.id, name: item.name, lecturerCode: item.lecturer_code,
+              nip: item.nip || '', nidn: item.nidn || '', email: item.email || '',
+              jabatanFungsionalAkademik: item.jabatanFungsionalAkademik || '',
+              idJabatanStruktural: item.idJabatanStruktural || null,
+              statusPegawai: item.statusPegawai || '',
+              pendidikanTerakhir: item.pendidikanTerakhir || '',
+              idKelompokKeahlian: item.idKelompokKeahlian || 0
+            }));
             this.totalItems = response.data.total;
             this.currentPage = response.data.current_page;
           }
