@@ -97,6 +97,11 @@ export class SearchModalComponent implements OnInit, OnDestroy, OnChanges {
     return Array.from(this.selectedLecturers.values());
   }
 
+  public getInitialSks(lecturerId: number): number {
+    const selection = this.initialSelections.find(s => s.lecturer.id === lecturerId);
+    return selection ? selection.sks : 0;
+  }
+
   private populateInitialSelections(): void {
     this.selectedLecturers.clear();
     this.assignedLecturerIds.clear();

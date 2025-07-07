@@ -1,10 +1,10 @@
-<div class="lecturer-search-overlay">
-  <div class="lecturer-search-modal">
+<div class="lecturer-search-overlay" (click)="requestClose()">
+  <div class="lecturer-search-modal" (click)="$event.stopPropagation()">
     <div class="header">
       <h1 class="title">
         {{ isTeamTeaching ? "Pilih Tim Dosen" : "Cari Dosen" }}
       </h1>
-      <button class="close-button" (click)="requestClose()">
+      <button class="close-button" (click)="requestClose()" title="Tutup">
         <i class="fas fa-times"></i>
       </button>
     </div>
@@ -31,13 +31,14 @@
         (click)="onSearchTermChange()"
         class="search-button-new"
         [disabled]="isLoading"
+        title="Cari"
       >
         <i class="fas fa-search"></i>
       </button>
     </div>
 
     <div
-      *ngIf="isTeamTeaching && hasChanges && selectedLecturers.size > 0"
+      *ngIf="isTeamTeaching && selectedLecturers.size > 0"
       class="selected-lecturers-container"
     >
       <h3 class="selected-title">
@@ -49,9 +50,9 @@
           class="selected-item"
         >
           <span class="lecturer-name">{{ selection.lecturer.name }}</span>
-          <span class="lecturer-code">{{
-            selection.lecturer.lecturerCode
-          }}</span>
+          <span class="lecturer-code"
+            >({{ selection.lecturer.lecturerCode }})</span
+          >
           <span class="sks-display">{{ selection.sks }} SKS</span>
           <button
             class="remove-button"
@@ -64,140 +65,119 @@
       </div>
     </div>
 
-    <div *ngIf="!hasSearched" class="initial-state-modal">
-      <img
-        src="assets/images/search_dosen.svg"
-        alt="Lecturer Search Placeholder"
-      />
-    </div>
-
-    <div *ngIf="hasSearched" class="results-state">
+    <div class="results-state">
       <div *ngIf="isLoading" class="loading-state">
         <app-loading-spinner></app-loading-spinner>
       </div>
 
-      <div *ngIf="error" class="error-state">
-        <p>{{ error }}</p>
+      <div *ngIf="!isLoading && !hasSearched" class="initial-state-modal">
+        <img src="assets/images/search_dosen.svg" alt="Search for a lecturer" />
+        <p>Silakan cari nama atau kode dosen</p>
       </div>
 
-      <div *ngIf="!isLoading && !error">
-        <div *ngIf="searchResults.length > 0; else noResults">
-          <div *ngIf="!isTeamTeaching" class="results-list">
-            <div
-              *ngFor="let lecturer of searchResults"
-              class="result-item"
-              (click)="
-                !isAlreadyAssigned(lecturer.id) && selectAndClose(lecturer)
-              "
-              [class.is-already-assigned]="isAlreadyAssigned(lecturer.id)"
+      <div
+        *ngIf="!isLoading && hasSearched && searchResults.length === 0"
+        class="no-results-state"
+      >
+        <app-search-not-found [keyword]="searchKeyword"></app-search-not-found>
+      </div>
+
+      <div *ngIf="!isLoading && searchResults.length > 0">
+        <div *ngIf="!isTeamTeaching" class="results-list">
+          <div
+            *ngFor="let lecturer of searchResults"
+            class="result-item"
+            (click)="
+              !isAlreadyAssigned(lecturer.id) && selectAndClose(lecturer)
+            "
+            [class.is-already-assigned]="isAlreadyAssigned(lecturer.id)"
+          >
+            <span class="lecturer-name">{{ lecturer.name }}</span>
+            <span class="lecturer-code">{{ lecturer.lecturerCode }}</span>
+
+            <button
+              *ngIf="isAlreadyAssigned(lecturer.id)"
+              class="unassign-button-modal"
+              (click)="$event.stopPropagation(); unassignLecturer(lecturer.id)"
+              title="Unassign Dosen"
             >
-              <span class="lecturer-name">{{ lecturer.name }}</span>
-              <span class="lecturer-code">{{ lecturer.lecturerCode }}</span>
-              <ng-container
-                *ngIf="isAlreadyAssigned(lecturer.id); else assignButton"
-              >
-                <button
-                  class="unassign-button-modal"
-                  (click)="
-                    $event.stopPropagation(); unassignLecturer(lecturer.id)
-                  "
-                  title="Unassign Dosen"
-                >
-                  <i class="fas fa-times"></i>
-                </button>
-              </ng-container>
-              <ng-template #assignButton>
-                <button
-                  class="add-button-modal"
-                  (click)="$event.stopPropagation(); selectAndClose(lecturer)"
-                  title="Assign Dosen"
-                >
-                  <i class="fas fa-plus"></i>
-                </button>
-              </ng-template>
-            </div>
-          </div>
-
-          <div *ngIf="isTeamTeaching" class="results-list-team">
-            <div
-              *ngFor="let lecturer of searchResults"
-              class="result-item-team"
-              [class.is-already-assigned]="isAlreadyAssigned(lecturer.id)"
+              <i class="fas fa-times"></i>
+            </button>
+            <button
+              *ngIf="!isAlreadyAssigned(lecturer.id)"
+              class="add-button-modal"
+              (click)="$event.stopPropagation(); selectAndClose(lecturer)"
+              title="Assign Dosen"
             >
-              <label [for]="'lecturer-' + lecturer.id" class="lecturer-info">
-                <span class="lecturer-name">{{ lecturer.name }}</span>
-                <span class="lecturer-code">{{ lecturer.lecturerCode }}</span>
-                <span
-                  *ngIf="isAlreadyAssigned(lecturer.id)"
-                  class="sks-display"
-                >
-                  {{ getInitialSks(lecturer.id) }} SKS
-                </span>
-              </label>
-
-              <div
-                class="sks-selector-wrapper"
-                *ngIf="
-                  selectedLecturers.has(lecturer.id) &&
-                  !isAlreadyAssigned(lecturer.id)
-                "
-              >
-                <app-form-input
-                  type="select"
-                  [id]="'sks-select-' + lecturer.id"
-                  [options]="sksOptions"
-                  [ngModel]="getSelectedSks(lecturer.id)"
-                  (inputChange)="updateSks(lecturer.id, $event)"
-                ></app-form-input>
-              </div>
-
-              <div class="selection-control">
-                <ng-container
-                  *ngIf="
-                    !isAlreadyAssigned(lecturer.id);
-                    else unassignTeamButton
-                  "
-                >
-                  <input
-                    type="checkbox"
-                    class="lecturer-checkbox"
-                    [id]="'lecturer-' + lecturer.id"
-                    [checked]="selectedLecturers.has(lecturer.id)"
-                    (change)="toggleLecturerSelection(lecturer, $event)"
-                  />
-                </ng-container>
-                <ng-template #unassignTeamButton>
-                  <button
-                    class="unassign-button-modal"
-                    (click)="
-                      $event.stopPropagation(); unassignLecturer(lecturer.id)
-                    "
-                    title="Unassign Dosen"
-                  >
-                    <i class="fas fa-times"></i>
-                  </button>
-                </ng-template>
-              </div>
-            </div>
+              <i class="fas fa-plus"></i>
+            </button>
           </div>
         </div>
 
-        <ng-template #noResults>
-          <app-search-not-found
-            [keyword]="searchKeyword"
-          ></app-search-not-found>
-        </ng-template>
+        <div *ngIf="isTeamTeaching" class="results-list-team">
+          <div
+            *ngFor="let lecturer of searchResults"
+            class="result-item-team"
+            [class.is-already-assigned]="isAlreadyAssigned(lecturer.id)"
+          >
+            <label [for]="'lecturer-' + lecturer.id" class="lecturer-info">
+              <span class="lecturer-name">{{ lecturer.name }}</span>
+              <span class="lecturer-code">{{ lecturer.lecturerCode }}</span>
+              <span *ngIf="isAlreadyAssigned(lecturer.id)" class="sks-display"
+                >{{ getInitialSks(lecturer.id) }} SKS</span
+              >
+            </label>
 
-        <app-pagination
-          *ngIf="searchResults.length > 0"
-          [currentPage]="currentPage"
-          [itemsPerPage]="itemsPerPage"
-          [totalItems]="totalItems"
-          [searchKeyword]="searchKeyword"
-          [maxVisiblePages]="5"
-          (pageChange)="onPageChange($event)"
-        ></app-pagination>
+            <div
+              class="sks-selector-wrapper"
+              *ngIf="
+                selectedLecturers.has(lecturer.id) &&
+                !isAlreadyAssigned(lecturer.id)
+              "
+            >
+              <app-form-input
+                type="select"
+                [id]="'sks-select-' + lecturer.id"
+                [options]="sksOptions"
+                [ngModel]="getSelectedSks(lecturer.id)"
+                (inputChange)="updateSks(lecturer.id, $event)"
+              >
+              </app-form-input>
+            </div>
+
+            <div class="selection-control">
+              <input
+                *ngIf="!isAlreadyAssigned(lecturer.id)"
+                type="checkbox"
+                class="lecturer-checkbox"
+                [id]="'lecturer-' + lecturer.id"
+                [checked]="selectedLecturers.has(lecturer.id)"
+                (change)="toggleLecturerSelection(lecturer, $event)"
+              />
+              <button
+                *ngIf="isAlreadyAssigned(lecturer.id)"
+                class="unassign-button-modal"
+                (click)="
+                  $event.stopPropagation(); unassignLecturer(lecturer.id)
+                "
+                title="Unassign Dosen"
+              >
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
+
+      <app-pagination
+        *ngIf="!isLoading && totalItems > itemsPerPage"
+        [currentPage]="currentPage"
+        [itemsPerPage]="itemsPerPage"
+        [totalItems]="totalItems"
+        [maxVisiblePages]="5"
+        (pageChange)="onPageChange($event)"
+      >
+      </app-pagination>
     </div>
 
     <div
