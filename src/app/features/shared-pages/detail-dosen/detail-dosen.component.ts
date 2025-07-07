@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { LoadingSpinnerComponent, ActionButtonComponent } from '../../../shared/components/index';
 import { DosenService } from '../../../core/services/dosen.service';
 import { finalize } from 'rxjs/operators';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-detail-dosen',
@@ -27,7 +28,8 @@ export class DetailDosenComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private location: Location,
-    private dosenService: DosenService
+    private dosenService: DosenService,
+    private authService: AuthService
   ) { }
 
   ngOnInit(): void {
@@ -121,6 +123,18 @@ export class DetailDosenComponent implements OnInit {
       queryParams: { page: this.currentPage },
       queryParamsHandling: 'merge',
     });
+  }
+
+  viewTeachingHistory(): void {
+    if (this.lecturerId) {
+      if (this.authService.hasRole('ProgramStudi')) {
+        this.router.navigate(['/ketua-prodi/riwayat-mengajar/', this.lecturerId]);
+      } else {
+        this.router.navigate(['/ketua-kk/riwayat-mengajar/', this.lecturerId]);
+      }
+    } else {
+      console.error("Cannot navigate, lecturer ID is missing.");
+    }
   }
 
   get pendidikanList(): string[] {

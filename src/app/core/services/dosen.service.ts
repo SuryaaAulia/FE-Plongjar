@@ -220,10 +220,7 @@ export class DosenService {
         );
     }
 
-    getBebanSksDosenByTahun(
-        dosenId: number,
-        tahunAjaranId: number
-    ): Observable<BebanSksApiResponse> {
+    getBebanSksDosenByTahun(dosenId: number, tahunAjaranId: number): Observable<BebanSksApiResponse> {
         return this.apiService.getBebanSksDosenByTahun(dosenId, tahunAjaranId).pipe(
             map((res: any) => {
                 if (Array.isArray(res?.data?.data)) return res;
@@ -240,6 +237,23 @@ export class DosenService {
                 } as BebanSksApiResponse;
             }),
             catchError((error) => this.handleError(error))
+        );
+    }
+
+    getRiwayatPengajaranDosen(dosenId: number, params?: HttpParams): Observable<RiwayatPengajaranResponse> {
+        return this.apiService.getRiwayatPengajaran(dosenId, params).pipe(
+            map(response => {
+                if (response && response.success) {
+                    return {
+                        id_dosen: response.data.id,
+                        nama_dosen: response.data.nama_dosen,
+                        riwayat: response.data.riwayat_pengajaran || []
+                    };
+                } else {
+                    throw new Error(response?.message || 'Failed to fetch teaching history');
+                }
+            }),
+            catchError(error => this.handleError(error))
         );
     }
 
