@@ -1,11 +1,13 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject } from '@angular/core';
+import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { DynamicTableComponent, ColumnConfig, LoadingSpinnerComponent, ActionButtonComponent, PaginationComponent } from '../../../shared/components/index';
-import { DosenService, BebanSksApiData } from '../../../core/services/dosen.service';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { DynamicTableComponent, ColumnConfig, LoadingSpinnerComponent, ActionButtonComponent, PaginationComponent } from '../../../shared/components/index';
+import { DosenService, BebanSksApiData } from '../../../core/services/dosen.service';
 import { TahunAjaran } from '../../../core/models/user.model';
+import { NotificationService } from '../../../core/services/notification.service';
 
 export interface BebanSksDosen {
   no: number;
@@ -59,23 +61,38 @@ export class BebanSksComponent implements OnInit {
   pageSize: number = 12;
   totalItems: number = 0;
 
+  dosenIdFromRoute: number | null = null;
+  pageTitle: string = 'Laporan Beban SKS Dosen';
+
   columnConfigs: ColumnConfig[] = [];
   tableMinimuWidth: string = '3600px';
 
-  constructor(private dosenService: DosenService) { }
+  private dosenService = inject(DosenService);
+  private route = inject(ActivatedRoute);
+  private location = inject(Location);
+  private notificationService = inject(NotificationService);
 
   ngOnInit(): void {
+    const idParam = this.route.snapshot.paramMap.get('dosenId');
+    if (idParam) {
+      this.dosenIdFromRoute = +idParam;
+      this.pageTitle = 'Rincian Beban SKS Dosen';
+    }
+
     this.setupColumnConfigs();
     this.loadTahunAjaran();
-    this.setupSearchDebounce();
+
+    if (!this.dosenIdFromRoute) {
+      this.setupSearchDebounce();
+    }
   }
 
   setupColumnConfigs(): void {
     this.columnConfigs = [
       { key: 'no', label: 'No', isSticky: true, stickyOrder: 0, width: '60px', minWidth: '60px' },
-      { key: 'kode', label: 'Kode', isSticky: true, stickyOrder: 1, width: '60px', minWidth: '60px' },
-      { key: 'nama', label: 'Nama', isSticky: true, stickyOrder: 2, width: '180px', minWidth: '180px' },
-      { key: 'prodi', label: 'Prodi', isSticky: true, stickyOrder: 3, width: '320px', minWidth: '320px' },
+      { key: 'kode', label: 'Kode', isSticky: true, stickyOrder: 1, width: '80px', minWidth: '80px' },
+      { key: 'nama', label: 'Nama', isSticky: true, stickyOrder: 2, width: '220px', minWidth: '220px' },
+      { key: 'prodi', label: 'Prodi', isSticky: true, stickyOrder: 3, width: '280px', minWidth: '280px' },
       { key: 'jfa', label: 'JFA', width: '140px' },
       { key: 'statusDosen', label: 'Status Dosen', width: '120px' },
       { key: 'maxSks', label: 'Max SKS', width: '80px', customClass: 'text-center' },
@@ -110,6 +127,7 @@ export class BebanSksComponent implements OnInit {
         }
       },
       error: (err) => {
+        this.notificationService.showError("Failed to load academic years.");
         console.error("Failed to load tahun ajaran", err.message);
         this.isLoading = false;
       }
@@ -118,42 +136,66 @@ export class BebanSksComponent implements OnInit {
 
   loadDosenBebanSksData(): void {
     if (!this.selectedTahunAjaranId) return;
-
     this.isLoading = true;
-    const params = {
-      page: this.currentPage,
-      per_page: this.pageSize,
-      search: this.searchQuery,
-    };
 
-    this.dosenService.getLaporanBebanSksDosen(this.selectedTahunAjaranId, params).subscribe({
-      next: (response) => {
-        if (response.success) {
-          const startIndex = (response.data.current_page - 1) * response.data.per_page;
-          this.paginatedData = response.data.data.map((apiItem, index) =>
-            this.transformApiDataToBebanSksDosen(apiItem, startIndex + index + 1)
-          );
-          this.totalItems = response.data.total;
-          this.currentPage = response.data.current_page;
-        } else {
+    if (this.dosenIdFromRoute) {
+      this.dosenService.getBebanSksDosenByTahun(this.dosenIdFromRoute, this.selectedTahunAjaranId).subscribe({
+        next: (response) => {
+          if (response.success && response.data && Array.isArray(response.data.data) && response.data.data.length > 0) {
+            const lecturerData = response.data.data[0];
+            this.paginatedData = [this.transformApiDataToBebanSksDosen(lecturerData, 1)];
+            this.totalItems = 1;
+            this.currentPage = 1;
+            this.pageTitle = `Rincian Beban SKS Dosen: ${lecturerData.nama_dosen}`;
+          } else {
+            this.paginatedData = [];
+            this.totalItems = 0;
+            this.notificationService.showError(response.message || "Data for this lecturer not found.");
+          }
+          this.isLoading = false;
+        },
+        error: (err) => {
+          console.error("Failed to load single lecturer SKS data", err);
+          this.notificationService.showError("Failed to load lecturer's SKS data.");
+          this.isLoading = false;
+        }
+      });
+    } else {
+      const params = {
+        page: this.currentPage,
+        per_page: this.pageSize,
+        search: this.searchQuery,
+      };
+      this.dosenService.getLaporanBebanSksDosen(this.selectedTahunAjaranId, params).subscribe({
+        next: (response) => {
+          if (response.success && response.data && Array.isArray(response.data.data)) {
+            const startIndex = (response.data.current_page - 1) * response.data.per_page;
+            this.paginatedData = response.data.data.map((apiItem, index) =>
+              this.transformApiDataToBebanSksDosen(apiItem, startIndex + index + 1)
+            );
+            this.totalItems = response.data.total;
+            this.currentPage = response.data.current_page;
+          } else {
+            this.paginatedData = [];
+            this.totalItems = 0;
+          }
+          this.isLoading = false;
+        },
+        error: (err) => {
+          console.error("Failed to load beban SKS data", err);
+          this.notificationService.showError("Failed to load SKS data.");
+          this.isLoading = false;
           this.paginatedData = [];
           this.totalItems = 0;
         }
-        this.isLoading = false;
-      },
-      error: (err) => {
-        console.error("Failed to load beban SKS data", err.message);
-        this.isLoading = false;
-        this.paginatedData = [];
-        this.totalItems = 0;
-      }
-    });
+      });
+    }
   }
 
   private transformApiDataToBebanSksDosen(apiItem: BebanSksApiData, index: number): BebanSksDosen {
     const prodiSks = apiItem.total_ajar_per_prodi || {};
-
-    const transformed: BebanSksDosen = {
+    console.log('Prodi SKS:', apiItem.status_pegawai);
+    return {
       no: index,
       kode: apiItem.kode_dosen,
       nama: apiItem.nama_dosen,
@@ -165,11 +207,11 @@ export class BebanSksComponent implements OnInit {
       statusKepegawaian: apiItem.status_pegawai,
       s1IfRegIntNormal: prodiSks['S1 IF (REG+INT SKS Normal)'] || 0,
       s1IfDoubleSksInt: prodiSks['S1 IF (double SKS INT)'] || 0,
-      s1Rpl: prodiSks['S1 RPL'] || 0,
-      s1It: prodiSks['S1 IT'] || 0,
-      s2If: prodiSks['S2 IF'] || 0,
+      s1Rpl: prodiSks['S1 Rekayasa Perangkat Lunak'] || 0,
+      s1It: prodiSks['S1 Information Technology'] || 0,
+      s2If: prodiSks['S2 Informatika'] || 0,
       s1IfPjj: prodiSks['S1 IF PJJ'] || 0,
-      s1Ds: prodiSks['S1 DS'] || 0,
+      s1Ds: prodiSks['S1 Data Sains'] || 0,
       s2Fs: prodiSks['S2 FS'] || 0,
       s1IfTukj: prodiSks['S1 IF TUKJ'] || 0,
       s3If: prodiSks['S3 IF'] || 0,
@@ -177,13 +219,11 @@ export class BebanSksComponent implements OnInit {
       totalSksIntDouble: 0,
       sksBerjabatanPlusNormal: 0,
     };
-
-    return transformed;
   }
 
   setupSearchDebounce(): void {
     this.searchSubject.pipe(
-      debounceTime(300),
+      debounceTime(400),
       distinctUntilChanged()
     ).subscribe(() => {
       this.currentPage = 1;
@@ -211,6 +251,6 @@ export class BebanSksComponent implements OnInit {
   }
 
   onBack(): void {
-    console.log('Beban SKS Back button clicked');
+    this.location.back();
   }
 }

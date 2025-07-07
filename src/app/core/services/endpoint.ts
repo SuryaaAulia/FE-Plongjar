@@ -46,7 +46,7 @@ export class Endpoint {
                 laporan_beban_sks: `${API}/plottingan-pengajaran/dosen/laporan-beban-sks/tahun-ajaran/${context?.tahunAjaranId || ':tahunAjaranId'}`,
                 riwayat_pengajaran: `${API}/plottingan-pengajaran/dosen/${context?.dosenId || ':dosenId'}/riwayat-pengajaran`,
                 beban_sks_aktif: `${API}/plottingan-pengajaran/dosen/${context?.dosenId || ':dosenId'}/beban-sks-aktif`,
-                beban_sks_by_tahun: `${API}/plottingan-pengajaran/dosen/${context?.dosenId || ':dosenId'}/tahun-ajaran/${context?.tahunAjaranId || ':tahunAjaranId'}`,
+                beban_sks_by_dosen: `${API}/plottingan-pengajaran/dosen/${context?.dosenId || ':dosenId'}/tahun-ajaran/${context?.tahunAjaranId || ':tahunAjaranId'}`,
             },
 
             matakuliah: {

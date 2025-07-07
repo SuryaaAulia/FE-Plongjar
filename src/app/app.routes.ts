@@ -135,6 +135,10 @@ export const routes: Routes = [
                 './features/shared-pages/beban-sks/beban-sks.component'
               ).then((m) => m.BebanSksComponent),
           },
+          {
+            path: 'beban-sks/:dosenId',
+            loadComponent: () => import('./features/shared-pages/beban-sks/beban-sks.component').then(m => m.BebanSksComponent)
+          },
         ]
       },
       {
@@ -188,6 +192,10 @@ export const routes: Routes = [
               import(
                 './features/shared-pages/beban-sks/beban-sks.component'
               ).then((m) => m.BebanSksComponent),
+          },
+          {
+            path: 'beban-sks/:dosenId',
+            loadComponent: () => import('./features/shared-pages/beban-sks/beban-sks.component').then(m => m.BebanSksComponent)
           },
           {
             path: 'tambah-matkul',
@@ -305,4 +313,16 @@ export const routes: Routes = [
       }
     ],
   },
+  {
+    path: 'unauthorized',
+    loadComponent: () => import('./pages/forbidden/forbidden.component').then(m => m.ForbiddenComponent)
+  },
+  {
+    path: 'server-error',
+    loadComponent: () => import('./pages/server-error/server-error.component').then(m => m.ServerErrorComponent)
+  },
+  {
+    path: '**',
+    loadComponent: () => import('./pages/not-found/not-found.component').then(m => m.NotFoundComponent)
+  }
 ];

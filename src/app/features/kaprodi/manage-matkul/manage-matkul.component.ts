@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -12,6 +12,7 @@ import {
   SearchHeaderComponent
 } from '../../../shared/components/index';
 import { MatakuliahService } from '../../../core/services/matakuliah.service';
+import { NotificationService } from '../../../core/services/notification.service';
 import { HttpParams } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
 
@@ -50,10 +51,9 @@ export class ManageMatkulComponent implements OnInit {
   deleteModalMessage = '';
   deletePasswordPrompt = 'Masukan password akun anda untuk melanjutkan tindakan penghapusan mata kuliah';
 
-  constructor(
-    private router: Router,
-    private matakuliahService: MatakuliahService
-  ) { }
+  private router = inject(Router);
+  private matakuliahService = inject(MatakuliahService);
+  private notificationService = inject(NotificationService);
 
   ngOnInit(): void {
     this.loadCourses();
@@ -76,13 +76,14 @@ export class ManageMatkulComponent implements OnInit {
       finalize(() => { this.isLoading = false; })
     ).subscribe({
       next: (response) => {
+        console.log('Courses loaded:', response);
         this.courses = response.data;
         this.totalItems = response.total;
         this.currentPage = response.current_page;
       },
       error: (err) => {
         console.error('Failed to load courses:', err);
-        alert('Gagal memuat daftar mata kuliah. Silakan coba lagi.');
+        this.notificationService.showError('Gagal memuat daftar mata kuliah. Silakan coba lagi.');
         this.courses = [];
         this.totalItems = 0;
       }
@@ -144,20 +145,21 @@ export class ManageMatkulComponent implements OnInit {
     const courseId = Number(this.courseToDelete.id);
     if (isNaN(courseId)) {
       console.error("Invalid course ID for deletion:", this.courseToDelete.id);
+      this.notificationService.showError('ID Mata Kuliah tidak valid.');
       this.closeDeleteModal();
       return;
     }
 
     this.matakuliahService.deleteMatakuliah(courseId, password).subscribe({
       next: (response) => {
-        alert(response.message || 'Mata kuliah berhasil dihapus.');
+        this.notificationService.showSuccess(response.message || 'Mata kuliah berhasil dihapus.');
         this.closeDeleteModal();
         this.loadCourses();
       },
       error: (err) => {
         console.error('Failed to delete course:', err);
         const errorMessage = err.error?.message || 'Gagal menghapus mata kuliah. Password mungkin salah atau terjadi error lain.';
-        alert(errorMessage);
+        this.notificationService.showError(errorMessage);
         this.deleteModalMode = 'password';
       }
     });

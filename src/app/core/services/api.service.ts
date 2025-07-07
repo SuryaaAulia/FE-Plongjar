@@ -168,9 +168,9 @@ export class ApiService {
         return this.http.get(url!, { params });
     }
 
-    getRiwayatPengajaran(dosenId: number): Observable<any> {
+    getRiwayatPengajaran(dosenId: number, params?: HttpParams): Observable<any> {
         const url = this.endpoint.getUrl('dosen', 'riwayat_pengajaran', { dosenId });
-        return this.http.get(url!);
+        return this.http.get(url!, { params });
     }
 
     getBebanSksDosenTahunAjaranAktif(dosenId: number): Observable<any> {
@@ -179,7 +179,7 @@ export class ApiService {
     }
 
     getBebanSksDosenByTahun(dosenId: number, tahunAjaranId: number): Observable<any> {
-        const url = this.endpoint.getUrl('dosen', 'beban_sks_by_tahun', { dosenId, tahunAjaranId });
+        const url = this.endpoint.getUrl('dosen', 'beban_sks_by_dosen', { dosenId, tahunAjaranId });
         return this.http.get(url!);
     }
 
@@ -487,6 +487,6 @@ export class ApiService {
 
     getHasilPlottinganKaurLAAK(params?: HttpParams): Observable<any> {
         const url = this.endpoint.getUrl('plottingan_pengajaran', 'get_hasil_laak_kaur');
-        return this.http.get(url!, {params});
+        return this.http.get(url!, { params });
     }
 }

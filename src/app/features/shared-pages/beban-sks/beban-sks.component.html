@@ -1,4 +1,8 @@
 <div class="controls-and-table-wrapper beban-sks-page">
+  <div class="page-header">
+    <h2>{{ pageTitle }}</h2>
+  </div>
+
   <div class="top-controls-wrapper">
     <div class="left-controls">
       <div class="filter-dropdown-wrapper">
@@ -19,11 +23,11 @@
       </div>
     </div>
 
-    <div class="right-controls">
+    <div class="right-controls" *ngIf="!dosenIdFromRoute">
       <div class="search-bar-wrapper">
         <input
           type="text"
-          placeholder="Nama Dosen"
+          placeholder="Cari Nama Dosen..."
           class="search-bar-input"
           aria-label="Search by name"
           [(ngModel)]="searchQuery"
@@ -62,16 +66,21 @@
   ></app-dynamic-table>
 
   <div class="bottom-controls-wrapper">
-    <app-pagination
-      [currentPage]="currentPage"
-      [itemsPerPage]="pageSize"
-      [totalItems]="totalItems"
-      [searchKeyword]="searchQuery"
-      (pageChange)="onPageChange($event)"
-    ></app-pagination>
+    <ng-container *ngIf="!dosenIdFromRoute">
+      <app-pagination
+        *ngIf="totalItems > 0"
+        [currentPage]="currentPage"
+        [itemsPerPage]="pageSize"
+        [totalItems]="totalItems"
+        [searchKeyword]="searchQuery"
+        (pageChange)="onPageChange($event)"
+      ></app-pagination>
+    </ng-container>
+
+    <div class="spacer" *ngIf="dosenIdFromRoute"></div>
 
     <app-action-button
-      text="Back"
+      text="Kembali"
       backgroundColorVar="var(--red)"
       [fontSizePx]="16"
       [paddingScaleFactor]="0.6"

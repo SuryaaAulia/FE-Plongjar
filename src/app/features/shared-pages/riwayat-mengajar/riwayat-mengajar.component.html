@@ -1,45 +1,63 @@
-<div class="lecturer-table-container container my-4">
-  <div class="mb-3">
+<div class="page-container">
+  <div class="history-card">
     <app-search-header
       [title]="
-        'Riwayat Mengajar | ' + (isLoading ? 'Loading...' : lecturerName)
+        'Riwayat Mengajar | ' +
+        (isLoading && !lecturerName ? 'Loading...' : lecturerName)
       "
       [itemsPerPage]="itemsPerPage"
+      [pageSizeOptions]="[5, 9, 15, 25]"
       [searchType]="'teaching'"
+      placeholder1="Mata Kuliah / Kelas"
+      placeholder2="Periode (e.g., 2023/2024)"
       (search)="onSearch($event)"
       (itemsPerPageChange)="onItemsPerPageChange($event)"
-    >
-    </app-search-header>
+    ></app-search-header>
 
-    @if (isLoading) {
-    <div class="text-center text-secondary py-4">
-      <i class="fas fa-spinner fa-spin me-2"></i>Loading teaching history...
+    <div class="divider"></div>
+
+    <div class="content-wrapper">
+      <div *ngIf="isLoading" class="state-container">
+        <app-loading-spinner></app-loading-spinner>
+      </div>
+
+      <div *ngIf="!isLoading">
+        <div *ngIf="error" class="state-container">
+          <app-search-not-found></app-search-not-found>
+        </div>
+
+        <div *ngIf="!error">
+          <app-table
+            [columns]="tableColumns"
+            [data]="paginatedRecords"
+            [showIndex]="true"
+            [currentPage]="currentPage"
+            [itemsPerPage]="itemsPerPage"
+            [noDataMessage]="
+              'Tidak ada data riwayat mengajar untuk ' + lecturerName
+            "
+          >
+          </app-table>
+
+          <div class="bottom-controls">
+            <app-pagination
+              *ngIf="totalItems > itemsPerPage"
+              [currentPage]="currentPage"
+              [itemsPerPage]="itemsPerPage"
+              [totalItems]="totalItems"
+              (pageChange)="onPageChange($event)"
+            >
+            </app-pagination>
+            <div class="spacer"></div>
+
+            <app-action-button
+              text="Kembali"
+              backgroundColorVar="var(--red)"
+              (buttonClick)="goBack()"
+            ></app-action-button>
+          </div>
+        </div>
+      </div>
     </div>
-    } @if (error && !isLoading) {
-    <div class="alert alert-warning mt-3">{{ error }}</div>
-    } @if (!isLoading) {
-    <app-table
-      [columns]="tableColumns"
-      [data]="paginatedRecords"
-      [isLoading]="isLoading"
-      [showIndex]="true"
-      [currentPage]="currentPage"
-      [itemsPerPage]="itemsPerPage"
-      [noDataMessage]="
-        'Tidak ada data riwayat mengajar ditemukan untuk ' + lecturerName
-      "
-    >
-    </app-table>
-
-    @if (filteredRecords.length > 0) {
-    <app-pagination
-      [currentPage]="currentPage"
-      [itemsPerPage]="itemsPerPage"
-      [totalItems]="filteredRecords.length"
-      (pageChange)="onPageChange($event)"
-    >
-    </app-pagination>
-    } }
-    <button class="back-btn" (click)="goBack()">Back</button>
   </div>
 </div>

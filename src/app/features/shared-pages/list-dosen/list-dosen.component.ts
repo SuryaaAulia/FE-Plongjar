@@ -64,7 +64,7 @@ export class ListDosenComponent implements OnInit, OnDestroy {
     {
       icon: 'fa-money-check',
       title: 'Beban SKS',
-      onClick: (lecturer: Lecturer) => this.viewLecturerSKS(lecturer.lecturerCode),
+      onClick: (lecturer: Lecturer) => this.viewLecturerSKS(lecturer.id),
     },
     {
       icon: 'fa-file-alt',
@@ -195,11 +195,20 @@ export class ListDosenComponent implements OnInit, OnDestroy {
     this.viewLecturerDetails(lecturer.id);
   }
 
-  viewLecturerSKS(lecturerCode: string): void {
-    if (this.authService.hasRole('ProgramStudi')) {
-      this.router.navigate(['/ketua-prodi/riwayat-mengajar/', lecturerCode]);
+  viewLecturerSKS(lecturerId: number): void {
+    const userRole = this.authService.getCurrentRole()?.role_name;
+    let basePath = '';
+
+    if (userRole === 'ProgramStudi') {
+      basePath = '/ketua-prodi';
+    } else if (userRole === 'KelompokKeahlian') {
+      basePath = '/ketua-kk';
+    }
+
+    if (basePath) {
+      this.router.navigate([basePath, 'beban-sks', lecturerId]);
     } else {
-      this.router.navigate(['/ketua-kk/riwayat-mengajar/', lecturerCode]);
+      console.error("Cannot determine user's base path for navigation.");
     }
   }
 

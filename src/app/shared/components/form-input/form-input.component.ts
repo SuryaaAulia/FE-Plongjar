@@ -75,8 +75,14 @@ export class FormInputComponent implements ControlValueAccessor, OnInit {
   }
 
   writeValue(value: string | number): void {
-    this.value = value || '';
+    this.value = value !== null && value !== undefined ? value : '';
+    if (this.type === 'select') {
+      setTimeout(() => {
+        this.value = value !== null && value !== undefined ? value : '';
+      });
+    }
   }
+
 
   registerOnChange(fn: (value: string | number) => void): void {
     this.onChange = fn;
