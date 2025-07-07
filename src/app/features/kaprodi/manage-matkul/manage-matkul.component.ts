@@ -76,7 +76,6 @@ export class ManageMatkulComponent implements OnInit {
       finalize(() => { this.isLoading = false; })
     ).subscribe({
       next: (response) => {
-        console.log('Courses loaded:', response);
         this.courses = response.data;
         this.totalItems = response.total;
         this.currentPage = response.current_page;
