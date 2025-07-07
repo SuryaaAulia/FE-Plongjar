@@ -1,13 +1,15 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { PlottingResultCardComponent, LoadingSpinnerComponent, SearchNotFoundComponent, PaginationComponent } from '../../../shared/components/index';
+import { Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { finalize } from 'rxjs/operators';
-import { Router } from '@angular/router';
+import { HttpParams } from '@angular/common/http';
+
+import { PlottingResultCardComponent, LoadingSpinnerComponent, SearchNotFoundComponent, PaginationComponent } from '../../../shared/components/index';
 import { PlottingService } from '../../../core/services/plotting.service';
 import { MatakuliahService } from '../../../core/services/matakuliah.service';
-import { HttpParams } from '@angular/common/http';
+import { NotificationService } from '../../../core/services/notification.service';
 
 interface SelectOption {
   value: number;
@@ -30,13 +32,12 @@ export interface PlottingSummary {
 })
 export class RekapPlottingComponent implements OnInit {
   private plottingService = inject(PlottingService);
-  private matakuliahService = inject(MatakuliahService)
+  private matakuliahService = inject(MatakuliahService);
   private router = inject(Router);
+  private notificationService = inject(NotificationService);
 
   isLoading = true;
-
   summaries: PlottingSummary[] = [];
-
   programStudiOptions: SelectOption[] = [];
   tahunAjaranOptions: SelectOption[] = [];
 
@@ -63,13 +64,13 @@ export class RekapPlottingComponent implements OnInit {
       finalize(() => this.isLoading = false)
     ).subscribe({
       next: ({ programStudi, tahunAjaran }) => {
-        this.programStudiOptions = programStudi.map(ps => ({ value: ps.id, label: ps.nama }));
-        this.tahunAjaranOptions = tahunAjaran.map(ta => ({ value: ta.id, label: `${ta.tahun_ajaran} (${ta.semester})` }));
+        this.programStudiOptions = programStudi.map((ps: any) => ({ value: ps.id, label: ps.nama }));
+        this.tahunAjaranOptions = tahunAjaran.map((ta: any) => ({ value: ta.id, label: `${ta.tahun_ajaran} (${ta.semester})` }));
         this.loadSummaries();
       },
       error: (err) => {
         console.error("Failed to load filter data", err);
-        alert("Gagal memuat data filter.");
+        this.notificationService.showError("Gagal memuat data filter. Silakan coba lagi.");
         this.summaries = [];
       }
     });
@@ -149,13 +150,12 @@ export class RekapPlottingComponent implements OnInit {
           a.download = fileName;
           document.body.appendChild(a);
           a.click();
-
           document.body.removeChild(a);
           URL.revokeObjectURL(objectUrl);
         },
         error: (err) => {
           console.error('Error downloading excel file:', err);
-          alert('Gagal mengunduh file Excel.');
+          this.notificationService.showError('Gagal mengunduh file Excel.');
         },
       });
   }

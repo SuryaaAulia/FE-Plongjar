@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -8,6 +8,7 @@ import { JabatanService, JabatanCreateRequest } from '../../../core/services/adm
 import { ActionButtonComponent } from '../../../shared/components/buttons/action-button/action-button.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { FormInputComponent } from '../../../shared/components/form-input/form-input.component';
+import { NotificationService } from '../../../core/services/notification.service';
 
 @Component({
   selector: 'app-tambah-jabatan',
@@ -30,11 +31,12 @@ export class TambahJabatanComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
-  constructor(
-    private fb: FormBuilder,
-    private jabatanService: JabatanService,
-    private router: Router
-  ) {
+  private fb = inject(FormBuilder);
+  private jabatanService = inject(JabatanService);
+  private router = inject(Router);
+  private notificationService = inject(NotificationService);
+
+  constructor() {
     this.jabatanForm = this.createJabatanForm();
   }
 
@@ -115,48 +117,38 @@ export class TambahJabatanComponent implements OnInit, OnDestroy {
 
   private markFormGroupTouched(): void {
     Object.keys(this.jabatanForm.controls).forEach(key => {
-      const control = this.jabatanForm.get(key);
-      if (control) {
-        control.markAsTouched();
-      }
+      this.jabatanForm.get(key)?.markAsTouched();
     });
   }
 
   private handleSubmitSuccess(response: any): void {
-
     if (response.success) {
-      alert(`Berhasil! ${response.message}`);
-
+      this.notificationService.showSuccess(response.message || 'Jabatan berhasil ditambahkan!');
       this.jabatanForm.reset();
       this.clearValidationErrors();
-
     } else {
-      alert('Terjadi kesalahan saat menyimpan data.');
+      this.notificationService.showError('Terjadi kesalahan saat menyimpan data.');
     }
   }
 
   private handleSubmitError(error: any): void {
-
     if (error.status === 422 && error.error && error.error.errors) {
       this.setValidationErrors(error.error.errors);
-
-      if (error.error.errors.nama && error.error.errors.nama.some((msg: string) =>
+      const errorMessage = error.error.errors.nama?.find((msg: string) =>
         msg.toLowerCase().includes('already been taken') ||
         msg.toLowerCase().includes('sudah digunakan') ||
         msg.toLowerCase().includes('sudah ada')
-      )) {
-        alert('Jabatan struktural dengan nama tersebut sudah ada. Silakan gunakan nama yang berbeda.');
+      );
+
+      if (errorMessage) {
+        this.notificationService.showError('Jabatan struktural dengan nama tersebut sudah ada.');
       } else {
-        alert('Terdapat kesalahan pada form. Silakan periksa kembali.');
+        this.notificationService.showWarning('Terdapat kesalahan pada form. Silakan periksa kembali.');
       }
     } else if (error.error && error.error.message) {
-      if (error.error.message.toLowerCase().includes('already been taken')) {
-        alert('Jabatan struktural dengan nama tersebut sudah ada. Silakan gunakan nama yang berbeda.');
-      } else {
-        alert(error.error.message);
-      }
+      this.notificationService.showError(error.error.message);
     } else {
-      alert('Gagal menambahkan jabatan struktural. Silakan coba lagi.');
+      this.notificationService.showError('Gagal menambahkan jabatan struktural. Silakan coba lagi.');
     }
   }
 

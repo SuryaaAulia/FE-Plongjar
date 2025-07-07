@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Subject } from 'rxjs';
@@ -6,6 +6,7 @@ import { takeUntil } from 'rxjs/operators';
 import { ActionButtonComponent, FormInputComponent, SelectOption, LoadingSpinnerComponent } from '../../../shared/components/index';
 import { TahunAjaranService } from '../../../core/services/admin/tahun-ajaran.service';
 import { TahunAjaran } from '../../../core/models/user.model';
+import { NotificationService } from '../../../core/services/notification.service';
 
 @Component({
   selector: 'app-tahun-ajaran',
@@ -24,7 +25,6 @@ export class ManageTahunAjaranComponent implements OnInit, OnDestroy {
   tahunAjaranForm!: FormGroup;
   daftarTahunAjaran: TahunAjaran[] = [];
   activeTahunAjaran: TahunAjaran | null = null;
-
   tahunOptions: SelectOption[] = [];
   sampaiTahunOptions: SelectOption[] = [];
   semesterOptions: SelectOption[] = [];
@@ -32,10 +32,9 @@ export class ManageTahunAjaranComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
-  constructor(
-    private fb: FormBuilder,
-    private tahunAjaranService: TahunAjaranService
-  ) { }
+  private fb = inject(FormBuilder);
+  private tahunAjaranService = inject(TahunAjaranService);
+  private notificationService = inject(NotificationService);
 
   ngOnInit(): void {
     this.generateTahunOptions();
@@ -59,24 +58,30 @@ export class ManageTahunAjaranComponent implements OnInit, OnDestroy {
   private initForm(): void {
     this.tahunAjaranForm = this.fb.group({
       dariTahun: ['', Validators.required],
-      sampaiTahun: ['', Validators.required],
+      sampaiTahun: [{ value: '', disabled: true }, Validators.required],
       semester: ['', Validators.required],
     }, { validators: this.tahunValidator });
 
     this.getControl('dariTahun').valueChanges.pipe(takeUntil(this.destroy$)).subscribe(val => {
       const dariTahunNum = parseInt(val, 10);
-      this.sampaiTahunOptions = this.tahunOptions.filter(option => Number(option.value) > dariTahunNum);
+      const sampaiTahunControl = this.getControl('sampaiTahun');
 
-      const currentSampaiTahun = this.getControl('sampaiTahun').value;
-      if (currentSampaiTahun && parseInt(currentSampaiTahun, 10) <= dariTahunNum) {
-        this.getControl('sampaiTahun').setValue('');
+      if (val) {
+        sampaiTahunControl.enable();
+        this.sampaiTahunOptions = this.tahunOptions.filter(option => Number(option.value) > dariTahunNum);
+
+        if (sampaiTahunControl.value && parseInt(sampaiTahunControl.value, 10) <= dariTahunNum) {
+          sampaiTahunControl.setValue('');
+        }
+      } else {
+        sampaiTahunControl.disable();
+        sampaiTahunControl.setValue('');
       }
     });
   }
 
   private loadTahunAjaranData(): void {
     this.isLoading = true;
-
     this.tahunAjaranService.getAllTahunAjaran()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -85,9 +90,7 @@ export class ManageTahunAjaranComponent implements OnInit, OnDestroy {
             this.daftarTahunAjaran = res.data.sort((a: TahunAjaran, b: TahunAjaran) => {
               if (a.tahun_ajaran > b.tahun_ajaran) return -1;
               if (a.tahun_ajaran < b.tahun_ajaran) return 1;
-              if (a.semester > b.semester) return -1;
-              if (a.semester < b.semester) return 1;
-              return 0;
+              return a.semester > b.semester ? -1 : 1;
             });
             this.updateStatusInList();
           }
@@ -95,11 +98,10 @@ export class ManageTahunAjaranComponent implements OnInit, OnDestroy {
         },
         error: (err) => {
           console.error('Failed to load tahun ajaran list', err);
-          alert('Error: Gagal memuat daftar tahun ajaran.');
+          this.notificationService.showError('Gagal memuat daftar tahun ajaran.');
           this.isLoading = false;
         }
       });
-
     this.tahunAjaranService.loadInitialActiveTahunAjaran();
   }
 
@@ -117,7 +119,6 @@ export class ManageTahunAjaranComponent implements OnInit, OnDestroy {
       const year = currentYear + i;
       this.tahunOptions.push({ value: year.toString(), label: year.toString() });
     }
-    this.sampaiTahunOptions = [...this.tahunOptions];
   }
 
   private generateSemesterOptions(): void {
@@ -131,14 +132,11 @@ export class ManageTahunAjaranComponent implements OnInit, OnDestroy {
     const group = control as FormGroup;
     const dari = group.get('dariTahun')?.value;
     const sampai = group.get('sampaiTahun')?.value;
-
-    if (dari && sampai && parseInt(dari, 10) >= parseInt(sampai, 10)) {
-      return { tahunTidakValid: true };
+    if (dari && sampai && parseInt(dari, 10) + 1 !== parseInt(sampai, 10)) {
+      return { tahunTidakBerurutan: true };
     }
-
     return null;
   };
-
 
   getControl(name: string): AbstractControl {
     return this.tahunAjaranForm.get(name) as AbstractControl;
@@ -147,7 +145,7 @@ export class ManageTahunAjaranComponent implements OnInit, OnDestroy {
   tambahTahunAjaran(): void {
     if (this.tahunAjaranForm.invalid) {
       this.tahunAjaranForm.markAllAsTouched();
-      alert('Peringatan: Harap isi semua field yang diperlukan.');
+      this.notificationService.showWarning('Harap isi semua field yang diperlukan dengan benar.');
       return;
     }
 
@@ -161,37 +159,40 @@ export class ManageTahunAjaranComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
-          alert(res.message || 'Tahun Ajaran berhasil ditambahkan.');
+          this.notificationService.showSuccess(res.message || 'Tahun Ajaran berhasil ditambahkan.');
           this.tahunAjaranForm.reset();
-          this.getControl('dariTahun').setValue(''); // Clear selections
-          this.getControl('sampaiTahun').setValue('');
-          this.getControl('semester').setValue('');
           this.loadTahunAjaranData();
         },
         error: (err) => {
           const errorMsg = err.error?.message || 'Gagal menambahkan tahun ajaran.';
-          alert('Error: ' + errorMsg);
+          this.notificationService.showError(errorMsg);
           console.error('Create error:', err);
         }
       });
   }
 
   hapusTahunAjaran(ajaran: TahunAjaran): void {
-    if (confirm(`Anda yakin akan menghapus ${ajaran.tahun_ajaran} - semester ${ajaran.semester}? Aksi ini tidak dapat dibatalkan.`)) {
-      this.tahunAjaranService.deleteTahunAjaran(ajaran.id)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (res) => {
-            alert(res.message || 'Tahun Ajaran telah dihapus.');
-            this.loadTahunAjaranData();
-          },
-          error: (err) => {
-            const errorMsg = err.error?.message || 'Gagal menghapus tahun ajaran.';
-            alert('Error: ' + errorMsg);
-            console.error('Delete error:', err);
-          }
-        });
-    }
+    this.notificationService.showConfirmation(
+      'Anda Yakin?',
+      `Menghapus ${ajaran.tahun_ajaran} - semester ${ajaran.semester}. Aksi ini tidak dapat dibatalkan.`,
+      'Ya, Hapus!'
+    ).then((result) => {
+      if (result.isConfirmed) {
+        this.tahunAjaranService.deleteTahunAjaran(ajaran.id)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe({
+            next: (res) => {
+              this.notificationService.showSuccess(res.message || 'Tahun Ajaran telah dihapus.');
+              this.loadTahunAjaranData();
+            },
+            error: (err) => {
+              const errorMsg = err.error?.message || 'Gagal menghapus tahun ajaran.';
+              this.notificationService.showError(errorMsg);
+              console.error('Delete error:', err);
+            }
+          });
+      }
+    });
   }
 
   setAktif(ajaran: TahunAjaran): void {
@@ -199,14 +200,12 @@ export class ManageTahunAjaranComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
-          alert(res.message || 'Status berhasil diperbarui.');
-          this.loadTahunAjaranData();
+          this.notificationService.showSuccess(res.message || 'Status berhasil diperbarui.');
         },
         error: (err) => {
           const errorMsg = err.error?.message || 'Gagal mengubah status aktif.';
-          alert('Error: ' + errorMsg);
+          this.notificationService.showError(errorMsg);
           console.error('Set active error:', err);
-          this.loadTahunAjaranData();
         }
       });
   }

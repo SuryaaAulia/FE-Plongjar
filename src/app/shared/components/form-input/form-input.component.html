@@ -40,10 +40,14 @@
         (focus)="onFocus($event)"
         (blur)="onBlur($event)"
       >
-        <option value="" disabled selected>
+        <option value="" disabled [selected]="!value">
           {{ placeholder || "Choose an option" }}
         </option>
-        <option *ngFor="let option of options" [value]="option.value">
+        <option
+          *ngFor="let option of options"
+          [value]="option.value"
+          [selected]="option.value == value"
+        >
           {{ option.label }}
         </option>
       </select>

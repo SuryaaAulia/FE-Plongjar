@@ -1,0 +1,15 @@
+<div class="error-container">
+  <img [src]="imageUrl" [alt]="title" />
+  <h2>{{ title }}</h2>
+  <p>{{ message }}</p>
+
+  <app-action-button
+    *ngIf="showBackButton"
+    text="Kembali"
+    iconClass="fas fa-arrow-left"
+    (buttonClick)="goBack()"
+    backgroundColorVar="var(--red)"
+    [fontSizePx]="14"
+    [paddingScaleFactor]="0.6"
+  ></app-action-button>
+</div>

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -6,6 +6,7 @@ import { finalize } from 'rxjs/operators';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActionButtonComponent, FormInputComponent, SelectOption, LoadingSpinnerComponent } from '../../../shared/components/index';
 import { MatakuliahService, Pic, CreateMatakuliahPayload } from '../../../core/services/matakuliah.service';
+import { NotificationService } from '../../../core/services/notification.service';
 
 @Component({
   selector: 'app-tambah-matkul',
@@ -52,12 +53,12 @@ export class TambahMatkulComponent implements OnInit {
     { value: 'Tingkat 4', label: 'Tingkat 4' },
   ];
 
-  constructor(
-    private fb: FormBuilder,
-    private router: Router,
-    private route: ActivatedRoute,
-    private matakuliahService: MatakuliahService
-  ) { }
+  private fb = inject(FormBuilder);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private location = inject(Location);
+  private matakuliahService = inject(MatakuliahService);
+  private notificationService = inject(NotificationService);
 
   ngOnInit(): void {
     this.initForm();
@@ -113,7 +114,7 @@ export class TambahMatkulComponent implements OnInit {
       },
       error: (err) => {
         console.error(`Failed to load course ${id} for editing`, err);
-        alert('Gagal memuat data mata kuliah. Mengembalikan ke halaman sebelumnya.');
+        this.notificationService.showError('Gagal memuat data mata kuliah.');
         this.goBack();
       }
     });
@@ -134,7 +135,7 @@ export class TambahMatkulComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load PICs', err);
-        alert('Gagal memuat data PIC. Silakan coba lagi nanti.');
+        this.notificationService.showError('Gagal memuat data PIC. Silakan coba lagi nanti.');
       }
     });
   }
@@ -146,6 +147,7 @@ export class TambahMatkulComponent implements OnInit {
   onSubmit(): void {
     if (this.addMatkulForm.invalid) {
       this.addMatkulForm.markAllAsTouched();
+      this.notificationService.showWarning('Harap isi semua field yang diperlukan dengan benar.');
       return;
     }
 
@@ -174,7 +176,7 @@ export class TambahMatkulComponent implements OnInit {
       finalize(() => this.isLoading = false)
     ).subscribe({
       next: () => {
-        alert('Mata kuliah berhasil ditambahkan!');
+        this.notificationService.showSuccess('Mata kuliah berhasil ditambahkan!');
         this.router.navigate(['/ketua-prodi/manage-matkul']);
       },
       error: (err) => this.handleFormError(err)
@@ -186,7 +188,7 @@ export class TambahMatkulComponent implements OnInit {
       finalize(() => this.isLoading = false)
     ).subscribe({
       next: () => {
-        alert('Mata kuliah berhasil diperbarui!');
+        this.notificationService.showSuccess('Mata kuliah berhasil diperbarui!');
         this.goBack();
       },
       error: (err) => this.handleFormError(err)
@@ -196,14 +198,15 @@ export class TambahMatkulComponent implements OnInit {
   private handleFormError(err: HttpErrorResponse): void {
     this.isLoading = false;
     if (err.status === 422 && err.error?.errors?.kode_matkul) {
-      alert('Gagal: Kode Mata Kuliah sudah terdaftar. Silakan gunakan kode lain.');
+      this.notificationService.showError('Kode Mata Kuliah sudah terdaftar. Silakan gunakan kode lain.');
     } else {
-      alert(`Gagal menyimpan mata kuliah: ${err.error?.message || 'Terjadi kesalahan pada server.'}`);
+      const errorMessage = err.error?.message || 'Terjadi kesalahan pada server.';
+      this.notificationService.showError(`Gagal menyimpan mata kuliah: ${errorMessage}`);
     }
     console.error('Gagal menyimpan mata kuliah', err);
   }
 
   goBack(): void {
-    this.router.navigate(['/ketua-prodi/matkul']);
+    this.location.back();
   }
 }

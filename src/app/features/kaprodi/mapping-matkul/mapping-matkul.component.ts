@@ -4,7 +4,9 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule as
 import { finalize, forkJoin, combineLatest, switchMap, debounceTime, filter, startWith, distinctUntilChanged } from 'rxjs';
 import { ActionButtonComponent, FormInputComponent, SelectOption, LoadingSpinnerComponent } from '../../../shared/components/index';
 import { MatakuliahService } from '../../../core/services/matakuliah.service';
+import { NotificationService } from '../../../core/services/notification.service';
 import { Course, TahunAjaran } from '../../../core/models/user.model';
+
 interface KelasEntry {
   id: string;
   namaKelas: string;
@@ -41,6 +43,7 @@ export class MappingMatkulComponent implements OnInit {
 
   private fb = inject(FormBuilder);
   private matakuliahService = inject(MatakuliahService);
+  private notificationService = inject(NotificationService);
 
   ngOnInit(): void {
     this.mainForm = this.fb.group({
@@ -66,7 +69,6 @@ export class MappingMatkulComponent implements OnInit {
       finalize(() => this.isLoading = false)
     ).subscribe({
       next: ({ matakuliah, tahunAjaran }) => {
-        console.log("Loaded Matakuliah and Tahun Ajaran data", matakuliah, tahunAjaran);
         this.mataKuliahOptions = matakuliah
           .filter((mk: Course) => mk.id !== null && mk.id !== undefined)
           .map((mk: Course) => ({
@@ -81,7 +83,7 @@ export class MappingMatkulComponent implements OnInit {
       },
       error: err => {
         console.error("Failed to load initial data", err);
-        alert("Gagal memuat data dropdown. Silakan coba lagi.");
+        this.notificationService.showError("Gagal memuat data dropdown. Silakan coba lagi.");
       }
     });
   }
@@ -97,9 +99,7 @@ export class MappingMatkulComponent implements OnInit {
       switchMap(([matkulId, tahunAjaranId]) => {
         this.isTableLoading = true;
         this.showTable = false;
-
         this.daftarKelas = this.daftarKelas.filter(k => !k.isExisting);
-
         return this.matakuliahService.getDataMappingKelasMatkul(matkulId, tahunAjaranId).pipe(
           finalize(() => {
             this.isTableLoading = false;
@@ -121,6 +121,7 @@ export class MappingMatkulComponent implements OnInit {
       },
       error: (err) => {
         console.error("Failed to fetch existing class data", err);
+        this.notificationService.showError("Gagal mengambil data kelas yang sudah ada.");
         this.showTable = false;
       }
     });
@@ -169,7 +170,7 @@ export class MappingMatkulComponent implements OnInit {
     if (this.isSubmitMappingDisabled) {
       this.mainForm.markAllAsTouched();
       if (!this.daftarKelas.some(k => !k.isExisting)) {
-        alert("Tidak ada kelas baru untuk ditambahkan.");
+        this.notificationService.showWarning("Tidak ada kelas baru untuk ditambahkan.");
       }
       return;
     }
@@ -193,7 +194,7 @@ export class MappingMatkulComponent implements OnInit {
       .pipe(finalize(() => this.isLoading = false))
       .subscribe({
         next: () => {
-          alert('Mapping Kelas berhasil disubmit!');
+          this.notificationService.showSuccess('Mapping Kelas berhasil disubmit!');
           this.daftarKelas = [];
           this.showTable = false;
           this.mainForm.reset();
@@ -201,7 +202,7 @@ export class MappingMatkulComponent implements OnInit {
         },
         error: (err) => {
           console.error('Failed to submit mapping', err);
-          alert('Gagal menyimpan mapping. Silakan cek kembali data Anda.');
+          this.notificationService.showError('Gagal menyimpan mapping. Silakan cek kembali data Anda.');
         }
       });
   }

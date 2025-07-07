@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { ActionButtonComponent, LoadingSpinnerComponent, FormInputComponent } from '../../../shared/components/index'; // Import FormInputComponent
+import { ActionButtonComponent, LoadingSpinnerComponent, FormInputComponent } from '../../../shared/components/index';
 import { Course } from '../../../core/models/user.model';
 import { MatakuliahService } from '../../../core/services/matakuliah.service';
+import { NotificationService } from '../../../core/services/notification.service';
 import { finalize } from 'rxjs/operators';
 
 @Component({
@@ -24,12 +25,11 @@ export class DetailMatkulComponent implements OnInit {
   detailMatkulForm!: FormGroup;
   isLoading = false;
 
-  constructor(
-    private fb: FormBuilder,
-    private route: ActivatedRoute,
-    private location: Location,
-    private matakuliahService: MatakuliahService
-  ) { }
+  private fb = inject(FormBuilder);
+  private route = inject(ActivatedRoute);
+  private location = inject(Location);
+  private matakuliahService = inject(MatakuliahService);
+  private notificationService = inject(NotificationService);
 
   ngOnInit(): void {
     this.initForm();
@@ -41,10 +41,12 @@ export class DetailMatkulComponent implements OnInit {
         this.loadCourseDetails(courseId);
       } else {
         console.error('Invalid Course ID in URL');
+        this.notificationService.showError('ID Mata Kuliah tidak valid.');
         this.goBack();
       }
     } else {
       console.error('Course ID not found in URL!');
+      this.notificationService.showError('ID Mata Kuliah tidak ditemukan di URL.');
       this.goBack();
     }
   }
@@ -74,7 +76,7 @@ export class DetailMatkulComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load course details:', err);
-        alert('Gagal memuat detail mata kuliah.');
+        this.notificationService.showError('Gagal memuat detail mata kuliah.');
         this.goBack();
       }
     });

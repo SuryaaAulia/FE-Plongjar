@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActionButtonComponent, FormInputComponent, SelectOption } from '../../../shared/components/index';
 import { ApiService } from '../../../core/services/api.service';
+import { NotificationService } from '../../../core/services/notification.service';
 import { finalize } from 'rxjs';
 
 @Component({
@@ -29,6 +30,7 @@ export class TambahProdiComponent implements OnInit {
 
   private fb = inject(FormBuilder);
   private apiService = inject(ApiService);
+  private notificationService = inject(NotificationService);
 
   ngOnInit(): void {
     this.prodiForm = this.fb.group({
@@ -44,6 +46,7 @@ export class TambahProdiComponent implements OnInit {
   onSubmit(): void {
     if (this.prodiForm.invalid) {
       this.prodiForm.markAllAsTouched();
+      this.notificationService.showWarning('Harap isi semua field yang diperlukan.');
       return;
     }
 
@@ -59,13 +62,13 @@ export class TambahProdiComponent implements OnInit {
       .pipe(finalize(() => this.isLoading = false))
       .subscribe({
         next: (response) => {
-          alert(`Program Studi "${payload.nama}" berhasil ditambahkan!`);
+          this.notificationService.showSuccess(`Program Studi "${payload.nama}" berhasil ditambahkan!`);
           this.prodiForm.reset();
         },
         error: (err) => {
           console.error('Failed to create program studi:', err);
           const errorMessage = err.error?.message || 'Terjadi kesalahan pada server.';
-          alert(`Gagal menambahkan Program Studi: ${errorMessage}`);
+          this.notificationService.showError(`Gagal menambahkan Program Studi: ${errorMessage}`);
         }
       });
   }

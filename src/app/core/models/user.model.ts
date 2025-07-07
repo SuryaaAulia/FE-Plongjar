@@ -58,12 +58,15 @@ export interface Course {
   name: string;
   code: string;
   sks: number | string;
+  id_pic?: number | null;
   pic: string;
   statusMatkul: string;
   metodePerkuliahan: string;
   praktikum: string;
   koordinator?: Lecturer;
   tahun_ajaran?: string;
+  tingkatMatakuliah?: string;
+  matakuliahEksepsi?: string;
 }
 
 export interface JabatanStruktural {

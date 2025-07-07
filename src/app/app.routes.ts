@@ -305,4 +305,16 @@ export const routes: Routes = [
       }
     ],
   },
+  {
+    path: 'unauthorized',
+    loadComponent: () => import('./pages/forbidden/forbidden.component').then(m => m.ForbiddenComponent)
+  },
+  {
+    path: 'server-error',
+    loadComponent: () => import('./pages/server-error/server-error.component').then(m => m.ServerErrorComponent)
+  },
+  {
+    path: '**',
+    loadComponent: () => import('./pages/not-found/not-found.component').then(m => m.NotFoundComponent)
+  }
 ];
