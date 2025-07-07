@@ -69,7 +69,7 @@ export class BebanSksComponent implements OnInit {
 
   private dosenService = inject(DosenService);
   private route = inject(ActivatedRoute);
-  private location = inject(Location);
+  private location = inject(Router);
   private notificationService = inject(NotificationService);
 
   ngOnInit(): void {
@@ -194,7 +194,6 @@ export class BebanSksComponent implements OnInit {
 
   private transformApiDataToBebanSksDosen(apiItem: BebanSksApiData, index: number): BebanSksDosen {
     const prodiSks = apiItem.total_ajar_per_prodi || {};
-    console.log('Prodi SKS:', apiItem.status_pegawai);
     return {
       no: index,
       kode: apiItem.kode_dosen,
@@ -251,6 +250,6 @@ export class BebanSksComponent implements OnInit {
   }
 
   onBack(): void {
-    this.location.back();
+    this.location.navigate(['/home']);
   }
 }
