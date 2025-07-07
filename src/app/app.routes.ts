@@ -135,6 +135,10 @@ export const routes: Routes = [
                 './features/shared-pages/beban-sks/beban-sks.component'
               ).then((m) => m.BebanSksComponent),
           },
+          {
+            path: 'beban-sks/:dosenId',
+            loadComponent: () => import('./features/shared-pages/beban-sks/beban-sks.component').then(m => m.BebanSksComponent)
+          },
         ]
       },
       {
@@ -188,6 +192,10 @@ export const routes: Routes = [
               import(
                 './features/shared-pages/beban-sks/beban-sks.component'
               ).then((m) => m.BebanSksComponent),
+          },
+          {
+            path: 'beban-sks/:dosenId',
+            loadComponent: () => import('./features/shared-pages/beban-sks/beban-sks.component').then(m => m.BebanSksComponent)
           },
           {
             path: 'tambah-matkul',

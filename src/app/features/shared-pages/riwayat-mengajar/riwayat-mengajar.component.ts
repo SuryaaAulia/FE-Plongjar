@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import { ActivatedRoute, ParamMap } from '@angular/router';
 import {
   SearchHeaderComponent,
   PaginationComponent,
@@ -25,7 +25,7 @@ import { of, switchMap } from 'rxjs';
 export class RiwayatMengajarComponent implements OnInit {
 
   constructor(
-    private router: Router,
+    private location: Location,
     private route: ActivatedRoute
   ) { }
 
@@ -172,6 +172,6 @@ export class RiwayatMengajarComponent implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/ketua-kk/list-dosen']);
+    this.location.back();
   }
 }

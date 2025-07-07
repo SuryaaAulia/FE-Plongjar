@@ -178,10 +178,10 @@ export class ApiService {
         return this.http.get(url!);
     }
 
-    getBebanSksDosenByTahun(dosenId: number, tahunAjaranId: number): Observable<any> {
-        const url = this.endpoint.getUrl('dosen', 'beban_sks_by_tahun', { dosenId, tahunAjaranId });
-        return this.http.get(url!);
-    }
+        getBebanSksDosenByTahun(dosenId: number, tahunAjaranId: number): Observable<any> {
+            const url = this.endpoint.getUrl('dosen', 'beban_sks_by_dosen', { dosenId, tahunAjaranId });
+            return this.http.get(url!);
+        }
 
     // =================================================================
     // MATAKULIAH MANAGEMENT METHODS
@@ -487,6 +487,6 @@ export class ApiService {
 
     getHasilPlottinganKaurLAAK(params?: HttpParams): Observable<any> {
         const url = this.endpoint.getUrl('plottingan_pengajaran', 'get_hasil_laak_kaur');
-        return this.http.get(url!, {params});
+        return this.http.get(url!, { params });
     }
 }
