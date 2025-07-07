@@ -218,7 +218,7 @@ export class MatakuliahService {
 
     private mapApiCoursesToCourses(apiCourses: any[]): Course[] {
         return apiCourses.map(apiCourse => ({
-            id: apiCourse.id_plottingan.toString(),
+            id: apiCourse.id,
             name: apiCourse.nama_matakuliah,
             code: apiCourse.kode_matakuliah || apiCourse.kode_matkul || '-',
             sks: apiCourse.sks_matakuliah ?? 0,

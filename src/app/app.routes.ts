@@ -23,6 +23,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'no-role',
+        loadComponent: () =>
+          import('./pages/no-role/no-role.component').then(
+            (c) => c.NoRoleComponent
+          ),
+      },
+      {
         path: 'admin',
         canActivate: [RoleGuard],
         data: { role: 'Superadmin' },

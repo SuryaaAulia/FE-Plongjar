@@ -1,0 +1,27 @@
+.no-role-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    height: 80%;
+
+    img {
+        max-width: 800px;
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    h2 {
+        font-size: var(--text-4xl);
+        font-weight: var(--font-bold);
+        color: var(--secodry-blue);
+        margin: 0;
+    }
+
+    p {
+        font-size: var(--text-lg);
+        color: var(--secodry-blue);
+        margin-top: 8px;
+    }
+}

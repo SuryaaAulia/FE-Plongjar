@@ -30,17 +30,12 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.screenWidth = window.innerWidth;
-
     this.currentUser$ = this.authService.currentUser$;
-
     this.menuItems$ = this.authService.currentUser$.pipe(
       takeUntil(this.destroy$),
       switchMap(user => {
-        if (user && user.currentRole) {
-          const navRole = this.authService.getNavRole();
-          return this.navService.getMenu(navRole);
-        }
-        return this.navService.getMenu('admin');
+        const navRole = this.authService.getNavRole();
+        return this.navService.getMenu(navRole);
       })
     );
 

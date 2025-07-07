@@ -93,10 +93,10 @@ export class NavService {
       },
       { label: 'Switch App', icon: 'dashboard', routerLink: '/switch-app' },
     ],
-    guset: [
+    no_role: [
       { label: 'Home', icon: 'house', routerLink: '/home' },
       { label: 'Switch App', icon: 'dashboard', routerLink: '/switch-app' },
-    ]
+    ],
   };
 
   getMenu(role: keyof typeof this.menuConfig = 'admin') {
