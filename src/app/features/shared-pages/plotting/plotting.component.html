@@ -25,7 +25,14 @@
   <div
     *ngIf="isKelompokKeahlianUser && selectedProdi"
     class="selected-prodi-indicator"
-  ></div>
+  >
+    <span class="prodi-text"
+      >Program Studi: <strong>{{ selectedProdi.name }}</strong></span
+    >
+    <button class="back-to-prodi-btn" (click)="onBackToProdiSelection()">
+      <i class="fas fa-arrow-left"></i> Ganti Prodi
+    </button>
+  </div>
 
   <div class="form-section">
     <div class="form-group">
@@ -156,12 +163,12 @@
       <span> : Team Teaching </span>
     </div>
     <app-action-button
-      text="Back"
+      text="Clear"
       backgroundColorVar="var(--red)"
       [fontSizePx]="16"
       [paddingScaleFactor]="0.6"
       type="button"
-      (click)="onBack()"
+      (click)="clearAll()"
     ></app-action-button>
   </div>
 </div>

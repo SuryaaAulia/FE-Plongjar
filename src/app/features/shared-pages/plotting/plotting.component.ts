@@ -1,6 +1,4 @@
-/* FILE: plotting.component.ts */
-
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SearchModalComponent, SearchMatkulComponent, ActionButtonComponent, LoadingSpinnerComponent, TeamTeachingSelection } from '../../../shared/components/index';
@@ -48,6 +46,8 @@ interface ProdiOption {
   styleUrls: ['./plotting.component.scss']
 })
 export class PlottingComponent implements OnInit {
+  @ViewChild(SearchMatkulComponent) searchMatkulComponent!: SearchMatkulComponent;
+
   currentSelectedCourse: Course | null = null;
   currentSelectedAcademicYear: { id: number; value: string } | null = null;
   displaySelectedCourseText: string = '';
@@ -364,11 +364,10 @@ export class PlottingComponent implements OnInit {
     this.initialLecturerSelections = [];
   }
 
-  onBack(): void {
-    if (this.isKelompokKeahlianUser && this.selectedProdi) {
-      this.onBackToProdiSelection();
-    } else {
-      this.resetPlottingData();
+  clearAll(): void {
+    this.resetPlottingData();
+    if (this.searchMatkulComponent) {
+      this.searchMatkulComponent.clearSearch();
     }
   }
 
