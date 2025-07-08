@@ -6,6 +6,7 @@ import { ActionButtonComponent, FormInputComponent, SelectOption, LoadingSpinner
 import { MatakuliahService } from '../../../core/services/matakuliah.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { Course, TahunAjaran } from '../../../core/models/user.model';
+import { v4 as uuidv4 } from 'uuid';
 
 interface KelasEntry {
   id: string;
@@ -109,7 +110,7 @@ export class MappingMatkulComponent implements OnInit {
     ).subscribe({
       next: (existingClasses) => {
         const fetchedKelas = existingClasses.map((k: any) => ({
-          id: crypto.randomUUID(),
+          id: uuidv4(),
           namaKelas: k.nama_kelas,
           kuota: k.kuota,
           teamTeaching: !!k.team_teaching,
@@ -138,7 +139,7 @@ export class MappingMatkulComponent implements OnInit {
     }
 
     const newKelas: KelasEntry = {
-      id: crypto.randomUUID(),
+      id: uuidv4(),
       namaKelas: this.kelasForm.value.namaKelas,
       kuota: Number(this.kelasForm.value.kuota),
       teamTeaching: false,
