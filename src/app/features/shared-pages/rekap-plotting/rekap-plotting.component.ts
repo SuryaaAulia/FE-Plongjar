@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { HttpParams } from '@angular/common/http';
-
+import { AuthService } from '../../../core/services/auth.service';
 import { PlottingResultCardComponent, LoadingSpinnerComponent, SearchNotFoundComponent, PaginationComponent } from '../../../shared/components/index';
 import { PlottingService } from '../../../core/services/plotting.service';
 import { MatakuliahService } from '../../../core/services/matakuliah.service';
@@ -35,6 +35,7 @@ export class RekapPlottingComponent implements OnInit {
   private matakuliahService = inject(MatakuliahService);
   private router = inject(Router);
   private notificationService = inject(NotificationService);
+  private authService = inject(AuthService);
 
   isLoading = true;
   summaries: PlottingSummary[] = [];
@@ -123,11 +124,19 @@ export class RekapPlottingComponent implements OnInit {
   }
 
   onShowSummaryDetails(summary: PlottingSummary): void {
-    this.router.navigate([
-      '/kaur-lab/hasil-plotting',
-      summary.id_program_studi,
-      summary.id_tahun_ajaran
-    ]);
+    if (this.authService.hasRole('KepalaUrusanLab')) {
+      this.router.navigate([
+        '/kaur-lab/hasil-plotting',
+        summary.id_program_studi,
+        summary.id_tahun_ajaran
+      ]);
+    } else if (this.authService.hasRole('LayananAkademik')) {
+      this.router.navigate([
+        '/laak/hasil-plotting',
+        summary.id_program_studi,
+        summary.id_tahun_ajaran
+      ]);
+    }
   }
 
   onDownloadSummaryExcel(summary: PlottingSummary): void {
