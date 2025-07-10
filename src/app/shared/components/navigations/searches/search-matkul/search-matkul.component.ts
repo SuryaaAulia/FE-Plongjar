@@ -6,9 +6,10 @@ import { ApiService } from '../../../../../core/services/api.service';
 import { HttpParams } from '@angular/common/http';
 import { debounceTime, distinctUntilChanged, finalize, Subject } from 'rxjs';
 import { MatakuliahService } from '../../../../../core/services/matakuliah.service';
-import { NotificationService } from '../../../../../core/services/notification.service'; // Import NotificationService
-import { LoadingSpinnerComponent, SearchNotFoundComponent, ActionButtonComponent } from '../../../index';
-
+import { NotificationService } from '../../../../../core/services/notification.service';
+import { LoadingSpinnerComponent, } from '../../../loading-spinner/loading-spinner.component';
+import { SearchNotFoundComponent } from '../../../search-not-found/search-not-found.component';
+import { ActionButtonComponent } from '../../../buttons/action-button/action-button.component';
 @Component({
   selector: 'app-search-matkul',
   standalone: true,

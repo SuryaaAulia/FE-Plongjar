@@ -6,11 +6,11 @@ import { Subject, Subscription, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, tap, finalize, map } from 'rxjs/operators';
 import { ApiService } from '../../../../core/services/api.service';
 import { PlottingService } from '../../../../core/services/plotting.service';
-import { NotificationService } from '../../../../core/services/notification.service'; // Import NotificationService
+import { NotificationService } from '../../../../core/services/notification.service';
 import { Lecturer } from '../../../../core/models/user.model';
 import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner.component';
 import { SearchNotFoundComponent } from '../../search-not-found/search-not-found.component';
-import { PaginationComponent } from '../../index';
+import { PaginationComponent } from '../../navigations/pagination/pagination.component';
 import { FormInputComponent, SelectOption } from '../../form-input/form-input.component';
 
 export interface TeamTeachingSelection {
