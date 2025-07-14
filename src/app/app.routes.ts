@@ -362,234 +362,234 @@ import { DetailMatkulComponent } from './features/kaprodi/detail-matkul/detail-m
 //   }
 // ];
 
-// export const routes: Routes = [
-//   {
-//     path: '',
-//     component: MainLayoutComponent,
-//     canActivate: [AuthGuard],
-//     canActivateChild: [AuthGuard],
-//     children: [
-//       {
-//         path: '',
-//         redirectTo: 'home',
-//         pathMatch: 'full',
-//       },
-//       {
-//         path: 'home',
-//         component: DashboardComponent,
-//       },
-//       {
-//         path: 'no-role',
-//         component: NoRoleComponent,
-//       },
-//       {
-//         path: 'admin',
-//         canActivate: [RoleGuard],
-//         data: { role: 'Superadmin' },
-//         children: [
-//           {
-//             path: '',
-//             redirectTo: 'assign',
-//             pathMatch: 'full',
-//           },
-//           {
-//             path: 'assign',
-//             component: AssignRoleComponent,
-//           },
-//           {
-//             path: 'manage-role',
-//             component: ManageRoleComponent,
-//           },
-//           {
-//             path: 'assign-jabatan',
-//             component: AssignJabatanComponent,
-//           },
-//           {
-//             path: 'tambah-jabatan',
-//             component: TambahJabatanComponent,
-//           },
-//           {
-//             path: 'tahun-ajaran',
-//             component: ManageTahunAjaranComponent,
-//           },
-//           {
-//             path: 'tambah-prodi',
-//             component: TambahProdiComponent,
-//           },
-//         ],
-//       },
-//       {
-//         path: 'ketua-kk',
-//         canActivate: [RoleGuard],
-//         data: { role: 'KelompokKeahlian' },
-//         children: [
-//           {
-//             path: '',
-//             redirectTo: 'list-dosen',
-//             pathMatch: 'full',
-//           },
-//           {
-//             path: 'list-dosen',
-//             component: ListDosenComponent,
-//           },
-//           {
-//             path: 'detail-dosen/:id',
-//             component: DetailDosenComponent,
-//           },
-//           {
-//             path: 'riwayat-mengajar/:id',
-//             component: RiwayatMengajarComponent,
-//           },
-//           {
-//             path: 'plotting',
-//             component: PlottingComponent,
-//           },
-//           {
-//             path: 'hasil-plotting',
-//             component: HasilPlottingComponent,
-//           },
-//           {
-//             path: 'beban-sks',
-//             component: BebanSksComponent,
-//           },
-//           {
-//             path: 'beban-sks/:dosenId',
-//             component: BebanSksComponent,
-//           },
-//         ],
-//       },
-//       {
-//         path: 'ketua-prodi',
-//         canActivate: [RoleGuard],
-//         data: { role: 'ProgramStudi' },
-//         children: [
-//           {
-//             path: '',
-//             redirectTo: 'list-dosen',
-//             pathMatch: 'full',
-//           },
-//           {
-//             path: 'list-dosen',
-//             component: ListDosenComponent,
-//           },
-//           {
-//             path: 'riwayat-mengajar/:id',
-//             component: RiwayatMengajarComponent,
-//           },
-//           {
-//             path: 'detail-dosen/:id',
-//             component: DetailDosenComponent,
-//           },
-//           {
-//             path: 'plotting',
-//             component: PlottingComponent,
-//           },
-//           {
-//             path: 'hasil-plotting',
-//             component: HasilPlottingComponent,
-//           },
-//           {
-//             path: 'beban-sks',
-//             component: BebanSksComponent,
-//           },
-//           {
-//             path: 'beban-sks/:dosenId',
-//             component: BebanSksComponent,
-//           },
-//           {
-//             path: 'tambah-matkul',
-//             component: TambahMatkulComponent,
-//           },
-//           {
-//             path: 'matkul/edit/:id',
-//             component: TambahMatkulComponent,
-//           },
-//           {
-//             path: 'mapping-matkul',
-//             component: MappingMatkulComponent,
-//           },
-//           {
-//             path: 'manage-matkul',
-//             component: ManageMatkulComponent,
-//           },
-//           {
-//             path: 'detail-matkul/:id',
-//             component: DetailMatkulComponent,
-//           },
-//         ],
-//       },
-//       {
-//         path: 'kaur-lab',
-//         canActivate: [RoleGuard],
-//         data: { role: 'KepalaUrusanLab' },
-//         children: [
-//           {
-//             path: '',
-//             redirectTo: 'rekap-hasil-plotting',
-//             pathMatch: 'full',
-//           },
-//           {
-//             path: 'rekap-hasil-plotting',
-//             component: RekapPlottingComponent,
-//           },
-//           {
-//             path: 'hasil-plotting/:prodiId/:tahunAjaranId',
-//             component: HasilPlottingComponent,
-//           },
-//         ],
-//       },
-//       {
-//         path: 'laak',
-//         canActivate: [RoleGuard],
-//         data: { role: 'LayananAkademik' },
-//         children: [
-//           {
-//             path: '',
-//             redirectTo: 'dashboard',
-//             pathMatch: 'full',
-//           },
-//           {
-//             path: 'dashboard',
-//             component: DashboardComponent,
-//           },
-//           {
-//             path: 'rekap-hasil-plotting',
-//             component: RekapPlottingComponent,
-//           },
-//           {
-//             path: 'hasil-plotting/:prodiId/:tahunAjaranId',
-//             component: HasilPlottingComponent,
-//           },
-//         ],
-//       },
-//     ],
-//   },
-//   {
-//     path: 'auth',
-//     component: AuthLayoutComponent,
-//     children: [
-//       {
-//         path: '',
-//         redirectTo: 'login',
-//         pathMatch: 'full',
-//       },
-//       {
-//         path: 'login',
-//         canActivate: [LoginGuard],
-//         component: LoginComponent,
-//       },
-//     ],
-//   },
-//   {
-//     path: 'unauthorized',
-//     component: ForbiddenComponent,
-//   },
-//   {
-//     path: 'server-error',
-//     component: ServerErrorComponent,
-//   },
-//   {
-//     path: '**',
-//     component: NotFoundComponent,
-//   },
-// ];
+export const routes: Routes = [
+  {
+    path: '',
+    component: MainLayoutComponent,
+    canActivate: [AuthGuard],
+    canActivateChild: [AuthGuard],
+    children: [
+      {
+        path: '',
+        redirectTo: 'home',
+        pathMatch: 'full',
+      },
+      {
+        path: 'home',
+        component: DashboardComponent,
+      },
+      {
+        path: 'no-role',
+        component: NoRoleComponent,
+      },
+      {
+        path: 'admin',
+        canActivate: [RoleGuard],
+        data: { role: 'Superadmin' },
+        children: [
+          {
+            path: '',
+            redirectTo: 'assign',
+            pathMatch: 'full',
+          },
+          {
+            path: 'assign',
+            component: AssignRoleComponent,
+          },
+          {
+            path: 'manage-role',
+            component: ManageRoleComponent,
+          },
+          {
+            path: 'assign-jabatan',
+            component: AssignJabatanComponent,
+          },
+          {
+            path: 'tambah-jabatan',
+            component: TambahJabatanComponent,
+          },
+          {
+            path: 'tahun-ajaran',
+            component: ManageTahunAjaranComponent,
+          },
+          {
+            path: 'tambah-prodi',
+            component: TambahProdiComponent,
+          },
+        ],
+      },
+      {
+        path: 'ketua-kk',
+        canActivate: [RoleGuard],
+        data: { role: 'KelompokKeahlian' },
+        children: [
+          {
+            path: '',
+            redirectTo: 'list-dosen',
+            pathMatch: 'full',
+          },
+          {
+            path: 'list-dosen',
+            component: ListDosenComponent,
+          },
+          {
+            path: 'detail-dosen/:id',
+            component: DetailDosenComponent,
+          },
+          {
+            path: 'riwayat-mengajar/:id',
+            component: RiwayatMengajarComponent,
+          },
+          {
+            path: 'plotting',
+            component: PlottingComponent,
+          },
+          {
+            path: 'hasil-plotting',
+            component: HasilPlottingComponent,
+          },
+          {
+            path: 'beban-sks',
+            component: BebanSksComponent,
+          },
+          {
+            path: 'beban-sks/:dosenId',
+            component: BebanSksComponent,
+          },
+        ],
+      },
+      {
+        path: 'ketua-prodi',
+        canActivate: [RoleGuard],
+        data: { role: 'ProgramStudi' },
+        children: [
+          {
+            path: '',
+            redirectTo: 'list-dosen',
+            pathMatch: 'full',
+          },
+          {
+            path: 'list-dosen',
+            component: ListDosenComponent,
+          },
+          {
+            path: 'riwayat-mengajar/:id',
+            component: RiwayatMengajarComponent,
+          },
+          {
+            path: 'detail-dosen/:id',
+            component: DetailDosenComponent,
+          },
+          {
+            path: 'plotting',
+            component: PlottingComponent,
+          },
+          {
+            path: 'hasil-plotting',
+            component: HasilPlottingComponent,
+          },
+          {
+            path: 'beban-sks',
+            component: BebanSksComponent,
+          },
+          {
+            path: 'beban-sks/:dosenId',
+            component: BebanSksComponent,
+          },
+          {
+            path: 'tambah-matkul',
+            component: TambahMatkulComponent,
+          },
+          {
+            path: 'matkul/edit/:id',
+            component: TambahMatkulComponent,
+          },
+          {
+            path: 'mapping-matkul',
+            component: MappingMatkulComponent,
+          },
+          {
+            path: 'manage-matkul',
+            component: ManageMatkulComponent,
+          },
+          {
+            path: 'detail-matkul/:id',
+            component: DetailMatkulComponent,
+          },
+        ],
+      },
+      {
+        path: 'kaur-lab',
+        canActivate: [RoleGuard],
+        data: { role: 'KepalaUrusanLab' },
+        children: [
+          {
+            path: '',
+            redirectTo: 'rekap-hasil-plotting',
+            pathMatch: 'full',
+          },
+          {
+            path: 'rekap-hasil-plotting',
+            component: RekapPlottingComponent,
+          },
+          {
+            path: 'hasil-plotting/:prodiId/:tahunAjaranId',
+            component: HasilPlottingComponent,
+          },
+        ],
+      },
+      {
+        path: 'laak',
+        canActivate: [RoleGuard],
+        data: { role: 'LayananAkademik' },
+        children: [
+          {
+            path: '',
+            redirectTo: 'dashboard',
+            pathMatch: 'full',
+          },
+          {
+            path: 'dashboard',
+            component: DashboardComponent,
+          },
+          {
+            path: 'rekap-hasil-plotting',
+            component: RekapPlottingComponent,
+          },
+          {
+            path: 'hasil-plotting/:prodiId/:tahunAjaranId',
+            component: HasilPlottingComponent,
+          },
+        ],
+      },
+    ],
+  },
+  {
+    path: 'auth',
+    component: AuthLayoutComponent,
+    children: [
+      {
+        path: '',
+        redirectTo: 'login',
+        pathMatch: 'full',
+      },
+      {
+        path: 'login',
+        canActivate: [LoginGuard],
+        component: LoginComponent,
+      },
+    ],
+  },
+  {
+    path: 'unauthorized',
+    component: ForbiddenComponent,
+  },
+  {
+    path: 'server-error',
+    component: ServerErrorComponent,
+  },
+  {
+    path: '**',
+    component: NotFoundComponent,
+  },
+];
