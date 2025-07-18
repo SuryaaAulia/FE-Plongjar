@@ -73,13 +73,15 @@
 .table-container {
   border: 1px solid var(--grey);
   border-radius: 8px;
-  overflow: hidden;
   max-height: 360px;
+
   overflow-y: auto;
+  overflow-x: auto;
 }
 
 .data-table {
   width: 100%;
+  min-width: 700px;
   border-collapse: collapse;
 
   thead {
