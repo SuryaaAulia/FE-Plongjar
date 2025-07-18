@@ -1,8 +1,9 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject, forkJoin } from 'rxjs';
 import { takeUntil, finalize } from 'rxjs/operators';
+import { HttpParams } from '@angular/common/http';
 import {
   SearchHeaderComponent,
   UserCardComponent,
@@ -13,7 +14,8 @@ import {
   ScopeOption
 } from '../../../shared/components/index';
 import { User, Role } from '../../../core/models/user.model';
-import { RoleService, UserWithRoles, ScopedRoleAssignment } from '../../../core/services/admin/role.service';
+import { RoleService, ScopedRoleAssignment } from '../../../core/services/admin/role.service';
+import { NotificationService } from '../../../core/services/notification.service';
 
 @Component({
   selector: 'app-manage-role',
@@ -32,24 +34,25 @@ import { RoleService, UserWithRoles, ScopedRoleAssignment } from '../../../core/
   styleUrls: ['./manage-role.component.scss'],
 })
 export class ManageRoleComponent implements OnInit, OnDestroy {
-  users: UserWithRoles[] = [];
-  filteredUsers: User[] = [];
+  paginatedUsers: User[] = [];
   currentPage = 1;
   itemsPerPage = 9;
+  totalItems = 0;
   isLoading = true;
 
   availableRoles: string[] = [];
   roles: Role[] = [];
   activeRoleFilter: string | null = null;
   activeRoleId: number | null = null;
+  currentSearchKeyword: string = '';
 
   programStudiOptions: ScopeOption[] = [];
   kelompokKeahlianOptions: ScopeOption[] = [];
 
-  currentSearchKeyword: string = '';
   private destroy$ = new Subject<void>();
 
-  constructor(public roleService: RoleService) { }
+  public roleService = inject(RoleService);
+  private notificationService = inject(NotificationService);
 
   ngOnInit(): void {
     this.loadInitialData();
@@ -73,12 +76,9 @@ export class ManageRoleComponent implements OnInit, OnDestroy {
           this.roles = roles;
           this.programStudiOptions = programStudi;
           this.kelompokKeahlianOptions = kelompokKeahlian;
+          this.availableRoles = roles.map(role => this.roleService.getRoleDisplayName(role.name));
 
-          this.availableRoles = roles.map(role =>
-            this.roleService.getRoleDisplayName(role.name)
-          );
-
-          if (roles.length > 0) {
+          if (this.availableRoles.length > 0) {
             this.filterByRole(this.availableRoles[0]);
           } else {
             this.isLoading = false;
@@ -86,73 +86,90 @@ export class ManageRoleComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('Error loading initial data:', error);
+          this.notificationService.showError("Failed to load initial page data.");
           this.isLoading = false;
         }
       });
   }
 
-  private loadUsersByRole(roleId: number): void {
+  private loadUsers(): void {
+    if (!this.activeRoleId) return;
+
     this.isLoading = true;
-    this.roleService.getAllUsersByRole(roleId)
+    let params = new HttpParams()
+      .set('page', this.currentPage.toString())
+      .set('per_page', this.itemsPerPage.toString());
+
+    if (this.currentSearchKeyword) {
+      params = params.set('nama', this.currentSearchKeyword);
+    }
+
+    this.roleService.getAllUsersByRole(this.activeRoleId, params)
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => this.isLoading = false)
       )
       .subscribe({
-        next: (users) => {
-          this.users = users;
-          this.applyFilters();
+        next: (response) => {
+          this.paginatedUsers = this.transformUsersForDisplay(response.data);
+          this.totalItems = response.total;
+          this.currentPage = response.current_page;
         },
         error: (error) => {
           console.error('Error loading users by role:', error);
-          this.users = [];
-          this.filteredUsers = [];
+          this.notificationService.showError("Failed to load users for the selected role.");
+          this.paginatedUsers = [];
+          this.totalItems = 0;
         }
       });
   }
 
-  private transformUsersForDisplay(users: UserWithRoles[]): User[] {
+  private transformUsersForDisplay(users: any[]): User[] {
     return users.map(user => {
-      const userRole = (user.roles && user.roles.length > 0) ? user.roles[0] : undefined;
-      const assignmentDetail = (user as any).assignment_detail
-        ? { id: (user as any).assignment_detail.id, nama: (user as any).assignment_detail.nama }
-        : undefined;
-
+      const roleName = this.roleService.getRoleByDisplayName(this.activeRoleFilter!);
       return {
         ...user,
-        role: userRole,
-        assignment_detail: assignmentDetail
+        role: { id: this.activeRoleId, name: roleName } as Role,
+        assignment_detail: user.assignment_detail
       } as User;
     });
   }
 
   filterByRole(displayName: string | null): void {
-    if (!displayName) return;
+    if (!displayName || this.activeRoleFilter === displayName) return;
+
     this.activeRoleFilter = displayName;
     const actualRoleName = this.roleService.getRoleByDisplayName(displayName);
-    if (!actualRoleName) return;
     const role = this.roles.find(r => r.name === actualRoleName);
+
     if (!role) return;
+
     this.activeRoleId = role.id;
     this.currentPage = 1;
-    this.loadUsersByRole(role.id);
+    this.currentSearchKeyword = '';
+    this.loadUsers();
   }
 
-  applyFilters(searchTerm: string = this.currentSearchKeyword): void {
-    const displayUsers = this.transformUsersForDisplay(this.users);
-    this.filteredUsers = displayUsers.filter(user =>
-      searchTerm
-        ? user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.id.toString().includes(searchTerm) ||
-        user.nip?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email?.toLowerCase().includes(searchTerm.toLowerCase())
-        : true
-    );
+  onSearch(searchQuery: { query1: string; query2: string }): void {
+    this.currentSearchKeyword = searchQuery.query1 || '';
+    this.currentPage = 1;
+    this.loadUsers();
+  }
+
+  onItemsPerPageChange(itemsPerPage: number): void {
+    this.itemsPerPage = itemsPerPage;
+    this.currentPage = 1;
+    this.loadUsers();
+  }
+
+  onPageChange(page: number): void {
+    this.currentPage = page;
+    this.loadUsers();
   }
 
   onAssignScope(event: { userId: number, scopeId: number }): void {
     if (!this.activeRoleId) {
-      console.error("Cannot assign scope, active role ID is not set.");
+      this.notificationService.showError("Cannot assign scope, active role is not set.");
       return;
     }
 
@@ -167,56 +184,44 @@ export class ManageRoleComponent implements OnInit, OnDestroy {
       .pipe(finalize(() => this.isLoading = false))
       .subscribe({
         next: () => {
-          this.loadUsersByRole(this.activeRoleId!);
+          this.notificationService.showSuccess("Scope assigned successfully.");
+          this.loadUsers();
         },
-        error: (err) => console.error('Failed to assign scope', err)
+        error: (err) => {
+          console.error('Failed to assign scope', err);
+          this.notificationService.showError("Failed to assign scope.");
+        }
       });
   }
 
   onRemoveRole(user: User): void {
     if (!user.role) {
-      console.error('User has no role to remove');
+      this.notificationService.showError('User has no role to remove.');
       return;
     }
 
-    const roleDisplayName = this.roleService.getRoleDisplayName(user.role.name);
-
-
-    this.isLoading = true;
-    this.roleService.revokeRole(user.id, user.role.id)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => this.isLoading = false)
-      )
-      .subscribe({
-        next: (response) => {
-          if (this.activeRoleId) {
-            this.loadUsersByRole(this.activeRoleId);
-          }
-        },
-        error: (error) => {
-          console.error('Error revoking role:', error);
-        }
-      });
-  }
-
-  onSearch(searchQuery: { query1: string; query2: string }): void {
-    this.currentSearchKeyword = searchQuery.query1 || '';
-    this.applyFilters(this.currentSearchKeyword);
-    this.currentPage = 1;
-  }
-
-  onItemsPerPageChange(itemsPerPage: number): void {
-    this.itemsPerPage = itemsPerPage;
-    this.currentPage = 1;
-  }
-
-  onPageChange(page: number): void {
-    this.currentPage = page;
-  }
-
-  get paginatedUsers(): User[] {
-    const start = (this.currentPage - 1) * this.itemsPerPage;
-    return this.filteredUsers.slice(start, start + this.itemsPerPage);
+    this.notificationService.showConfirmation(
+      'Konfirmasi Hapus Role',
+      `Anda yakin ingin menghapus role "${this.activeRoleFilter}" dari pengguna ${user.name}?`
+    ).then(result => {
+      if (result.isConfirmed) {
+        this.isLoading = true;
+        this.roleService.revokeRole(user.id, user.role!.id)
+          .pipe(
+            takeUntil(this.destroy$),
+            finalize(() => this.isLoading = false)
+          )
+          .subscribe({
+            next: () => {
+              this.notificationService.showSuccess("Role successfully revoked.");
+              this.loadUsers();
+            },
+            error: (error) => {
+              console.error('Error revoking role:', error);
+              this.notificationService.showError("Failed to revoke role.");
+            }
+          });
+      }
+    });
   }
 }
