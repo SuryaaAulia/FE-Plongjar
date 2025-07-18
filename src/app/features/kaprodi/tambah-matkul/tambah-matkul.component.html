@@ -8,6 +8,7 @@
     <div *ngIf="isLoading" class="loading-overlay">
       <app-loading-spinner></app-loading-spinner>
     </div>
+
     <form
       [formGroup]="addMatkulForm"
       (ngSubmit)="onSubmit()"
@@ -28,51 +29,57 @@
           [control]="getControl('kodeMatkul')"
           [required]="true"
         ></app-form-input>
+
+        <app-form-input
+          label="SKS / Credit"
+          type="select"
+          placeholder="Pilih Jumlah SKS"
+          formControlName="sks"
+          [control]="getControl('sks')"
+          [options]="sksOptions"
+          [required]="true"
+        ></app-form-input>
+        <app-form-input
+          label="Tingkat Mata Kuliah"
+          type="select"
+          placeholder="Pilih Tingkat Matkul"
+          formControlName="tingkatMatakuliah"
+          [control]="getControl('tingkatMatakuliah')"
+          [options]="tingkatMatakuliahOptions"
+          [required]="true"
+        ></app-form-input>
+
+        <app-form-input
+          label="PIC"
+          type="select"
+          placeholder="Pilih PIC"
+          formControlName="pic"
+          [control]="getControl('pic')"
+          [options]="picOptions"
+          [required]="true"
+        ></app-form-input>
+        <app-form-input
+          label="MK Eksepsi"
+          type="select"
+          placeholder="Pilih Status MK Eksepsi"
+          formControlName="matakuliahEksepsi"
+          [control]="getControl('matakuliahEksepsi')"
+          [options]="matakuliahEksepsiOptions"
+          [required]="true"
+        ></app-form-input>
+        <div></div>
+
         <div class="full-width-field">
           <app-form-input
-            label="SKS / Credit"
+            label="Status Mata Kuliah"
             type="select"
-            placeholder="Pilih Jumlah SKS"
-            formControlName="sks"
-            [control]="getControl('sks')"
-            [options]="sksOptions"
-            [required]="true"
-          ></app-form-input>
-        </div>
-        <div class="full-width-field">
-          <app-form-input
-            label="PIC"
-            type="select"
-            placeholder="Pilih PIC"
-            formControlName="pic"
-            [control]="getControl('pic')"
-            [options]="picOptions"
-            [required]="true"
-          ></app-form-input>
-        </div>
-        <div class="full-width-field">
-          <app-form-input
-            label="Status Wajib"
-            type="select"
-            placeholder="Pilih Status Wajib"
+            placeholder="Pilih Status Mata Kuliah"
             formControlName="mandatoryStatus"
             [control]="getControl('mandatoryStatus')"
             [options]="mandatoryStatusOptions"
             [required]="true"
           ></app-form-input>
-        </div>
-        <div class="full-width-field">
-          <app-form-input
-            label="Tingkat Mata Kuliah"
-            type="select"
-            placeholder="Pilih Tingkat Mata Kuliah"
-            formControlName="tingkatMatakuliah"
-            [control]="getControl('tingkatMatakuliah')"
-            [options]="tingkatMatakuliahOptions"
-            [required]="true"
-          ></app-form-input>
-        </div>
-        <div class="full-width-field">
+
           <app-form-input
             label="Metode Perkuliahan"
             type="select"
@@ -83,17 +90,7 @@
             [required]="true"
           ></app-form-input>
         </div>
-        <div class="full-width-field">
-          <app-form-input
-            label="Mata Kuliah Eksepsi"
-            type="select"
-            placeholder="Pilih Opsi Eksepsi"
-            formControlName="matakuliahEksepsi"
-            [control]="getControl('matakuliahEksepsi')"
-            [options]="matakuliahEksepsiOptions"
-            [required]="true"
-          ></app-form-input>
-        </div>
+
         <div class="form-field full-width-field">
           <label>Praktikum <span class="required">*</span></label>
           <div class="radio-group">
@@ -117,7 +114,8 @@
           </div>
         </div>
       </div>
-      <div class="submit-button-container" style="gap: 1rem">
+
+      <div class="submit-button-container">
         <app-action-button
           *ngIf="isEditMode"
           text="Back"
