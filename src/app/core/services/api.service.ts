@@ -57,9 +57,9 @@ export class ApiService {
         return this.http.get(url!);
     }
 
-    getAllUsersByRole(roleId: number): Observable<any> {
+    getAllUsersByRole(roleId: number, params?: HttpParams): Observable<any> {
         const url = this.endpoint.getUrl('roles', 'get_all_user_by_role', { roleId });
-        return this.http.get(url!);
+        return this.http.get(url!, { params: params });
     }
 
     assignRole(data: any): Observable<any> {
