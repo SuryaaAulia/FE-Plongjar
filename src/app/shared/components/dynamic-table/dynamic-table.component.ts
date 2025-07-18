@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy, ViewEncapsulation } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy, ViewEncapsulation, ElementRef, ViewChild, AfterViewInit, HostListener, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, NgStyle, NgClass } from '@angular/common';
 import { LoadingSpinnerComponent } from '../loading-spinner/loading-spinner.component';
 
@@ -33,7 +33,7 @@ interface StickyColumnStyle {
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None
 })
-export class DynamicTableComponent implements OnChanges {
+export class DynamicTableComponent implements OnChanges, AfterViewInit {
   @Input() data: any[] = [];
   @Input() columnConfigs: ColumnConfig[] = [];
   @Input() tableMinimuWidth?: string;
@@ -41,14 +41,31 @@ export class DynamicTableComponent implements OnChanges {
   @Input() parentMaxHeight: string = '70vh';
   @Input() noDataMessage: string = 'No data available.';
 
+  @ViewChild('tableContainer') tableContainer!: ElementRef<HTMLDivElement>;
+
   stickyColStylesMap: Map<string, StickyColumnStyle> = new Map();
   sortedStickyColumns: ColumnConfig[] = [];
   nonStickyColumns: ColumnConfig[] = [];
 
+  isContentObscured = false;
+  private totalStickyWidth = 0;
+
+  constructor(private cdr: ChangeDetectorRef) { }
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['columnConfigs'] || changes['data']) {
       this.prepareColumnLayout();
+      this.checkIfContentIsObscured();
     }
+  }
+
+  ngAfterViewInit(): void {
+    setTimeout(() => this.checkIfContentIsObscured(), 0);
+  }
+
+  @HostListener('window:resize')
+  onResize(): void {
+    this.checkIfContentIsObscured();
   }
 
   private prepareColumnLayout(): void {
@@ -59,7 +76,6 @@ export class DynamicTableComponent implements OnChanges {
 
     this.sortedStickyColumns = stickyColumns;
     this.nonStickyColumns = this.columnConfigs.filter(col => !col.isSticky);
-
 
     let currentLeft = 0;
     for (const col of stickyColumns) {
@@ -72,11 +88,21 @@ export class DynamicTableComponent implements OnChanges {
       };
       this.stickyColStylesMap.set(col.key, style);
 
-      const widthMatch = (col.width || '0').match(/^(\d+)(px)?$/);
+      const widthMatch = (col.width || '0').match(/^(\d+)/);
       if (widthMatch && widthMatch[1]) {
         currentLeft += parseInt(widthMatch[1], 10);
       } else {
+        currentLeft += 150;
       }
+    }
+    this.totalStickyWidth = currentLeft;
+  }
+
+  private checkIfContentIsObscured(): void {
+    if (this.tableContainer?.nativeElement) {
+      const containerWidth = this.tableContainer.nativeElement.clientWidth;
+      this.isContentObscured = containerWidth > 0 && this.totalStickyWidth > 0 && containerWidth <= this.totalStickyWidth;
+      this.cdr.detectChanges();
     }
   }
 

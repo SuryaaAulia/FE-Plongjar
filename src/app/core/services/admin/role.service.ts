@@ -3,6 +3,7 @@ import { Observable, BehaviorSubject, of } from 'rxjs';
 import { map, tap, catchError } from 'rxjs/operators';
 import { ApiService } from '../api.service';
 import { Role, User } from '../../models/user.model';
+import { HttpParams } from '@angular/common/http';
 
 export interface RoleAssignment {
     user_id: number;
@@ -87,41 +88,25 @@ export class RoleService {
         );
     }
 
-    getAllUsersByRole(roleId: number): Observable<UserWithRoles[]> {
-        return this.apiService.getAllUsersByRole(roleId).pipe(
+    getAllUsersByRole(roleId: number, params: HttpParams): Observable<any> {
+        return this.apiService.getAllUsersByRole(roleId, params).pipe(
             map((response: any) => {
-                let users: any[] = [];
-                
-                if (Array.isArray(response)) {
-                    users = response;
-                } else if (response?.data) {
-                    if (response.data.data && Array.isArray(response.data.data)) {
-                        users = response.data.data;
-                    } else if (Array.isArray(response.data)) {
-                        users = response.data;
-                    }
-                }
-
-                if (!Array.isArray(users)) {
-                    return [];
-                }
-
-                const currentRoles = this.rolesSubject.value;
-                const currentRole = currentRoles.find(role => role.id === roleId);
-
-                return users.map((user: any): UserWithRoles => {
+                if (response && response.success && response.data) {
                     return {
-                        ...user,
-                        roles: currentRole ? [currentRole] : []
+                        data: response.data.data || [],
+                        total: response.data.total || 0,
+                        current_page: response.data.current_page || 1
                     };
-                });
+                }
+                return { data: [], total: 0, current_page: 1 };
             }),
             catchError(error => {
                 console.error('Error fetching users by role:', error);
-                return of([]);
+                return of({ data: [], total: 0, current_page: 1 });
             })
         );
     }
+
 
     getAllAssignedUserRoles(): Observable<any> {
         return this.apiService.getAllAssignedUserRoles().pipe(

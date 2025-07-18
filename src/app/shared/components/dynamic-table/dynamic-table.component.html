@@ -1,4 +1,17 @@
-<div class="dynamic-table-container" [style.maxHeight]="parentMaxHeight">
+<div
+  #tableContainer
+  class="dynamic-table-container"
+  [style.maxHeight]="parentMaxHeight"
+  [class.obscured]="isContentObscured"
+>
+  <div *ngIf="isContentObscured" class="overflow-message-overlay">
+    <i class="fas fa-mobile-alt"></i>
+    <span
+      >Ukuran layar terlalu kecil untuk menampilkan data tabel. Silakan gunakan
+      layar yang lebih besar.</span
+    >
+  </div>
+
   <table [style.minWidth]="tableMinimuWidth || 'auto'">
     <thead>
       <tr>

@@ -1,11 +1,14 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { AuthService } from '../services/auth.service';
+import { NotificationService } from '../services/notification.service';
+
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-    constructor(private authService: AuthService) { }
+    private authService = inject(AuthService);
+    private notificationService = inject(NotificationService);
 
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         const authToken = this.authService.getToken();
@@ -33,6 +36,11 @@ export class AuthInterceptor implements HttpInterceptor {
                 if (error.status === 401 && this.shouldTriggerLogout(req.url)) {
                     this.authService.logout();
                 }
+
+                if (error.status === 403 && this.shouldTriggerLogout(req.url)) {
+                    this.notificationService.showWarning('Sesi Anda tidak valid atau hak akses telah berubah. Silakan login kembali.');
+                    this.authService.logout();
+                }
                 return throwError(() => error);
             })
         );
@@ -47,9 +55,7 @@ export class AuthInterceptor implements HttpInterceptor {
             '/auth/forgot-password',
             '/auth/reset-password'
         ];
-
+        
         return !excludedEndpoints.some(endpoint => url.includes(endpoint));
     }
 }
-
-export * from './auth.interceptor';

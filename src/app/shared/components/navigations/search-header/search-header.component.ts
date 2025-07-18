@@ -63,6 +63,7 @@ export class SearchHeaderComponent implements OnInit {
   }
 
   changeItemsPerPage(size: number): void {
+    this.itemsPerPage = size;
     this.itemsPerPageChange.emit(size);
     this.showDropdown = false;
   }
