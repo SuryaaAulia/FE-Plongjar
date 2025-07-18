@@ -93,26 +93,12 @@
 
     app-form-input {
       margin-bottom: 0;
-
-      ::ng-deep {
-
-        .form-group,
-        .input-group,
-        .form-control-wrapper,
-        div {
-          margin-bottom: 0;
-        }
-      }
     }
 
     .format-hint {
-      margin-top: 0;
-      margin-bottom: 0;
-      padding-top: 0;
+      margin-top: 0.25rem;
       font-size: var(--text-xs);
       color: var(--grey-alternative);
-      line-height: 1.2;
-      transform: translateY(0.25rem);
     }
   }
 }
@@ -159,13 +145,14 @@
 .table-container {
   border: 1px solid var(--grey);
   border-radius: 6px;
-  overflow: hidden;
   max-height: 380px;
   overflow-y: auto;
+  overflow-x: auto;
 }
 
 .daftar-kelas-table {
   width: 100%;
+  min-width: 800px;
   border-collapse: collapse;
 
   thead {
