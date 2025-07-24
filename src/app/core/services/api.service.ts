@@ -453,9 +453,9 @@ export class ApiService {
         return this.http.get(url!);
     }
 
-    getHasilPlottinganByProdi(tahunAjaranId: number, prodiId: number): Observable<any> {
+    getHasilPlottinganByProdi(tahunAjaranId: number, prodiId: number, http: HttpParams): Observable<any> {
         const url = this.endpoint.getUrl('plottingan_pengajaran', 'get_hasil_by_prodi', { tahunAjaranId, prodiId });
-        return this.http.get(url!);
+        return this.http.get(url!, { params: http });
     }
 
     exportPlottinganPengajaran(tahunAjaranId: number): Observable<any> {
