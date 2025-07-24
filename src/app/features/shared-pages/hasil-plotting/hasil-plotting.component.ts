@@ -14,6 +14,7 @@ import { TahunAjaran } from '../../../core/models/user.model';
 import { finalize } from 'rxjs/operators';
 import { Location } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
+import { HttpParams } from '@angular/common/http';
 
 
 export interface ProgramStudi {
@@ -144,33 +145,36 @@ export class HasilPlottingComponent implements OnInit {
     if (!this.selectedTahunAjaranId || !this.selectedProdiId) {
       this.mataKuliahData = [];
       this.totalItems = 0;
-      this.updatePaginatedData();
+      this.paginatedData = [];
       return;
     }
 
     this.isLoading = true;
+    const params = new HttpParams()
+      .set('page', this.currentPage)
+      .set('per_page', this.pageSize);
+
     this.matakuliahService
-      .getHasilPlottinganByProdi(this.selectedTahunAjaranId, this.selectedProdiId)
+      .getHasilPlottinganByProdi(this.selectedTahunAjaranId, this.selectedProdiId, params)
       .pipe(finalize(() => (this.isLoading = false)))
       .subscribe({
         next: (response) => {
-          if (Array.isArray(response.data)) {
-            this.mataKuliahData = response.data;
-            this.totalItems = this.mataKuliahData.length;
-          } else {
-            this.mataKuliahData = [];
-            this.totalItems = 0;
-          }
-          this.updatePaginatedData();
+          this.mataKuliahData = response.data;
+          this.totalItems = response.total ?? this.mataKuliahData.length;
+          this.paginatedData = this.mataKuliahData.map((item, index) => ({
+            ...item,
+            no: (this.currentPage - 1) * this.pageSize + index + 1
+          }));
         },
         error: (err) => {
           console.error('Error fetching hasil plottingan:', err);
           this.mataKuliahData = [];
+          this.paginatedData = [];
           this.totalItems = 0;
-          this.updatePaginatedData();
         },
       });
   }
+
 
   onFilterChange(): void {
     this.currentPage = 1;
@@ -179,12 +183,12 @@ export class HasilPlottingComponent implements OnInit {
 
   onPageChange(page: number): void {
     this.currentPage = page;
-    this.updatePaginatedData();
+    this.loadHasilPlottingan();
   }
 
   onPageSizeChange(): void {
     this.currentPage = 1;
-    this.updatePaginatedData();
+    this.loadHasilPlottingan();
   }
 
   updatePaginatedData(): void {

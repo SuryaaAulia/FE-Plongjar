@@ -189,12 +189,13 @@ export class MatakuliahService {
         );
     }
 
-    getHasilPlottinganByProdi(tahunAjaranId: number, prodiId: number): Observable<{ data: HasilPlottingRow[] }> {
-        return this.apiService.getHasilPlottinganByProdi(tahunAjaranId, prodiId).pipe(
+    getHasilPlottinganByProdi(tahunAjaranId: number, prodiId: number, http: HttpParams): Observable<{ data: HasilPlottingRow[], total: number }> {
+        return this.apiService.getHasilPlottinganByProdi(tahunAjaranId, prodiId, http).pipe(
             map(response => {
                 if ((response.success || response.status === 'success') && response.data?.data) {
                     const mataKuliahMapped = this.mapApiResponseToMataKuliah(response.data.data);
-                    return { data: mataKuliahMapped };
+                    const total = response.data.total ?? mataKuliahMapped.length;
+                    return { data: mataKuliahMapped, total };
                 }
                 throw new Error('Invalid response format');
             }),
