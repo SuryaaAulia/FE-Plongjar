@@ -4,39 +4,45 @@
     [itemsPerPage]="itemsPerPage"
     [pageSizeOptions]="[6, 9, 12, 24, 30]"
     placeholder1="Nama Mata Kuliah"
-    placeholder2="PIC"
+    placeholder2="Kode Mata Kuliah"
+    [debounceTime]="300"
     (itemsPerPageChange)="onItemsPerPageChange($event)"
     (search)="handleSearch($event)"
   ></app-search-header>
 
   <div class="divider"></div>
 
-  @if (isLoading) {
-  <app-loading-spinner></app-loading-spinner>
-  } @else { @if (courses.length === 0) {
-  <app-search-not-found
-    [keyword]="currentSearchDisplayKeyword"
-    altText="Mata kuliah tidak ditemukan"
-  ></app-search-not-found>
-  } @else {
-  <div class="item-grid">
-    @for (course of courses; track course.id) {
-    <app-course-card
-      [course]="course"
-      (viewDetails)="handleViewDetails($event)"
-      (edit)="handleEditCourse($event)"
-      (delete)="handleDeleteCourse($event)"
-    ></app-course-card>
-    }
+  <div *ngIf="isLoading" class="loading-container">
+    <app-loading-spinner></app-loading-spinner>
   </div>
 
-  <app-pagination
-    [currentPage]="currentPage"
-    [itemsPerPage]="itemsPerPage"
-    [totalItems]="totalItems"
-    (pageChange)="onPageChange($event)"
-  ></app-pagination>
-  } }
+  <div *ngIf="!isLoading">
+    <div *ngIf="courses.length === 0" class="no-results-container">
+      <app-search-not-found
+        [keyword]="currentSearchDisplayKeyword"
+        altText="Mata kuliah tidak ditemukan"
+      ></app-search-not-found>
+    </div>
+
+    <div *ngIf="courses.length > 0">
+      <div class="item-grid">
+        <app-course-card
+          *ngFor="let course of courses; trackBy: trackByCourseId"
+          [course]="course"
+          (viewDetails)="handleViewDetails($event)"
+          (edit)="handleEditCourse($event)"
+          (delete)="handleDeleteCourse($event)"
+        ></app-course-card>
+      </div>
+
+      <app-pagination
+        [currentPage]="currentPage"
+        [itemsPerPage]="itemsPerPage"
+        [totalItems]="totalItems"
+        (pageChange)="onPageChange($event)"
+      ></app-pagination>
+    </div>
+  </div>
 
   <app-confirmation-modal
     [isVisible]="showDeleteModal"
@@ -46,7 +52,7 @@
     [passwordPrompt]="deletePasswordPrompt"
     checkboxLabel="Ya, saya yakin."
     okButtonText="OK"
-    cancelButtonText="Cancel"
+    cancelButtonText="Batal"
     (confirmed)="onInitialDeleteConfirmed()"
     (passwordEntered)="onPasswordDeleteSubmitted($event)"
     (cancelled)="onDeleteCancelled()"

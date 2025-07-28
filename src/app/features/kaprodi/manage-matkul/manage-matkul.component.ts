@@ -1,7 +1,10 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { HttpParams } from '@angular/common/http';
+import { Subject } from 'rxjs';
+import { finalize, takeUntil } from 'rxjs/operators';
 import { Course } from '../../../core/models/user.model';
 import {
   PaginationComponent,
@@ -13,8 +16,6 @@ import {
 } from '../../../shared/components/index';
 import { MatakuliahService } from '../../../core/services/matakuliah.service';
 import { NotificationService } from '../../../core/services/notification.service';
-import { HttpParams } from '@angular/common/http';
-import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-manage-matkul',
@@ -30,9 +31,9 @@ import { finalize } from 'rxjs/operators';
     SearchHeaderComponent
   ],
   templateUrl: './manage-matkul.component.html',
-  styleUrl: './manage-matkul.component.scss'
+  styleUrls: ['./manage-matkul.component.scss']
 })
-export class ManageMatkulComponent implements OnInit {
+export class ManageMatkulComponent implements OnInit, OnDestroy {
   courses: Course[] = [];
   totalItems: number = 0;
   currentPage = 1;
@@ -40,8 +41,7 @@ export class ManageMatkulComponent implements OnInit {
   isLoading = true;
 
   private currentSearchName = '';
-  private currentSearchPic = '';
-
+  private currentSearchCode = '';
   currentSearchDisplayKeyword: string = '';
 
   showDeleteModal = false;
@@ -51,6 +51,8 @@ export class ManageMatkulComponent implements OnInit {
   deleteModalMessage = '';
   deletePasswordPrompt = 'Masukan password akun anda untuk melanjutkan tindakan penghapusan mata kuliah';
 
+  private destroy$ = new Subject<void>();
+
   private router = inject(Router);
   private matakuliahService = inject(MatakuliahService);
   private notificationService = inject(NotificationService);
@@ -59,48 +61,59 @@ export class ManageMatkulComponent implements OnInit {
     this.loadCourses();
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   loadCourses(): void {
     this.isLoading = true;
+    const mergedSearch = [this.currentSearchName, this.currentSearchCode]
+      .filter(Boolean)
+      .join(' ');
+
     let params = new HttpParams()
       .set('page', this.currentPage.toString())
       .set('per_page', this.itemsPerPage.toString());
 
-    if (this.currentSearchName) {
-      params = params.set('nama_matakuliah', this.currentSearchName);
-    }
-    if (this.currentSearchPic) {
-      params = params.set('pic', this.currentSearchPic);
+    if (mergedSearch) {
+      params = params.set('search', mergedSearch);
     }
 
-    this.matakuliahService.getAllCoursesAuthProdi(params).pipe(
-      finalize(() => { this.isLoading = false; })
-    ).subscribe({
-      next: (response) => {
-        this.courses = response.data;
-        this.totalItems = response.total;
-        this.currentPage = response.current_page;
-      },
-      error: (err) => {
-        console.error('Failed to load courses:', err);
-        this.notificationService.showError('Gagal memuat daftar mata kuliah. Silakan coba lagi.');
-        this.courses = [];
-        this.totalItems = 0;
-      }
-    });
+    this.matakuliahService.getAllCoursesAuthProdi(params)
+      .pipe(
+        finalize(() => {
+          this.isLoading = false;
+        }),
+        takeUntil(this.destroy$)
+      )
+      .subscribe({
+        next: (response) => {
+          this.courses = response.data;
+          this.totalItems = response.total;
+          this.currentPage = response.current_page;
+        },
+        error: (err) => {
+          console.error('Failed to load courses:', err);
+          this.notificationService.showError('Gagal memuat daftar mata kuliah. Silakan coba lagi.');
+          this.courses = [];
+          this.totalItems = 0;
+        }
+      });
   }
 
   handleSearch(searchQueries: { query1: string; query2: string }): void {
     this.currentPage = 1;
-    this.currentSearchName = searchQueries.query1;
-    this.currentSearchPic = searchQueries.query2;
-    this.updateSearchDisplayKeyword(this.currentSearchName, this.currentSearchPic);
+    this.currentSearchName = searchQueries.query1.trim();
+    this.currentSearchCode = searchQueries.query2.trim();
+    this.updateSearchDisplayKeyword(this.currentSearchName, this.currentSearchCode);
     this.loadCourses();
   }
 
-  updateSearchDisplayKeyword(name: string, pic: string): void {
+  updateSearchDisplayKeyword(name: string, code: string): void {
     const trimmedName = name.trim();
-    const trimmedPic = pic.trim();
-    this.currentSearchDisplayKeyword = [trimmedName, trimmedPic].filter(Boolean).join(', ');
+    const trimmedCode = code.trim();
+    this.currentSearchDisplayKeyword = [trimmedName, trimmedCode].filter(Boolean).join(', ');
   }
 
   onItemsPerPageChange(items: number): void {
@@ -140,28 +153,27 @@ export class ManageMatkulComponent implements OnInit {
     if (!this.courseToDelete || !password) {
       return;
     }
-
     const courseId = Number(this.courseToDelete.id);
     if (isNaN(courseId)) {
-      console.error("Invalid course ID for deletion:", this.courseToDelete.id);
       this.notificationService.showError('ID Mata Kuliah tidak valid.');
       this.closeDeleteModal();
       return;
     }
-
-    this.matakuliahService.deleteMatakuliah(courseId, password).subscribe({
-      next: (response) => {
-        this.notificationService.showSuccess(response.message || 'Mata kuliah berhasil dihapus.');
-        this.closeDeleteModal();
-        this.loadCourses();
-      },
-      error: (err) => {
-        console.error('Failed to delete course:', err);
-        const errorMessage = err.error?.message || 'Gagal menghapus mata kuliah. Password mungkin salah atau terjadi error lain.';
-        this.notificationService.showError(errorMessage);
-        this.deleteModalMode = 'password';
-      }
-    });
+    this.matakuliahService.deleteMatakuliah(courseId, password)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.notificationService.showSuccess(response.message || 'Mata kuliah berhasil dihapus.');
+          this.closeDeleteModal();
+          this.loadCourses();
+        },
+        error: (err) => {
+          console.error('Failed to delete course:', err);
+          const errorMessage = err.error?.message || 'Gagal menghapus mata kuliah. Password mungkin salah atau terjadi error lain.';
+          this.notificationService.showError(errorMessage);
+          this.deleteModalMode = 'password';
+        }
+      });
   }
 
   onDeleteCancelled(): void {
@@ -172,5 +184,9 @@ export class ManageMatkulComponent implements OnInit {
     this.showDeleteModal = false;
     this.courseToDelete = null;
     this.deleteModalMode = 'checkbox';
+  }
+
+  trackByCourseId(index: number, course: Course): string | number {
+    return course.id;
   }
 }
