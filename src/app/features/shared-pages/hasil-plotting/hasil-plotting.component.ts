@@ -55,6 +55,8 @@ export class HasilPlottingComponent implements OnInit {
 
   isLoading: boolean = false;
 
+  pageTitle: string = 'Tabel Hasil Plottingan';
+
   mataKuliahColumnConfigs: ColumnConfig[] = [];
   tableMinimuWidth: string = '2000px';
   private stickyCol0Width: string = '60px';
