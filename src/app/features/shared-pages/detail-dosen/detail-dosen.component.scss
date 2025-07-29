@@ -16,6 +16,18 @@
     width: 100%;
   }
 
+  .icon-action-btn {
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+
+    .file-icon {
+      color: var(--blue);
+      font-size: var(--text-xl);
+    }
+  }
+
   .lecturer-profile {
     margin-top: 2rem;
     margin-left: 3rem;
@@ -127,8 +139,6 @@
     }
   }
 }
-
-// Responsive adjustments
 
 @media (max-width: 768px) {
   .detail-dosen-container {
