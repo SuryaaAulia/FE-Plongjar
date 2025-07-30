@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Observable, Subject, of } from 'rxjs';
 import { takeUntil, finalize, catchError } from 'rxjs/operators';
@@ -12,6 +12,7 @@ import {
   SearchNotFoundComponent,
   AssignJabatanCardComponent,
 } from '../../../shared/components/index';
+import { NotificationService } from '../../../core/services/notification.service';
 
 export interface JabatanOption {
   id: number;
@@ -53,10 +54,9 @@ export class AssignJabatanComponent implements OnInit, OnDestroy {
   itemsPerPage = 9;
   totalItems = 0;
 
-  constructor(
-    private dosenService: DosenService,
-    private jabatanService: JabatanService
-  ) { }
+  private dosenService = inject(DosenService);
+  private jabatanService = inject(JabatanService);
+  private notificationService = inject(NotificationService);
 
   ngOnInit(): void {
     this.loadInitialData();
@@ -109,9 +109,9 @@ export class AssignJabatanComponent implements OnInit, OnDestroy {
       };
       dosenObservable = this.dosenService.getAllDosen(params);
     } else if (isTanpaJabatan) {
-      dosenObservable = this.dosenService.getDosenTanpaJabatanStruktural();
+      dosenObservable = this.jabatanService.getDosenTanpaJabatanStruktural();
     } else if (selectedJabatan) {
-      dosenObservable = this.dosenService.getDosenByJabatanStruktural(selectedJabatan.id);
+      dosenObservable = this.jabatanService.getDosenByJabatanStruktural(selectedJabatan.id);
     } else {
       dosenObservable = this.dosenService.getAllDosen({ page: 1, per_page: 200 });
     }
@@ -231,36 +231,53 @@ export class AssignJabatanComponent implements OnInit, OnDestroy {
   private assignJabatan(lecturer: Lecturer, jabatan: JabatanOption): void {
     this.isLoading = true;
 
-    this.dosenService.assignJabatanStruktural({
-      id_dosen: lecturer.id,
-      id_jabatan_struktural: jabatan.id
-    })
+    this.jabatanService.assignJabatanStruktural(lecturer.id, jabatan.id)
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => (this.isLoading = false))
       )
       .subscribe({
         next: res => {
-          if (res.success) this.loadDosenByFilter();
+          if (res.success) {
+            this.notificationService.showSuccess(res.message || "Jabatan berhasil di-assign.");
+            this.loadDosenByFilter();
+          }
         },
-        error: () => this.errorMessage = 'Failed to assign position'
+        error: (err) => {
+          const errorMessage = err.error?.message || 'Gagal meng-assign jabatan.';
+          this.notificationService.showError(errorMessage);
+          console.error('Failed to assign position', err);
+        }
       });
   }
 
   private removeJabatan(lecturer: Lecturer): void {
-    this.isLoading = true;
-
-    this.dosenService.revokeJabatanStruktural({ id_dosen: lecturer.id })
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => (this.isLoading = false))
-      )
-      .subscribe({
-        next: res => {
-          if (res.success) this.loadDosenByFilter();
-        },
-        error: () => this.errorMessage = 'Failed to remove position'
-      });
+    this.notificationService.showConfirmation(
+      'Konfirmasi Hapus Jabatan',
+      `Anda yakin ingin melepas jabatan struktural dari ${lecturer.name}?`
+    ).then(result => {
+      if (result.isConfirmed) {
+        this.isLoading = true;
+        this.jabatanService.revokeJabatanStruktural(lecturer.id)
+          .pipe(
+            takeUntil(this.destroy$),
+            finalize(() => (this.isLoading = false))
+          )
+          .subscribe({
+            next: res => {
+              if (res.success) {
+                this.notificationService.showSuccess(res.message || "Jabatan berhasil dilepas.");
+                this.loadDosenByFilter();
+              }
+            },
+            error: (err) => {
+              const errorMessage = err.error?.message || 'Gagal melepas jabatan.';
+              this.notificationService.showError(errorMessage);
+              console.error('Failed to remove position', err);
+            }
+          });
+      }
+    });
   }
 
   get combinedSearchKeyword(): string {
