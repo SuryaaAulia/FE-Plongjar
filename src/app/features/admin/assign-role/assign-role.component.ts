@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
@@ -9,10 +9,11 @@ import {
   PaginationComponent,
   AddRoleModalComponent,
   LoadingSpinnerComponent,
-  SearchNotFoundComponent
+  SearchNotFoundComponent,
 } from '../../../shared/components/index';
 import { User, Role } from '../../../core/models/user.model';
 import { RoleService, UserWithRoles, RoleAssignment } from '../../../core/services/admin/role.service';
+import { NotificationService } from '../../../core/services/notification.service';
 
 @Component({
   selector: 'app-assign-role',
@@ -49,7 +50,8 @@ export class AssignRoleComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
-  constructor(public roleService: RoleService) { }
+  private roleService = inject(RoleService);
+  private notificationService = inject(NotificationService);
 
   ngOnInit(): void {
     this.loadData();
@@ -142,14 +144,12 @@ export class AssignRoleComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const assignment: RoleAssignment = {
-      user_id: this.selectedUser.id,
-      role_id: role.id,
-    };
+    const userId = this.selectedUser.id;
+    const roleId = role.id;
 
     this.isLoading = true;
     this.roleService
-      .assignRole(assignment)
+      .assignRole(userId, roleId)
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => {
@@ -159,11 +159,13 @@ export class AssignRoleComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (response) => {
+          this.notificationService.showSuccess('Role assigned successfully!');
           this.loadData();
         },
         error: (error) => {
+          const errorMessage = error.error?.message || 'Failed to assign role. Please try again.';
+          this.notificationService.showError(errorMessage);
           console.error('Error assigning role:', error);
-          console.error('Failed to assign role. Please try again.');
         },
       });
   }
