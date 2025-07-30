@@ -62,12 +62,6 @@ export interface DosenListParams {
     kode_dosen?: string;
 }
 
-export interface JabatanStrukturalResponse {
-    id: number;
-    nama_jabatan: string;
-    deskripsi?: string;
-}
-
 export interface RiwayatPengajaranResponse {
     id_dosen: number;
     nama_dosen: string;
@@ -138,27 +132,6 @@ export class DosenService {
         );
     }
 
-    getDosenTanpaJabatanStruktural(): Observable<DosenListResponse> {
-        return this.apiService.getDosenTanpaJabatan().pipe(
-            map(response => this.transformResponse(response)),
-            catchError(error => this.handleError(error))
-        );
-    }
-
-    getDosenDenganJabatanStruktural(): Observable<DosenListResponse> {
-        return this.apiService.getDosenDenganJabatan().pipe(
-            map(response => this.transformResponse(response)),
-            catchError(error => this.handleError(error))
-        );
-    }
-
-    getDosenByJabatanStruktural(jabatanId: number): Observable<DosenListResponse> {
-        return this.apiService.getDosenByJabatan(jabatanId).pipe(
-            map(response => this.transformResponse(response)),
-            catchError(error => this.handleError(error))
-        );
-    }
-
     createDosen(dosenData: any): Observable<any> {
         return this.apiService.createDosen(dosenData).pipe(
             catchError(error => this.handleError(error))
@@ -173,18 +146,6 @@ export class DosenService {
 
     deleteDosen(id: number): Observable<any> {
         return this.apiService.deleteDosen(id).pipe(
-            catchError(error => this.handleError(error))
-        );
-    }
-
-    assignJabatanStruktural(data: { id_dosen: number; id_jabatan_struktural: number }): Observable<any> {
-        return this.apiService.assignJabatanDosen(data).pipe(
-            catchError(error => this.handleError(error))
-        );
-    }
-
-    revokeJabatanStruktural(data: { id_dosen: number }): Observable<any> {
-        return this.apiService.revokeJabatanDosen(data).pipe(
             catchError(error => this.handleError(error))
         );
     }
@@ -280,7 +241,7 @@ export class DosenService {
         );
     }
 
-    private transformResponse(response: any): DosenListResponse {
+    public transformResponse(response: any): DosenListResponse {
         if (response && response.success !== undefined) {
             return response as DosenListResponse;
         } else if (response && response.data) {

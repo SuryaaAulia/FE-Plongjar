@@ -3,6 +3,7 @@ import { Observable, throwError } from 'rxjs';
 import { map, catchError, tap } from 'rxjs/operators';
 import { ApiService } from '../api.service';
 import { JabatanStruktural } from '../../models/user.model';
+import { DosenService, DosenListResponse } from '../dosen.service';
 
 export interface JabatanAssignment {
     id_dosen: number;
@@ -12,12 +13,6 @@ export interface JabatanAssignment {
 export interface JabatanCreateRequest {
     nama: string;
     konversi_sks: number;
-}
-
-export interface JabatanResponse {
-    success: boolean;
-    message: string;
-    data: JabatanStruktural[];
 }
 
 export interface JabatanCreateResponse {
@@ -38,11 +33,17 @@ export interface ValidationErrorResponse {
     };
 }
 
+export interface JabatanStrukturalResponse {
+    id: number;
+    nama_jabatan: string;
+    deskripsi?: string;
+}
+
 @Injectable({
     providedIn: 'root'
 })
 export class JabatanService {
-    constructor(private apiService: ApiService) { }
+    constructor(private apiService: ApiService, private dosenService: DosenService) { }
 
     getAllJabatanStruktural(): Observable<JabatanStruktural[]> {
 
@@ -87,25 +88,6 @@ export class JabatanService {
         );
     }
 
-    assignJabatanToDosen(assignment: JabatanAssignment): Observable<AssignmentResponse> {
-        return this.apiService.assignJabatanDosen(assignment).pipe(
-            catchError(error => {
-                console.error('Error assigning jabatan to dosen:', error);
-                return this.handleError(error);
-            })
-        );
-    }
-
-    revokeJabatanFromDosen(dosenId: number): Observable<AssignmentResponse> {
-        const data = { id_dosen: dosenId };
-        return this.apiService.revokeJabatanDosen(data).pipe(
-            catchError(error => {
-                console.error('Error revoking jabatan from dosen:', error);
-                return this.handleError(error);
-            })
-        );
-    }
-
     private handleError(error: any): Observable<never> {
         console.error('JabatanService: Handling error:', error);
 
@@ -143,5 +125,42 @@ export class JabatanService {
             return errors[fieldName][0];
         }
         return null;
+    }
+
+    getDosenTanpaJabatanStruktural(): Observable<DosenListResponse> {
+        return this.apiService.getDosenTanpaJabatan().pipe(
+            map(response => this.dosenService.transformResponse(response)),
+            catchError(error => this.handleError(error))
+        );
+    }
+
+    getDosenDenganJabatanStruktural(): Observable<DosenListResponse> {
+        return this.apiService.getDosenDenganJabatan().pipe(
+            map(response => this.dosenService.transformResponse(response)),
+            catchError(error => this.handleError(error))
+        );
+    }
+
+    getDosenByJabatanStruktural(jabatanId: number): Observable<DosenListResponse> {
+        return this.apiService.getDosenByJabatan(jabatanId).pipe(
+            map(response => this.dosenService.transformResponse(response)),
+            catchError(error => this.handleError(error))
+        );
+    }
+
+    assignJabatanStruktural(dosenId: number, jabatanId: number): Observable<any> {
+        const payload = {
+            id_jabatan_struktural: jabatanId
+        };
+
+        return this.apiService.assignJabatanDosen(dosenId, payload).pipe(
+            catchError(error => this.handleError(error))
+        );
+    }
+
+    revokeJabatanStruktural(dosenId: number): Observable<any> {
+        return this.apiService.revokeJabatanDosen(dosenId).pipe(
+            catchError(error => this.handleError(error))
+        );
     }
 }
