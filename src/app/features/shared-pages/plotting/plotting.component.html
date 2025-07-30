@@ -1,3 +1,7 @@
+<div class="page-header" *ngIf="!showProdiSelection">
+  <h2>{{ pageTitle }}</h2>
+</div>
+
 <div *ngIf="showProdiSelection" class="prodi-selection-container">
   <div class="prodi-header">
     <h1 class="prodi-title">Plotting Koordinator dan Dosen Matkul</h1>
@@ -20,18 +24,13 @@
 </div>
 
 <div *ngIf="!showProdiSelection" class="course-assignment-container">
-  <div class="green-header-bar"></div>
-
-  <div
-    *ngIf="isKelompokKeahlianUser && selectedProdi"
-    class="selected-prodi-indicator"
-  >
-    <span class="prodi-text"
-      >Program Studi: <strong>{{ selectedProdi.name }}</strong></span
+  <div class="green-header-bar">
+    <span
+      *ngIf="isKelompokKeahlianUser && selectedProdi"
+      class="prodi-text-in-header"
     >
-    <button class="back-to-prodi-btn" (click)="onBackToProdiSelection()">
-      <i class="fas fa-arrow-left"></i> Ganti Prodi
-    </button>
+      Program Studi: <strong>{{ selectedProdi.name }}</strong>
+    </span>
   </div>
 
   <div class="form-section">
@@ -79,7 +78,6 @@
           <th>Online/Onsite</th>
         </tr>
       </thead>
-
       <tbody *ngIf="!isLoadingTableData && tableData.length > 0">
         <tr *ngFor="let row of tableData; let i = index">
           <td>{{ row.no }}</td>
@@ -96,9 +94,9 @@
               class="input-like-button has-hover-icon"
               (click)="openLecturerModal('dosen', i)"
             >
-              <ng-container *ngIf="row.dosen; else pilihDosenWithHover">
-                {{ row.dosen }}
-              </ng-container>
+              <ng-container *ngIf="row.dosen; else pilihDosenWithHover">{{
+                row.dosen
+              }}</ng-container>
               <ng-template #pilihDosenWithHover>
                 <span class="placeholder-text">Pilih Dosen</span>
                 <i class="fa fa-plus icon-hover"></i>
@@ -115,7 +113,6 @@
           <td>{{ row.onlineOnsite }}</td>
         </tr>
       </tbody>
-
       <tbody *ngIf="isLoadingTableData || tableData.length === 0">
         <tr>
           <td [attr.colspan]="9" class="placeholder-cell">
@@ -123,7 +120,6 @@
               <app-loading-spinner
                 *ngIf="isLoadingTableData"
               ></app-loading-spinner>
-
               <ng-container *ngIf="!isLoadingTableData">
                 <img
                   [src]="noCourseSelectedImageUrl"
@@ -162,14 +158,19 @@
       <i class="fa fa-users"> </i>
       <span> : Team Teaching </span>
     </div>
-    <app-action-button
-      text="Clear"
-      backgroundColorVar="var(--red)"
-      [fontSizePx]="16"
-      [paddingScaleFactor]="0.6"
-      type="button"
-      (click)="clearAll()"
-    ></app-action-button>
+    <div class="footer-actions">
+      <app-action-button
+        *ngIf="isKelompokKeahlianUser"
+        text="Ganti Prodi"
+        backgroundColorVar="var(--grey-alternative)"
+        (click)="onBackToProdiSelection()"
+      ></app-action-button>
+      <app-action-button
+        text="Clear"
+        backgroundColorVar="var(--red)"
+        (click)="clearAll()"
+      ></app-action-button>
+    </div>
   </div>
 </div>
 
