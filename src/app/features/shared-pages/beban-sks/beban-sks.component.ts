@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { DynamicTableComponent, ColumnConfig, LoadingSpinnerComponent, ActionButtonComponent, PaginationComponent } from '../../../shared/components/index';
-import { DosenService, BebanSksApiData } from '../../../core/services/dosen.service';
+import { DosenService, BebanSksApiData, DosenListParams } from '../../../core/services/dosen.service';
 import { TahunAjaran } from '../../../core/models/user.model';
 import { NotificationService } from '../../../core/services/notification.service';
 
@@ -19,19 +19,8 @@ export interface BebanSksDosen {
   maxSks?: number;
   struktural?: string;
   statusKepegawaian?: string;
-  s1IfRegIntNormal?: number;
-  s1IfDoubleSksInt?: number;
-  s1Rpl?: number;
-  s1It?: number;
-  s2If?: number;
-  s1IfPjj?: number;
-  s1Ds?: number;
-  s2Fs?: number;
-  s1IfTukj?: number;
-  s3If?: number;
-  totalSksIntNormal?: number;
-  totalSksIntDouble?: number;
   sksBerjabatanPlusNormal?: number;
+  [key: string]: any;
 }
 
 @Component({
@@ -62,15 +51,21 @@ export class BebanSksComponent implements OnInit {
   totalItems: number = 0;
 
   dosenIdFromRoute: number | null = null;
-  pageTitle: string = 'Laporan Beban SKS Dosen';
+
+  pageTitle: string = 'Tabel Beban SKS Dosen';
+
+  cameFromExternal: boolean = true;
 
   columnConfigs: ColumnConfig[] = [];
   tableMinimuWidth: string = '3600px';
 
+  availableProgramStudi: string[] = [];
+
   private dosenService = inject(DosenService);
   private route = inject(ActivatedRoute);
-  private location = inject(Router);
+  private location = inject(Location);
   private notificationService = inject(NotificationService);
+  private router = inject(Router);
 
   ngOnInit(): void {
     const idParam = this.route.snapshot.paramMap.get('dosenId');
@@ -78,40 +73,61 @@ export class BebanSksComponent implements OnInit {
       this.dosenIdFromRoute = +idParam;
       this.pageTitle = 'Rincian Beban SKS Dosen';
     }
-
-    this.setupColumnConfigs();
     this.loadTahunAjaran();
-
     if (!this.dosenIdFromRoute) {
       this.setupSearchDebounce();
     }
   }
 
-  setupColumnConfigs(): void {
+  setupBaseColumnConfigs(): void {
     this.columnConfigs = [
       { key: 'no', label: 'No', isSticky: true, stickyOrder: 0, width: '60px', minWidth: '60px' },
       { key: 'kode', label: 'Kode', isSticky: true, stickyOrder: 1, width: '80px', minWidth: '80px' },
       { key: 'nama', label: 'Nama', isSticky: true, stickyOrder: 2, width: '220px', minWidth: '220px' },
-      { key: 'prodi', label: 'Prodi', isSticky: true, stickyOrder: 3, width: '280px', minWidth: '280px' },
+      { key: 'prodi', label: 'Prodi/PIC', isSticky: true, stickyOrder: 3, width: '280px', minWidth: '280px' },
       { key: 'jfa', label: 'JFA', width: '140px' },
       { key: 'statusDosen', label: 'Status Dosen', width: '120px' },
       { key: 'maxSks', label: 'Max SKS', width: '80px', customClass: 'text-center' },
       { key: 'struktural', label: 'Struktural', width: '240px' },
       { key: 'statusKepegawaian', label: 'Status Kepegawaian', width: '150px' },
-      { key: 's1IfRegIntNormal', label: 'S1 IF (REG+INT SKS Normal)', width: '160px', cellCustomClass: 'mint-green-bg' },
-      { key: 's1IfDoubleSksInt', label: 'S1 IF (double SKS INT)', width: '160px', cellCustomClass: 'mint-green-bg' },
-      { key: 's1Rpl', label: 'S1 RPL', width: '80px', cellCustomClass: 'mint-green-bg' },
-      { key: 's1It', label: 'S1 IT', width: '80px', cellCustomClass: 'mint-green-bg' },
-      { key: 's2If', label: 'S2 IF', width: '80px', cellCustomClass: 'mint-green-bg' },
-      { key: 's1IfPjj', label: 'S1 IF PJJ', width: '100px', cellCustomClass: 'mint-green-bg' },
-      { key: 's1Ds', label: 'S1 DS', width: '80px', cellCustomClass: 'mint-green-bg' },
-      { key: 's2Fs', label: 'S2 FS', width: '80px', cellCustomClass: 'mint-green-bg' },
-      { key: 's1IfTukj', label: 'S1 IF TUKJ', width: '100px', cellCustomClass: 'mint-green-bg' },
-      { key: 's3If', label: 'S3 IF', width: '80px', cellCustomClass: 'mint-green-bg' },
-      { key: 'totalSksIntNormal', label: 'Total SKS INT Normal', width: '140px', cellCustomClass: 'blush-pink-bg' },
-      { key: 'totalSksIntDouble', label: 'Total SKS INT Double', width: '140px', cellCustomClass: 'blush-pink-bg' },
-      { key: 'sksBerjabatanPlusNormal', label: 'SKS Berjabatan + SKS Normal', width: '160px', cellCustomClass: 'blush-pink-bg' },
     ];
+  }
+
+  setupDynamicColumnConfigs(): void {
+    this.setupBaseColumnConfigs();
+
+    this.availableProgramStudi.forEach(prodiName => {
+      const prodiKey = this.convertProdiNameToKey(prodiName);
+      this.columnConfigs.push({
+        key: prodiKey,
+        label: prodiName,
+        width: '160px',
+        cellCustomClass: 'mint-green-bg'
+      });
+    });
+
+    this.columnConfigs.push(
+      { key: 'sksBerjabatanPlusNormal', label: 'SKS Berjabatan + SKS Normal', width: '160px', cellCustomClass: 'blush-pink-bg' }
+    );
+
+    const estimatedWidth = this.columnConfigs.length * 140;
+    this.tableMinimuWidth = `${Math.max(3600, estimatedWidth)}px`;
+  }
+
+  private convertProdiNameToKey(prodiName: string): string {
+    return prodiName.toLowerCase()
+      .replace(/\s+/g, '_')
+      .replace(/[^\w]/g, '')
+      .replace(/__+/g, '_');
+  }
+
+  private extractProgramStudiFromResponse(data: BebanSksApiData[]): void {
+    if (data.length === 0) return;
+
+    const firstItem = data[0];
+    if (firstItem.total_ajar_per_prodi) {
+      this.availableProgramStudi = Object.keys(firstItem.total_ajar_per_prodi);
+    }
   }
 
   loadTahunAjaran(): void {
@@ -143,6 +159,10 @@ export class BebanSksComponent implements OnInit {
         next: (response) => {
           if (response.success && response.data && Array.isArray(response.data.data) && response.data.data.length > 0) {
             const lecturerData = response.data.data[0];
+
+            this.extractProgramStudiFromResponse([lecturerData]);
+            this.setupDynamicColumnConfigs();
+
             this.paginatedData = [this.transformApiDataToBebanSksDosen(lecturerData, 1)];
             this.totalItems = 1;
             this.currentPage = 1;
@@ -161,14 +181,20 @@ export class BebanSksComponent implements OnInit {
         }
       });
     } else {
-      const params = {
+      const params: DosenListParams = {
         page: this.currentPage,
         per_page: this.pageSize,
-        search: this.searchQuery,
+        nama_or_nip: this.searchQuery,
       };
+
       this.dosenService.getLaporanBebanSksDosen(this.selectedTahunAjaranId, params).subscribe({
         next: (response) => {
           if (response.success && response.data && Array.isArray(response.data.data)) {
+            if (response.data.data.length > 0 && this.availableProgramStudi.length === 0) {
+              this.extractProgramStudiFromResponse(response.data.data);
+              this.setupDynamicColumnConfigs();
+            }
+
             const startIndex = (response.data.current_page - 1) * response.data.per_page;
             this.paginatedData = response.data.data.map((apiItem, index) =>
               this.transformApiDataToBebanSksDosen(apiItem, startIndex + index + 1)
@@ -194,7 +220,8 @@ export class BebanSksComponent implements OnInit {
 
   private transformApiDataToBebanSksDosen(apiItem: BebanSksApiData, index: number): BebanSksDosen {
     const prodiSks = apiItem.total_ajar_per_prodi || {};
-    return {
+
+    const baseData: BebanSksDosen = {
       no: index,
       kode: apiItem.kode_dosen,
       nama: apiItem.nama_dosen,
@@ -204,20 +231,15 @@ export class BebanSksComponent implements OnInit {
       maxSks: apiItem.max_ajar_sks,
       struktural: apiItem.jabatan_struktural || '-',
       statusKepegawaian: apiItem.status_pegawai,
-      s1IfRegIntNormal: prodiSks['S1 IF (REG+INT SKS Normal)'] || 0,
-      s1IfDoubleSksInt: prodiSks['S1 IF (double SKS INT)'] || 0,
-      s1Rpl: prodiSks['S1 Rekayasa Perangkat Lunak'] || 0,
-      s1It: prodiSks['S1 Information Technology'] || 0,
-      s2If: prodiSks['S2 Informatika'] || 0,
-      s1IfPjj: prodiSks['S1 IF PJJ'] || 0,
-      s1Ds: prodiSks['S1 Data Sains'] || 0,
-      s2Fs: prodiSks['S2 FS'] || 0,
-      s1IfTukj: prodiSks['S1 IF TUKJ'] || 0,
-      s3If: prodiSks['S3 IF'] || 0,
-      totalSksIntNormal: 0,
-      totalSksIntDouble: 0,
-      sksBerjabatanPlusNormal: 0,
+      sksBerjabatanPlusNormal: apiItem.total_ajar_sks_keseluruhan || 0,
     };
+
+    this.availableProgramStudi.forEach(prodiName => {
+      const prodiKey = this.convertProdiNameToKey(prodiName);
+      baseData[prodiKey] = prodiSks[prodiName] || 0;
+    });
+
+    return baseData;
   }
 
   setupSearchDebounce(): void {
@@ -246,10 +268,15 @@ export class BebanSksComponent implements OnInit {
 
   onTahunAjaranChange(): void {
     this.currentPage = 1;
+    this.availableProgramStudi = [];
     this.loadDosenBebanSksData();
   }
 
   onBack(): void {
-    this.location.navigate(['/home']);
+    if (this.dosenIdFromRoute) {
+      this.location.back();
+    } else {
+      this.router.navigate(['/home']);
+    }
   }
 }

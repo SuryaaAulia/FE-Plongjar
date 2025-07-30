@@ -16,16 +16,16 @@ export class Endpoint {
                 get_all_roles: `${API}/roles`,
                 get_all_users: `${API}/roles/getAllUser`,
                 get_all_assigned_user_roles: `${API}/roles/getAllAssignedUserRoles`,
-                get_all_unassigned_users: `${API}/roles/getAllUnassignedUser`,
-                get_all_user_by_role: `${API}/roles/getAllUserByRole/${context?.roleId || ':roleId'}`,
-                assign_role: `${API}/roles/assignRole`,
-                revoke_role: `${API}/roles/revokeRole`,
+                get_all_unassigned_users: `${API}/roles/unassigned-users`,
+                get_all_user_by_role: `${API}/roles/${context?.roleId || ':roleId'}/users`,
+                assign_role: `${API}/roles/${context?.roleId || ':roleId'}/users`,
+                revoke_role: `${API}/roles/${context?.roleId || ':roleId'}/users/${context?.userId || ':userId'}`,
                 assign_scoped_role: `${API}/roles/assign-scoped-role`,
             },
 
             pic: {
                 add: `${API}/masterdata/addPicData`,
-                get_all: `${API}/masterdata/getAllPic`,
+                get_all: `${API}/masterdata/pics`,
             },
 
             dosen: {
@@ -37,8 +37,8 @@ export class Endpoint {
                 get_dengan_jabatan: `${API}/masterdata/dosens/dengan-jabatan-struktural`,
                 get_by_jabatan: `${API}/masterdata/dosens/by-jabatan-struktural/${context?.jabatanId || ':jabatanId'}`,
                 get_detail: `${API}/masterdata/getDosenDetail/${context?.dosenId || ':dosenId'}`,
-                assign_jabatan: `${API}/masterdata/assignjabatantodosen`,
-                revoke_jabatan: `${API}/masterdata/revokejabatandosen`,
+                assign_jabatan: `${API}/masterdata/dosen/${context?.dosenId || ':dosenId'}/jabatan-struktural`,
+                revoke_jabatan: `${API}/masterdata/dosen/${context?.dosenId || ':dosenId'}/jabatan-struktural`,
                 resource: `${API}/masterdata/dosens`,
                 show: `${API}/masterdata/dosens/${context?.id || ':id'}`,
                 update: `${API}/masterdata/dosens/${context?.id || ':id'}`,

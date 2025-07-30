@@ -277,15 +277,11 @@ export class AuthService {
         );
     }
 
-    assignRole(userId: number, roleId: number, roleableType?: string, roleableId?: number): Observable<any> {
-        const data = {
-            user_id: userId,
-            role_id: roleId,
-            roleable_type: roleableType,
-            roleable_id: roleableId
+    assignRole(userId: number, roleId: number): Observable<any> {
+        const payload = {
+            user_id: userId
         };
-
-        return this.apiService.assignRole(data).pipe(
+        return this.apiService.assignRole(roleId, payload).pipe(
             catchError(error => {
                 console.error('Error assigning role:', error);
                 return throwError(() => error);
@@ -294,12 +290,7 @@ export class AuthService {
     }
 
     revokeRole(userId: number, roleId: number): Observable<any> {
-        const data = {
-            user_id: userId,
-            role_id: roleId
-        };
-
-        return this.apiService.revokeRole(data).pipe(
+        return this.apiService.revokeRole(roleId, userId).pipe(
             catchError(error => {
                 console.error('Error revoking role:', error);
                 return throwError(() => error);

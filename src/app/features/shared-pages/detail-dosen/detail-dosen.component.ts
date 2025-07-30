@@ -50,10 +50,10 @@ export class DetailDosenComponent implements OnInit {
       this.lecturer = null;
     }
 
-    const page = this.route.snapshot.queryParamMap.get('page');
-    if (page) {
-      this.currentPage = parseInt(page, 10);
-    }
+    this.route.queryParamMap.subscribe(params => {
+      const page = params.get('page');
+      this.currentPage = page ? parseInt(page, 10) : 1;
+    });
   }
 
   loadLecturerDetails(id: number): void {
@@ -63,20 +63,15 @@ export class DetailDosenComponent implements OnInit {
       )
       .subscribe({
         next: (apiResponse) => {
-          if (apiResponse.success && apiResponse.data && (apiResponse.data.kode_dosen || apiResponse.data.id)) {
-            try {
-              this.lecturer = this.mapDosenDetailResponseToLecturer(apiResponse.data);
-            } catch (mappingError) {
-              console.error('DetailDosenComponent: Error mapping DosenDetailResponse to Lecturer:', mappingError, apiResponse.data);
-              this.lecturer = null;
-            }
+          if (apiResponse.success && apiResponse.data) {
+            this.lecturer = this.mapDosenDetailResponseToLecturer(apiResponse.data);
           } else {
-            console.warn('DetailDosenComponent: Lecturer data not found or incomplete for ID:', id, apiResponse);
+            console.warn('DetailDosenComponent: Lecturer data not found for ID:', id, apiResponse);
             this.lecturer = null;
           }
         },
         error: (error) => {
-          console.error('DetailDosenComponent: Error fetching lecturer details from service:', error);
+          console.error('DetailDosenComponent: Error fetching lecturer details:', error);
           this.lecturer = null;
         }
       });
@@ -100,7 +95,23 @@ export class DetailDosenComponent implements OnInit {
   }
 
   goBack(): void {
-    this.location.back();
+    if (this.currentPage > 1) {
+      this.prevPage();
+    } else {
+      const userRole = this.authService.getCurrentRole()?.role_name;
+      let basePath = '';
+      if (userRole === 'ProgramStudi') {
+        basePath = '/ketua-prodi';
+      } else if (userRole === 'KelompokKeahlian') {
+        basePath = '/ketua-kk';
+      }
+
+      if (basePath) {
+        this.router.navigate([basePath, 'list-dosen']);
+      } else {
+        this.location.back();
+      }
+    }
   }
 
   prevPage(): void {
@@ -127,10 +138,18 @@ export class DetailDosenComponent implements OnInit {
 
   viewTeachingHistory(): void {
     if (this.lecturerId) {
-      if (this.authService.hasRole('ProgramStudi')) {
-        this.router.navigate(['/ketua-prodi/riwayat-mengajar/', this.lecturerId]);
+      const userRole = this.authService.getCurrentRole()?.role_name;
+      let basePath = '';
+      if (userRole === 'ProgramStudi') {
+        basePath = '/ketua-prodi';
+      } else if (userRole === 'KelompokKeahlian') {
+        basePath = '/ketua-kk';
+      }
+
+      if (basePath) {
+        this.router.navigate([basePath, 'riwayat-mengajar', this.lecturerId]);
       } else {
-        this.router.navigate(['/ketua-kk/riwayat-mengajar/', this.lecturerId]);
+        console.error("Cannot determine user's base path for navigation.");
       }
     } else {
       console.error("Cannot navigate, lecturer ID is missing.");

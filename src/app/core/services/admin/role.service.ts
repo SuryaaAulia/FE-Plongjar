@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, BehaviorSubject, of } from 'rxjs';
+import { Observable, BehaviorSubject, of, throwError } from 'rxjs';
 import { map, tap, catchError } from 'rxjs/operators';
 import { ApiService } from '../api.service';
 import { Role, User } from '../../models/user.model';
@@ -129,21 +129,16 @@ export class RoleService {
         );
     }
 
-    assignRole(assignment: RoleAssignment): Observable<any> {
-        const payload: RoleAssignment = {
-            user_id: assignment.user_id,
-            role_id: assignment.role_id,
-            roleable_id: assignment.roleable_id || null,
-            roleable_type: assignment.roleable_type || null
-        };
+    assignRole(userId: number, roleId: number): Observable<any> {
+        const payload = { user_id: userId };
 
-        return this.apiService.assignRole(payload).pipe(
+        return this.apiService.assignRole(roleId, payload).pipe(
             tap((response) => {
                 this.getAllAssignedUserRoles().subscribe();
             }),
             catchError(error => {
                 console.error('Error assigning role:', error);
-                throw error;
+                return throwError(() => error);
             })
         );
     }
@@ -159,17 +154,10 @@ export class RoleService {
 
 
     revokeRole(userId: number, roleId: number): Observable<any> {
-        const data = {
-            user_id: userId,
-            role_id: roleId
-        };
-        return this.apiService.revokeRole(data).pipe(
-            tap((response) => {
-                this.getAllAssignedUserRoles().subscribe();
-            }),
+        return this.apiService.revokeRole(roleId, userId).pipe(
             catchError(error => {
                 console.error('Error revoking role:', error);
-                throw error;
+                return throwError(() => error);
             })
         );
     }

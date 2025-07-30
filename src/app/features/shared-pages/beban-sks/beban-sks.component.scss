@@ -2,6 +2,15 @@
     padding-top: 1rem;
 }
 
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-lg);
+    font-weight: 600;
+    color: var(--secondary-blue);
+}
+
 .top-controls-wrapper {
     display: flex;
     justify-content: space-between;

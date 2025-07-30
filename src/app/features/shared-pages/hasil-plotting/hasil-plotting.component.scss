@@ -1,5 +1,16 @@
 @import '../beban-sks/beban-sks.component.scss';
 
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--secondary-blue);
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
 ::ng-deep td.dosen-col {
   background-color: var(--mint-green) !important;
   font-weight: var(--font-extrabold) !important;

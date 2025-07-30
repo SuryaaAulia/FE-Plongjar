@@ -68,6 +68,8 @@ export class PlottingComponent implements OnInit {
   showProdiSelection: boolean = false;
   selectedProdi: ProdiOption | null = null;
 
+  pageTitle: string = 'Plotting Koordinator dan Dosen Matkul';
+
   prodiOptions: ProdiOption[] = [];
 
   private authService = inject(AuthService);
@@ -93,6 +95,7 @@ export class PlottingComponent implements OnInit {
     if (this.showProdiSelection) {
       this.loadProgramStudi();
     } else {
+      this.pageTitle = 'Plotting Koordinator dan Dosen Matkul';
       this.updatePlaceholderVisibility();
     }
   }
@@ -130,6 +133,7 @@ export class PlottingComponent implements OnInit {
   handleProdiSelection(prodi: ProdiOption): void {
     this.selectedProdi = prodi;
     this.showProdiSelection = false;
+    this.pageTitle = this.pageTitle;
     this.updatePlaceholderVisibility();
   }
 

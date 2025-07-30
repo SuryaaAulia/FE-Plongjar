@@ -62,14 +62,14 @@ export class ApiService {
         return this.http.get(url!, { params: params });
     }
 
-    assignRole(data: any): Observable<any> {
-        const url = this.endpoint.getUrl('roles', 'assign_role');
+    assignRole(roleId: number, data: { user_id: number }): Observable<any> {
+        const url = this.endpoint.getUrl('roles', 'assign_role', { roleId });
         return this.http.post(url!, data);
     }
 
-    revokeRole(data: any): Observable<any> {
-        const url = this.endpoint.getUrl('roles', 'revoke_role');
-        return this.http.post(url!, data);
+    revokeRole(roleId: number, userId: number): Observable<any> {
+        const url = this.endpoint.getUrl('roles', 'revoke_role', { roleId, userId });
+        return this.http.delete(url!);
     }
 
     assignScopedRole(data: any): Observable<any> {
@@ -153,14 +153,14 @@ export class ApiService {
         return this.http.delete(url!);
     }
 
-    assignJabatanDosen(data: any): Observable<any> {
-        const url = this.endpoint.getUrl('dosen', 'assign_jabatan');
+    assignJabatanDosen(dosenId: number, data: { id_jabatan_struktural: number }): Observable<any> {
+        const url = this.endpoint.getUrl('dosen', 'assign_jabatan', { dosenId });
         return this.http.post(url!, data);
     }
 
-    revokeJabatanDosen(data: any): Observable<any> {
-        const url = this.endpoint.getUrl('dosen', 'revoke_jabatan');
-        return this.http.post(url!, data);
+    revokeJabatanDosen(dosenId: number): Observable<any> {
+        const url = this.endpoint.getUrl('dosen', 'revoke_jabatan', { dosenId });
+        return this.http.delete(url!);
     }
 
     getLaporanBebanSksDosen(tahunAjaranId: number, params?: HttpParams): Observable<any> {

@@ -1,4 +1,4 @@
-<div class="search-header">
+<div class="search-header" (document:click)="onDocumentClick($event)">
   <div class="search-container">
     <h2>{{ title }}</h2>
 
@@ -11,6 +11,7 @@
           <button
             *ngFor="let option of pageSizeOptions"
             (click)="changeItemsPerPage(option)"
+            [class.active]="option === itemsPerPage"
           >
             {{ option }}
           </button>
@@ -23,6 +24,7 @@
           [placeholder]="placeholder1"
           class="search-field"
           [(ngModel)]="query1"
+          (input)="onSearchInput()"
           (keyup.enter)="onSearch()"
         />
         <input
@@ -30,9 +32,10 @@
           [placeholder]="placeholder2"
           class="search-field"
           [(ngModel)]="query2"
+          (input)="onSearchInput()"
           (keyup.enter)="onSearch()"
         />
-        <button class="search-btn" (click)="onSearch()">
+        <button class="search-btn" (click)="onSearch()" title="Search">
           <i class="fa fa-search"></i> Search
         </button>
       </div>

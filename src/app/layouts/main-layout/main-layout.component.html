@@ -1,10 +1,7 @@
-<div
-  class="app-container"
-  [class.sidenav-open]="!collapsed && screenWidth <= 768"
->
+<div class="app-container" [class.sidenav-open]="!collapsed && isMobile">
   <div
     class="mobile-overlay"
-    *ngIf="!collapsed && screenWidth <= 768"
+    *ngIf="!collapsed && isMobile"
     (click)="toggleSidenav()"
   ></div>
 

@@ -23,6 +23,10 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   currentUser$!: Observable<any>;
   private destroy$ = new Subject<void>();
 
+  get isMobile(): boolean {
+    return this.screenWidth <= 990;
+  }
+
   constructor(
     private navService: NavService,
     private authService: AuthService
@@ -39,6 +43,8 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
       })
     );
 
+    this.collapsed = this.isMobile;
+
     window.addEventListener('resize', this.onResize.bind(this));
   }
 
@@ -49,13 +55,23 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   }
 
   onResize(): void {
+    const previousScreenWidth = this.screenWidth;
     this.screenWidth = window.innerWidth;
+
+    const wasMobile = previousScreenWidth <= 990;
+    const isMobileNow = this.screenWidth <= 990;
+
+    if (!wasMobile && isMobileNow) {
+      this.collapsed = true;
+      this.hovering = false;
+    } else if (wasMobile && !isMobileNow) {
+      this.hovering = false;
+    }
   }
 
   toggleSidenav(): void {
     this.collapsed = !this.collapsed;
     this.hovering = false;
-    this.emitSideNavInfo();
   }
 
   handleSideNavToggle(event: SideNavToggle): void {
@@ -64,15 +80,12 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   }
 
   handleSidenavHover(isHovering: boolean): void {
-    if (this.collapsed && this.screenWidth > 768) {
+    if (this.collapsed && !this.isMobile) {
       this.hovering = isHovering;
     }
   }
 
   logout(): void {
     this.authService.logout();
-  }
-
-  private emitSideNavInfo(): void {
   }
 }
