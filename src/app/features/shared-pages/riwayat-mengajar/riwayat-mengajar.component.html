@@ -1,61 +1,58 @@
 <div class="page-container">
-  <div class="history-card">
-    <app-search-header
-      [title]="
-        'Riwayat Mengajar | ' +
-        (isLoading && !lecturerName ? 'Loading...' : lecturerName)
-      "
-      [itemsPerPage]="itemsPerPage"
-      [pageSizeOptions]="[5, 9, 15, 25]"
-      [searchType]="'teaching'"
-      placeholder1="Mata Kuliah / Kelas"
-      placeholder2="Periode (e.g., 2023/2024)"
-      (search)="onSearch($event)"
-      (itemsPerPageChange)="onItemsPerPageChange($event)"
-    ></app-search-header>
+  <app-search-header
+    [title]="
+      'Riwayat Mengajar | ' +
+      (isLoading && !lecturerName ? 'Loading...' : lecturerName)
+    "
+    [itemsPerPage]="itemsPerPage"
+    [pageSizeOptions]="[5, 9, 15, 25]"
+    [searchType]="'teaching'"
+    placeholder1="Mata Kuliah"
+    [showSecondInput]="false"
+    (search)="onSearch($event)"
+    (itemsPerPageChange)="onItemsPerPageChange($event)"
+  ></app-search-header>
 
-    <div class="divider"></div>
+  <div class="divider"></div>
 
-    <div class="content-wrapper">
-      <div *ngIf="isLoading" class="state-container">
-        <app-loading-spinner></app-loading-spinner>
+  <div class="content-wrapper">
+    <div *ngIf="isLoading" class="state-container">
+      <app-loading-spinner></app-loading-spinner>
+    </div>
+
+    <div *ngIf="!isLoading">
+      <div
+        *ngIf="error || paginatedRecords?.length === 0"
+        class="state-container"
+      >
+        <app-search-not-found></app-search-not-found>
       </div>
 
-      <div *ngIf="!isLoading">
-        <div *ngIf="error" class="state-container">
-          <app-search-not-found></app-search-not-found>
-        </div>
-
-        <div *ngIf="!error">
-          <app-table
-            [columns]="tableColumns"
-            [data]="paginatedRecords"
-            [showIndex]="true"
+      <div *ngIf="!error">
+        <app-table
+          [columns]="tableColumns"
+          [data]="paginatedRecords"
+          [showIndex]="true"
+          [currentPage]="currentPage"
+          [itemsPerPage]="itemsPerPage"
+          [noDataMessage]="
+            'Tidak ada data riwayat mengajar untuk ' + lecturerName
+          "
+        >
+        </app-table>
+        <div class="action-container">
+          <app-pagination
             [currentPage]="currentPage"
             [itemsPerPage]="itemsPerPage"
-            [noDataMessage]="
-              'Tidak ada data riwayat mengajar untuk ' + lecturerName
-            "
-          >
-          </app-table>
+            [totalItems]="totalItems"
+            (pageChange)="onPageChange($event)"
+          ></app-pagination>
 
-          <div class="bottom-controls">
-            <app-pagination
-              *ngIf="totalItems > itemsPerPage"
-              [currentPage]="currentPage"
-              [itemsPerPage]="itemsPerPage"
-              [totalItems]="totalItems"
-              (pageChange)="onPageChange($event)"
-            >
-            </app-pagination>
-            <div class="spacer"></div>
-
-            <app-action-button
-              text="Back"
-              backgroundColorVar="var(--red)"
-              (buttonClick)="goBack()"
-            ></app-action-button>
-          </div>
+          <app-action-button
+            text="Back"
+            backgroundColorVar="var(--red)"
+            (buttonClick)="goBack()"
+          ></app-action-button>
         </div>
       </div>
     </div>
