@@ -201,14 +201,14 @@ export class DosenService {
         );
     }
 
-    getRiwayatPengajaranDosen(dosenId: number, params?: HttpParams): Observable<RiwayatPengajaranResponse> {
+    getRiwayatPengajaranDosen(dosenId: number, params?: HttpParams): Observable<any> {
         return this.apiService.getRiwayatPengajaran(dosenId, params).pipe(
             map(response => {
                 if (response && response.success) {
                     return {
-                        id_dosen: response.data.id,
-                        nama_dosen: response.data.nama_dosen,
-                        riwayat: response.data.riwayat_pengajaran || []
+                        success: true,
+                        message: response.message,
+                        data: response.data
                     };
                 } else {
                     throw new Error(response?.message || 'Failed to fetch teaching history');
