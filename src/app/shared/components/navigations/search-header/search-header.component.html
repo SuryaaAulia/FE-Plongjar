@@ -27,7 +27,9 @@
           (input)="onSearchInput()"
           (keyup.enter)="onSearch()"
         />
+
         <input
+          *ngIf="showSecondInput"
           type="text"
           [placeholder]="placeholder2"
           class="search-field"
@@ -35,6 +37,7 @@
           (input)="onSearchInput()"
           (keyup.enter)="onSearch()"
         />
+
         <button class="search-btn" (click)="onSearch()" title="Search">
           <i class="fa fa-search"></i> Search
         </button>
