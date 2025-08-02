@@ -89,8 +89,11 @@ export class RiwayatMengajarComponent implements OnInit {
       .set('page', page.toString())
       .set('per_page', this.itemsPerPage.toString());
 
-    if (this.currentSearchQuery1) params = params.set('search_matkul', this.currentSearchQuery1);
-    if (this.currentSearchQuery2) params = params.set('search_periode', this.currentSearchQuery2);
+    if (this.currentSearchQuery1 || this.currentSearchQuery2) {
+      const search = `${this.currentSearchQuery1} ${this.currentSearchQuery2}`.trim();
+      params = params.set('search', search);
+    }
+
 
     return this.dosenService.getRiwayatPengajaranDosen(dosenId, params);
   }

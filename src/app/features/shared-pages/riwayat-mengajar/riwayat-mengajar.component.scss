@@ -1,45 +1,27 @@
-.lecturer-table-container {
+.page-container {
   position: relative;
   overflow: hidden;
-  padding: 2rem;
+  padding: 2rem calc(2rem - 0.1px);
   max-width: 100%;
   margin: 0 auto;
   box-shadow: 0 0 17.3px rgba(0, 0, 0, 0.3);
   border-radius: 8px;
-  background: var(--primary-white);
+  background: var(--primary-white, #ffffff);
 
-  .loading-spinner {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 2rem;
-    color: var(--secondary-color);
-
-    i {
-      font-size: 1.5rem;
-    }
+  @media (max-width: 768px) {
+    padding: 1rem calc(1rem - 0.1px);
   }
-
 
   .divider {
     height: 1px;
-    background-color: var(--grey);
-    margin: 0 -2rem 2rem -2rem;
+    background-color: var(--grey, #e0e0e0);
+    margin: 2rem 0;
   }
 }
 
-.back-btn {
-  background-color: #dc3545;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 0.5rem 1rem;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: background-color 0.2s;
-
-  &:hover {
-    background-color: darken(#dc3545, 10%);
-  }
+.action-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
 }

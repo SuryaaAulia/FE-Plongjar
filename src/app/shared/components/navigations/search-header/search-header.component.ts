@@ -19,6 +19,7 @@ export class SearchHeaderComponent implements OnInit, OnDestroy {
   @Input() placeholder1: string = '';
   @Input() placeholder2: string = '';
   @Input() debounceTime: number = 300;
+  @Input() showSecondInput: boolean = true;
 
   @Output() search = new EventEmitter<{ query1: string; query2: string }>();
   @Output() itemsPerPageChange = new EventEmitter<number>();
@@ -47,16 +48,19 @@ export class SearchHeaderComponent implements OnInit, OnDestroy {
   }
 
   private setupSearchDebounce(): void {
-    this.searchSubject.pipe(
-      debounceTime(this.debounceTime),
-      distinctUntilChanged((prev, curr) =>
-        prev.query1.trim() === curr.query1.trim() &&
-        prev.query2.trim() === curr.query2.trim()
-      ),
-      takeUntil(this.destroy$)
-    ).subscribe(searchQueries => {
-      this.search.emit(searchQueries);
-    });
+    this.searchSubject
+      .pipe(
+        debounceTime(this.debounceTime),
+        distinctUntilChanged(
+          (prev, curr) =>
+            prev.query1.trim() === curr.query1.trim() &&
+            prev.query2.trim() === curr.query2.trim()
+        ),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((searchQueries) => {
+        this.search.emit(searchQueries);
+      });
   }
 
   updatePlaceholders(): void {
@@ -76,14 +80,14 @@ export class SearchHeaderComponent implements OnInit, OnDestroy {
   onSearchInput(): void {
     this.searchSubject.next({
       query1: this.query1,
-      query2: this.query2,
+      query2: this.showSecondInput ? this.query2 : '',
     });
   }
 
   onSearch(): void {
     this.search.emit({
       query1: this.query1,
-      query2: this.query2,
+      query2: this.showSecondInput ? this.query2 : '',
     });
   }
 
