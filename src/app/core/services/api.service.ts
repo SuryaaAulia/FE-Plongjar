@@ -272,6 +272,11 @@ export class ApiService {
         return this.http.post(url!, data);
     }
 
+    getAllKelompokKeahlianWithKetua(params?: HttpParams): Observable<any> {
+        const url = this.endpoint.getUrl('kelompok_keahlian', 'get_ketua_kk');
+        return this.http.get(url!, { params });
+    }
+
     // =================================================================
     // MAPPING KELAS MATAKULIAH METHODS
     // =================================================================

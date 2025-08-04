@@ -51,6 +51,7 @@ export class NavService {
         routerLink: '',
         children: [
           { label: 'List Dosen', routerLink: '/ketua-prodi/list-dosen' },
+          { label: 'List Ketua KK', routerLink: '/ketua-prodi/list-ketua-kk' },
         ],
       },
       {

@@ -159,6 +159,13 @@ export const routes: Routes = [
               ).then((m) => m.ListDosenComponent),
           },
           {
+            path: 'list-ketua-kk',
+            loadComponent: () =>
+              import(
+                './features/kaprodi/list-ketua-kk/list-ketua-kk.component'
+              ).then((m) => m.ListKetuaKkComponent),
+          },
+          {
             path: 'riwayat-mengajar/:id',
             loadComponent: () =>
               import(

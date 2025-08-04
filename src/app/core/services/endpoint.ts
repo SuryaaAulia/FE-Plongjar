@@ -31,6 +31,7 @@ export class Endpoint {
             dosen: {
                 add: `${API}/masterdata/addDosenData`,
                 get_all: `${API}/masterdata/getAllDosen`,
+                get_ketua_kk: `${API}/masterdata/kelompokkeahlian`,
                 get_by_kk: `${API}/masterdata/getAllDosen/${context?.kkId || ':kkId'}`,
                 get_by_kk_alt: `${API}/masterdata/dosens/by-kelompok-keahlian/${context?.kkId || ':kkId'}`,
                 get_tanpa_jabatan: `${API}/masterdata/dosens/tanpa-jabatan-struktural`,
