@@ -1,0 +1,137 @@
+$status-colors: (
+    "not-plotted": (primary: #ef4444,
+        background: #fef2f2,
+    ),
+    "in-progress": (primary: #f59e0b,
+        background: #fffbeb,
+    ),
+    "completed": (primary: #22c55e,
+        background: #f0fdf4,
+    ),
+);
+
+.card-container {
+    font-family: "Inter", sans-serif, system-ui;
+    border-radius: 12px;
+    padding: 24px;
+    background-color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    color: #4a5568;
+    width: 100%;
+    max-width: 350px;
+    display: flex;
+    flex-direction: column;
+
+    @each $status, $colors in $status-colors {
+        &.#{$status} {
+            background-color: map-get($colors, background);
+
+            .status-indicator,
+            .progress-bar {
+                background-color: map-get($colors, primary);
+            }
+        }
+    }
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.status-indicator {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+}
+
+.status-title {
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.course-count {
+    font-size: 0.875rem;
+    color: #718096;
+}
+
+.card-body {
+    text-align: center;
+}
+
+.percentage {
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: #1a202c;
+}
+
+.progress-bar-container {
+    width: 100%;
+    background-color: #e2e8f0;
+    border-radius: 9999px;
+    height: 10px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.progress-bar {
+    height: 100%;
+    border-radius: 9999px;
+    transition: width 0.5s ease-in-out;
+}
+
+.progress-label {
+    font-size: 0.75rem;
+    color: #a0aec0;
+    text-align: right;
+    margin-bottom: 2rem;
+}
+
+.card-footer {
+    border-top: 1px solid #edf2f7;
+    padding-top: 1rem;
+    margin-top: auto;
+    text-align: center;
+}
+
+.expand-button {
+    background: none;
+    border: none;
+    color: #4a5568;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 1rem;
+
+    .expand-icon {
+        width: 20px;
+        height: 20px;
+        transition: transform 0.3s ease;
+
+        &.rotated {
+            transform: rotate(180deg);
+        }
+    }
+}
+
+.expanded-content {
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: rgba(0, 0, 0, 0.02);
+    border-radius: 8px;
+    font-size: 0.875rem;
+    text-align: left;
+    border: 1px solid #edf2f7;
+}

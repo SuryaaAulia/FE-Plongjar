@@ -1,0 +1,10 @@
+<div class="page-container">
+  <div class="divider border-bottom mb-3"></div>
+  <app-progress-plotting-card
+    *ngFor="let data of plottingData"
+    [statusTitle]="data.statusTitle"
+    [courseCount]="data.courseCount"
+    [percentage]="data.percentage"
+    [statusType]="data.statusType"
+  ></app-progress-plotting-card>
+</div>

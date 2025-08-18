@@ -6,6 +6,7 @@ import { Lecturer, Course } from '../../../core/models/user.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { PlottingService } from '../../../core/services/plotting.service';
 import { NotificationService } from '../../../core/services/notification.service';
+import { ProgressPlottingPageComponent, PlottingProgressData } from '../progress-plotting/progress-plotting.component';
 import { finalize } from 'rxjs/operators';
 
 interface CourseRow {
@@ -40,7 +41,8 @@ interface ProdiOption {
     SearchModalComponent,
     SearchMatkulComponent,
     ActionButtonComponent,
-    LoadingSpinnerComponent
+    LoadingSpinnerComponent,
+    ProgressPlottingPageComponent
   ],
   templateUrl: './plotting.component.html',
   styleUrls: ['./plotting.component.scss']
@@ -58,6 +60,9 @@ export class PlottingComponent implements OnInit {
   tableData: CourseRow[] = [];
   initialLecturerSelections: TeamTeachingSelection[] = [];
   isLoadingTableData: boolean = false;
+
+  plottingProgressData: PlottingProgressData[] = [];
+  isLoadingPlottingProgress: boolean = false;
 
   showLecturerSearchModal: boolean = false;
   editingField: 'coordinator' | 'dosen' | null = null;
@@ -95,6 +100,7 @@ export class PlottingComponent implements OnInit {
     if (this.showProdiSelection) {
       this.loadProgramStudi();
     } else {
+      this.fetchPlottingProgress();
       this.pageTitle = 'Plotting Koordinator dan Dosen Matkul';
       this.updatePlaceholderVisibility();
     }
@@ -133,8 +139,36 @@ export class PlottingComponent implements OnInit {
   handleProdiSelection(prodi: ProdiOption): void {
     this.selectedProdi = prodi;
     this.showProdiSelection = false;
+    this.fetchPlottingProgress(prodi.prodiId);
     this.pageTitle = this.pageTitle;
     this.updatePlaceholderVisibility();
+  }
+
+  private fetchPlottingProgress(prodiId?: number): void {
+    this.isLoadingPlottingProgress = true;
+    setTimeout(() => {
+      this.plottingProgressData = [
+        {
+          statusTitle: 'Belum di Plotting',
+          courseCount: 20,
+          percentage: 10,
+          statusType: 'not-plotted',
+        },
+        {
+          statusTitle: 'Sedang di Plotting',
+          courseCount: 50,
+          percentage: 20,
+          statusType: 'in-progress',
+        },
+        {
+          statusTitle: 'Selesai di Plotting',
+          courseCount: 130,
+          percentage: 70,
+          statusType: 'completed',
+        },
+      ];
+      this.isLoadingPlottingProgress = false;
+    }, 1000);
   }
 
   onBackToProdiSelection(): void {
@@ -142,6 +176,7 @@ export class PlottingComponent implements OnInit {
       this.showProdiSelection = true;
       this.selectedProdi = null;
       this.resetPlottingData();
+      this.plottingProgressData = [];
     }
   }
 
