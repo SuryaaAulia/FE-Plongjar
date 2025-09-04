@@ -122,6 +122,11 @@ export class Endpoint {
                 export_by_prodi: `${API}/plottingan-pengajaran/export/tahun-ajaran/${context?.tahunAjaranId || ':tahunAjaranId'}/program-studi/${context?.prodiId || ':prodiId'}`,
                 get_hasil_laak_kaur: `${API}/plottingan-pengajaran/summary`,
             },
+
+            progress_plotting: {
+                get_progress_kk: `${API}/plottingan-pengajaran/progress/program-studi/${context?.prodiId || ':prodiId'}/by-auth-kk`,
+                get_progress_prodi: `${API}/plottingan-pengajaran/progress/by-auth-prodi`,
+            },
         };
 
         return ENDPOINT[namespace] && ENDPOINT[namespace][key];
