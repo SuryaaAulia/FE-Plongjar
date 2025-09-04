@@ -1,15 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  </head>
-  <body>
-    <div class="dashboard-container">
-      <img
-        src="assets/images/gd_tult.png"
-        alt="Gedung Telkom University Landmark Tower"
-      />
-    </div>
-  </body>
-</html>
+<div class="dashboard-container">
+  <img
+    src="assets/images/gd_tult.png"
+    alt="Gedung Telkom University Landmark Tower"
+  />
+</div>
+
+<br/>
+<app-action-button
+  text="Lihat User Manual SiPlongjar"
+  iconClass="fa-solid fa-book"
+  backgroundColorVar="#3E65DA"
+  [paddingScaleFactor]="1"
+  (click)="openUserManual()"
+>
+</app-action-button>
