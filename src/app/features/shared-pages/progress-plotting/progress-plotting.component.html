@@ -1,10 +1,48 @@
-<div class="page-container">
-  <div class="divider border-bottom mb-3"></div>
-  <app-progress-plotting-card
-    *ngFor="let data of plottingData"
-    [statusTitle]="data.statusTitle"
-    [courseCount]="data.courseCount"
-    [percentage]="data.percentage"
-    [statusType]="data.statusType"
-  ></app-progress-plotting-card>
+<div class="progress-page-container" [class.embedded]="isEmbedded">
+  <div *ngIf="!isEmbedded" class="progress-header">
+    <h1 class="page-title">List Mata Kuliah</h1>
+
+    <button
+      class="switch-view-button"
+      (click)="onSwitchView()"
+      title="Pindah ke Halaman Plotting"
+    >
+      <i class="fa-solid fa-right-left"></i>
+    </button>
+  </div>
+
+  <div class="filter-bar" *ngIf="!isEmbedded">
+    <div class="prodi-selector-wrapper">
+      <label for="prodi-select">Program Studi: </label>
+      <span>{{ selectedProdiName }}</span>
+    </div>
+
+    <div class="search-bar-wrapper">
+      <input
+        type="text"
+        placeholder="Mata Kuliah"
+        class="search-bar-input"
+        aria-label="Search by name"
+        [(ngModel)]="searchQuery"
+        (ngModelChange)="onSearchQueryChange()"
+      />
+      <i class="fa fa-search search-icon"></i>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="progress-content">
+    <app-loading-spinner *ngIf="isLoading"></app-loading-spinner>
+    <div *ngIf="!isLoading" class="cards-grid">
+      <app-progress-plotting-card
+        *ngFor="let data of plottingData"
+        [statusTitle]="data.statusTitle"
+        [courseCount]="data.courseCount"
+        [percentage]="data.percentage"
+        [statusType]="data.statusType"
+        [courseList]="data.courseList"
+      ></app-progress-plotting-card>
+    </div>
+  </div>
 </div>

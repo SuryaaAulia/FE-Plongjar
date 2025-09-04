@@ -1,15 +1,115 @@
-.page-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 24px;
-    padding: 24px;
-    min-height: 100vh;
-    align-items: flex-start;
+.progress-page-container {
+    background-color: var(--primary-white);
+    width: 100%;
+    position: relative;
 
-    .divider {
-        height: 1px;
-        background-color: var(--grey);
-        margin: 0 -2rem 2rem -2rem;
+    &.embedded {
+        padding: 0;
+        background-color: transparent;
+        border: none;
+        margin-bottom: 1.5rem;
+    }
+}
+
+.progress-header {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.page-title {
+    font-size: var(--text-3xl);
+    font-weight: var(--font-semibold);
+    color: var(--primary-blue);
+    margin: 0;
+    text-align: center;
+}
+
+.switch-view-button {
+    position: absolute;
+    right: -24px;
+    top: 48%;
+    transform: translateY(-50%);
+
+    background-color: var(--primary-blue);
+    color: var(--primary-white);
+    border: none;
+    width: 68px;
+    height: 68px;
+    border-top-left-radius: 34px;
+    border-bottom-left-radius: 34px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    i {
+        font-size: 24px;
+    }
+
+    &:hover {
+        background-color: var(--secondary-blue);
+    }
+}
+
+.filter-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.divider {
+    height: 1px;
+    background-color: var(--grey, #d1d5db);
+    width: 100%;
+    margin: 16px 0;
+}
+
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    width: 100%;
+}
+
+.progress-content {
+    min-height: 300px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.search-bar-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+
+    .search-bar-input {
+        padding: 0.5rem 2.5rem 0.5rem 0.25rem;
+        border: none;
+        border-bottom: 1px solid var(--primary-blue);
+        border-radius: 0;
+        font-size: var(--text-base);
+        color: var(--primary-blue);
+        outline: none;
+        width: 250px;
+
+        &:focus {
+            border-bottom-color: var(--primary-blue);
+            box-shadow: none;
+        }
+    }
+
+    .search-icon {
+        position: absolute;
+        right: 0.75rem;
+        color: var(--grey);
     }
 }
