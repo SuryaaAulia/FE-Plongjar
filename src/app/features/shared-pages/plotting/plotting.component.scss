@@ -12,6 +12,33 @@
   font-size: var(--text-lg);
   font-weight: 600;
   color: var(--secondary-blue);
+
+  .switch-view-button {
+    position: absolute;
+    right: 0px;
+
+    background-color: var(--primary-blue);
+    color: var(--primary-white);
+    border: none;
+    width: 68px;
+    height: 68px;
+    border-top-left-radius: 34px;
+    border-bottom-left-radius: 34px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    i {
+      font-size: 24px;
+    }
+
+    &:hover {
+      background-color: var(--secondary-blue);
+    }
+  }
 }
 
 .prodi-header {

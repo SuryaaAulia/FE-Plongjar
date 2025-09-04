@@ -69,15 +69,14 @@ export class PlottingComponent implements OnInit {
   editingDosenIndex: number | null = null;
 
   noCourseSelectedImageUrl: string = 'assets/images/search_plotting.svg';
-  showPlaceholderContent: boolean = true;
-  showProdiSelection: boolean = false;
+  currentView: 'prodi-selection' | 'progress' | 'plotting' = 'plotting';
   selectedProdi: ProdiOption | null = null;
 
   pageTitle: string = 'Plotting Koordinator dan Dosen Matkul';
 
   prodiOptions: ProdiOption[] = [];
 
-  private authService = inject(AuthService);
+  public authService = inject(AuthService);
   private plottingService = inject(PlottingService);
   private notificationService = inject(NotificationService);
 
@@ -96,14 +95,19 @@ export class PlottingComponent implements OnInit {
 
   private checkUserRoleAndInitialize(): void {
     const currentRole = this.authService.getCurrentRole();
-    this.showProdiSelection = currentRole?.role_name === 'KelompokKeahlian';
-    if (this.showProdiSelection) {
+    if (currentRole?.role_name === 'KelompokKeahlian') {
+      this.currentView = 'prodi-selection';
       this.loadProgramStudi();
-    } else {
+    } else if (currentRole?.role_name === 'ProgramStudi') {
+      this.currentView = 'progress';
       this.fetchPlottingProgress();
-      this.pageTitle = 'Plotting Koordinator dan Dosen Matkul';
-      this.updatePlaceholderVisibility();
+    } else {
+      this.currentView = 'plotting';
     }
+  }
+
+  public handleSearchQuery(query: string): void {
+    console.log('Search query from child:', query);
   }
 
   private loadProgramStudi(): void {
@@ -120,13 +124,10 @@ export class PlottingComponent implements OnInit {
             }));
           } else {
             this.prodiOptions = [];
-            console.warn("No program studi returned from API.");
           }
         },
         error: (err) => {
-          console.error('Failed to load program studi list:', err);
-          this.notificationService.showError('Gagal memuat daftar program studi. Silakan coba lagi.');
-          this.showProdiSelection = false;
+          this.notificationService.showError('Gagal memuat daftar program studi.');
         }
       });
   }
@@ -138,42 +139,33 @@ export class PlottingComponent implements OnInit {
 
   handleProdiSelection(prodi: ProdiOption): void {
     this.selectedProdi = prodi;
-    this.showProdiSelection = false;
     this.fetchPlottingProgress(prodi.prodiId);
-    this.pageTitle = this.pageTitle;
-    this.updatePlaceholderVisibility();
+    this.currentView = 'progress';
   }
 
   private fetchPlottingProgress(prodiId?: number): void {
     this.isLoadingPlottingProgress = true;
-    setTimeout(() => {
-      this.plottingProgressData = [
-        {
-          statusTitle: 'Belum di Plotting',
-          courseCount: 20,
-          percentage: 10,
-          statusType: 'not-plotted',
-        },
-        {
-          statusTitle: 'Sedang di Plotting',
-          courseCount: 50,
-          percentage: 20,
-          statusType: 'in-progress',
-        },
-        {
-          statusTitle: 'Selesai di Plotting',
-          courseCount: 130,
-          percentage: 70,
-          statusType: 'completed',
-        },
-      ];
-      this.isLoadingPlottingProgress = false;
-    }, 1000);
+
+    this.plottingService.getProgressPlotting(prodiId).subscribe({
+      next: (data) => {
+        setTimeout(() => {
+          this.plottingProgressData = data;
+          this.isLoadingPlottingProgress = false;
+        }, 0);
+      },
+      error: (err) => {
+        setTimeout(() => {
+          this.notificationService.showError('Gagal memuat data progress plotting.');
+          this.plottingProgressData = [];
+          this.isLoadingPlottingProgress = false;
+        }, 0);
+      }
+    });
   }
 
   onBackToProdiSelection(): void {
     if (this.isKelompokKeahlianUser) {
-      this.showProdiSelection = true;
+      this.currentView = 'prodi-selection';
       this.selectedProdi = null;
       this.resetPlottingData();
       this.plottingProgressData = [];
@@ -183,17 +175,14 @@ export class PlottingComponent implements OnInit {
   private resetPlottingData(): void {
     this.currentSelectedCourse = null;
     this.currentSelectedAcademicYear = null;
-    this.displaySelectedCourseText = '';
     this.tableData = [];
     this.coordinatorName = '';
     this.coordinatorObject = undefined;
-    this.updatePlaceholderVisibility();
   }
 
   handleCourseAndYearSelected(selection: { course: Course; academicYear: { id: number; value: string }; coordinator?: { id: number; name: string; lecturerCode: string } }): void {
     this.currentSelectedCourse = selection.course;
     this.currentSelectedAcademicYear = selection.academicYear;
-    this.displaySelectedCourseText = `${selection.course.name} (T.A. ${selection.academicYear.value})`;
     this.coordinatorName = '';
     this.coordinatorObject = undefined;
     this.tableData = [];
@@ -202,7 +191,9 @@ export class PlottingComponent implements OnInit {
       this.coordinatorName = selection.coordinator.lecturerCode;
       this.fetchClassMappings();
     }
-    this.updatePlaceholderVisibility();
+  }
+
+  updatePlaceholderVisibility(): void {
   }
 
   fetchClassMappings(): void {
@@ -215,7 +206,6 @@ export class PlottingComponent implements OnInit {
     this.plottingService.getClassMappings(courseId, academicYearId, prodiId)
       .pipe(finalize(() => {
         this.isLoadingTableData = false;
-        this.updatePlaceholderVisibility();
       }))
       .subscribe({
         next: (apiData) => {
@@ -228,14 +218,7 @@ export class PlottingComponent implements OnInit {
                   id: plot.dosen.id,
                   name: plot.dosen.name,
                   lecturerCode: plot.dosen.lecturer_code,
-                  nip: plot.dosen.nip || '',
-                  nidn: plot.dosen.nidn || '',
-                  email: plot.dosen.email || '',
-                  jabatanFungsionalAkademik: plot.dosen.jabatanFungsionalAkademik || '',
-                  idJabatanStruktural: plot.dosen.idJabatanStruktural || null,
-                  statusPegawai: plot.dosen.statusPegawai || '',
-                  pendidikanTerakhir: plot.dosen.pendidikanTerakhir || '',
-                  idKelompokKeahlian: plot.dosen.idKelompokKeahlian || 0,
+                  nip: plot.dosen.nip || '', nidn: plot.dosen.nidn || '', email: plot.dosen.email || '', jabatanFungsionalAkademik: plot.dosen.jabatanFungsionalAkademik || '', idJabatanStruktural: plot.dosen.idJabatanStruktural || null, statusPegawai: plot.dosen.statusPegawai || '', pendidikanTerakhir: plot.dosen.pendidikanTerakhir || '', idKelompokKeahlian: plot.dosen.idKelompokKeahlian || 0,
                 }
               }));
               const lecturerCodes = assignedLecturers.map(sel => sel.lecturer.lecturerCode).join(', ');
@@ -257,19 +240,13 @@ export class PlottingComponent implements OnInit {
             });
           }
           if (this.editingDosenIndex !== null && this.tableData[this.editingDosenIndex]) {
-            const freshRowData = this.tableData[this.editingDosenIndex];
-            this.initialLecturerSelections = freshRowData.assignedLecturers || [];
+            this.initialLecturerSelections = this.tableData[this.editingDosenIndex].assignedLecturers || [];
           }
         },
         error: (err) => {
-          console.error('Failed to load class mappings:', err);
           this.notificationService.showError('Gagal memuat data kelas dari server.');
         }
       });
-  }
-
-  updatePlaceholderVisibility(): void {
-    this.showPlaceholderContent = !this.currentSelectedCourse || (!this.isLoadingTableData && this.tableData.length === 0);
   }
 
   public handleSearchCleared(): void {
@@ -278,12 +255,11 @@ export class PlottingComponent implements OnInit {
 
   public unassignCoordinator(): void {
     if (!this.coordinatorObject || !this.currentSelectedCourse || !this.currentSelectedAcademicYear) {
-      this.notificationService.showWarning('Tidak ada koordinator yang dipilih untuk dihapus.');
       return;
     }
     this.notificationService.showConfirmation(
       'Anda Yakin?',
-      `Menghapus koordinator "${this.coordinatorName}" dari mata kuliah ini?`,
+      `Menghapus koordinator "${this.coordinatorName}"?`,
       'Ya, Hapus'
     ).then((result) => {
       if (result.isConfirmed) {
@@ -294,23 +270,17 @@ export class PlottingComponent implements OnInit {
         if (this.isKelompokKeahlianUser && this.selectedProdi) {
           payload.id_program_studi = this.selectedProdi.prodiId;
         }
-        this.isLoadingTableData = true;
-        this.plottingService.unassignCoordinator(payload)
-          .pipe(finalize(() => this.isLoadingTableData = false))
-          .subscribe({
-            next: () => {
-              this.notificationService.showSuccess('Koordinator berhasil dihapus.');
-              this.coordinatorName = '';
-              this.coordinatorObject = undefined;
-              this.tableData = [];
-              this.updatePlaceholderVisibility();
-            },
-            error: (err) => {
-              console.error('Failed to unassign coordinator:', err);
-              const errorMessage = err.error?.message || 'Error tidak diketahui';
-              this.notificationService.showError(`Gagal menghapus koordinator: ${errorMessage}`);
-            }
-          });
+        this.plottingService.unassignCoordinator(payload).subscribe({
+          next: () => {
+            this.notificationService.showSuccess('Koordinator berhasil dihapus.');
+            this.coordinatorName = '';
+            this.coordinatorObject = undefined;
+            this.tableData = [];
+          },
+          error: (err) => {
+            this.notificationService.showError(`Gagal menghapus koordinator: ${err.error?.message || 'Error'}`);
+          }
+        });
       }
     });
   }
@@ -336,7 +306,6 @@ export class PlottingComponent implements OnInit {
 
   handleCoordinatorAssigned(lecturer: Lecturer): void {
     if (!this.currentSelectedCourse || !this.currentSelectedAcademicYear) {
-      this.notificationService.showWarning("Mata kuliah atau tahun ajaran belum dipilih.");
       return;
     }
     const payload: any = {
@@ -347,22 +316,16 @@ export class PlottingComponent implements OnInit {
     if (this.isKelompokKeahlianUser && this.selectedProdi) {
       payload.id_program_studi = this.selectedProdi.prodiId;
     }
-    this.isLoadingTableData = true;
     this.plottingService.assignCoordinator(payload).subscribe({
       next: () => {
         this.notificationService.showSuccess(`Koordinator ${lecturer.name} berhasil di-plot.`);
         this.coordinatorName = lecturer.lecturerCode;
         this.coordinatorObject = lecturer;
         this.fetchClassMappings();
+        this.closeLecturerModal();
       },
       error: (err) => {
-        this.isLoadingTableData = false;
-        console.error('Failed to assign coordinator', err);
-        const errorMessage = err.error?.message || 'Error tidak diketahui';
-        this.notificationService.showError(`Gagal menyimpan koordinator: ${errorMessage}`);
-      },
-      complete: () => {
-        this.closeLecturerModal();
+        this.notificationService.showError(`Gagal menyimpan koordinator: ${err.error?.message || 'Error'}`);
       }
     });
   }
@@ -373,8 +336,7 @@ export class PlottingComponent implements OnInit {
       return;
     }
     if (this.editingDosenIndex !== null) {
-      const rowIndex = this.editingDosenIndex;
-      const rowData = this.tableData[rowIndex];
+      const rowData = this.tableData[this.editingDosenIndex];
       const payload = {
         id_dosen: lecturer.id,
         id_mapping_kelas_matakuliah: rowData.mappingId,
@@ -382,15 +344,12 @@ export class PlottingComponent implements OnInit {
       };
       this.plottingService.assignLecturerToClassMapping(payload).subscribe({
         next: () => {
-          this.notificationService.showSuccess(`Dosen ${lecturer.name} berhasil di-plot untuk kelas ${rowData.kelas}.`);
+          this.notificationService.showSuccess(`Dosen ${lecturer.name} berhasil di-plot.`);
           this.fetchClassMappings();
+          this.closeLecturerModal();
         },
         error: (err) => {
-          const errorMessage = err.error?.message || 'Error tidak diketahui';
-          this.notificationService.showError(`Gagal menyimpan penugasan dosen: ${errorMessage}`);
-        },
-        complete: () => {
-          this.closeLecturerModal();
+          this.notificationService.showError(`Gagal menyimpan penugasan: ${err.error?.message || 'Error'}`);
         }
       });
     }
@@ -414,10 +373,6 @@ export class PlottingComponent implements OnInit {
     return this.authService.getCurrentRole()?.role_name === 'KelompokKeahlian';
   }
 
-  get currentUserRole(): string {
-    return this.authService.getCurrentRole()?.role_name || '';
-  }
-
   public isCurrentRowTeamTeaching(): boolean {
     if (this.editingDosenIndex === null) return false;
     return this.tableData[this.editingDosenIndex]?.teamTeaching ?? false;
@@ -432,40 +387,34 @@ export class PlottingComponent implements OnInit {
     this.fetchClassMappings();
   }
 
+  public switchToPlottingView(): void {
+    this.currentView = 'plotting';
+  }
+
+  public switchToProgressView(): void {
+    this.currentView = 'progress';
+  }
+
   public handleTeamLecturersSelected(selections: TeamTeachingSelection[]): void {
     if (this.editingDosenIndex === null) return;
-    const rowIndex = this.editingDosenIndex;
-    const rowData = this.tableData[rowIndex];
+    const rowData = this.tableData[this.editingDosenIndex];
     const payloads = selections.map(selection => ({
       id_dosen: selection.lecturer.id,
       id_mapping_kelas_matakuliah: rowData.mappingId,
       beban_sks: selection.sks
     }));
-    let successfulAssignments: string[] = [];
-    let failedAssignments: string[] = [];
-    let completedCalls = 0;
-    payloads.forEach((payload, index) => {
+
+    payloads.forEach((payload) => {
       this.plottingService.assignLecturerToClassMapping(payload).subscribe({
         next: () => {
-          successfulAssignments.push(selections[index].lecturer.lecturerCode);
         },
         error: (err) => {
-          failedAssignments.push(selections[index].lecturer.name);
-          console.error(`Failed to assign ${selections[index].lecturer.name}`, err);
-        },
-        complete: () => {
-          completedCalls++;
-          if (completedCalls === payloads.length) {
-            if (failedAssignments.length > 0) {
-              this.notificationService.showError(`Gagal menyimpan penugasan untuk: ${failedAssignments.join(', ')}.`);
-            } else {
-              this.notificationService.showSuccess('Tim dosen berhasil di-plot.');
-            }
-            this.fetchClassMappings();
-          }
+          this.notificationService.showError(`Gagal menyimpan penugasan: ${err.error?.message || 'Error'}`);
         }
       });
     });
+    this.notificationService.showSuccess('Tim dosen berhasil di-plot.');
+    this.fetchClassMappings();
     this.closeLecturerModal();
   }
 }

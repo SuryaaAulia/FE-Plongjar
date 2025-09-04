@@ -1,183 +1,205 @@
-<div class="page-header" *ngIf="!showProdiSelection">
-  <h2>{{ pageTitle }}</h2>
-</div>
-
-<div *ngIf="showProdiSelection" class="prodi-selection-container">
-  <div class="prodi-header">
-    <h1 class="prodi-title">Plotting Koordinator dan Dosen Matkul</h1>
-    <p class="prodi-subtitle">
-      <span style="color: var(--red)">*</span>
-      Pilih program studi yang ingin anda mulai plottingnya
-    </p>
-  </div>
-
-  <div class="prodi-grid">
-    <div
-      *ngFor="let prodi of prodiOptions"
-      class="prodi-card"
-      [style.background-color]="prodi.color"
-      (click)="handleProdiSelection(prodi)"
-    >
-      <span class="prodi-name">{{ prodi.name }}</span>
+<div class="page-container">
+  <div
+    *ngIf="currentView === 'prodi-selection'"
+    class="prodi-selection-container"
+  >
+    <div class="prodi-header">
+      <h1 class="prodi-title">Plotting Koordinator dan Dosen Matkul</h1>
+      <p class="prodi-subtitle">
+        <span style="color: var(--red)">*</span>
+        Pilih program studi yang ingin anda mulai plottingnya
+      </p>
     </div>
-  </div>
-</div>
-
-<div *ngIf="!showProdiSelection">
-  <div class="progress-plotting-section">
-    <app-progress-plotting-page
-      [plottingData]="plottingProgressData"
-      [isLoading]="isLoadingPlottingProgress"
-    ></app-progress-plotting-page>
-  </div>
-  <div class="course-assignment-container">
-    <div class="green-header-bar">
-      <span
-        *ngIf="isKelompokKeahlianUser && selectedProdi"
-        class="prodi-text-in-header"
+    <div class="prodi-grid">
+      <div
+        *ngFor="let prodi of prodiOptions"
+        class="prodi-card"
+        [style.background-color]="prodi.color"
+        (click)="handleProdiSelection(prodi)"
       >
-        Program Studi: <strong>{{ selectedProdi.name }}</strong>
-      </span>
+        <span class="prodi-name">{{ prodi.name }}</span>
+      </div>
+    </div>
+  </div>
+
+  <app-progress-plotting-page
+    *ngIf="currentView === 'progress'"
+    [plottingData]="plottingProgressData"
+    [isLoading]="isLoadingPlottingProgress"
+    [selectedProdiName]="selectedProdi?.name"
+    (viewSwitched)="switchToPlottingView()"
+  >
+  </app-progress-plotting-page>
+
+  <div *ngIf="currentView === 'plotting'" class="plotting-container">
+    <div class="page-header">
+      <h2>{{ pageTitle }}</h2>
+      <button
+        *ngIf="
+          isKelompokKeahlianUser ||
+          authService.getCurrentRole()?.role_name === 'ProgramStudi'
+        "
+        class="switch-view-button"
+        (click)="switchToProgressView()"
+        title="Kembali ke Halaman Progress"
+      >
+        <i class="fa-solid fa-right-left"></i>
+      </button>
     </div>
 
-    <div class="form-section">
-      <div class="form-group">
-        <label for="course-search">Mata Kuliah: </label>
-        <app-search-matkul
-          (selectionConfirmed)="handleCourseAndYearSelected($event)"
-          (selectionClosed)="updatePlaceholderVisibility()"
-          (searchCleared)="handleSearchCleared()"
-          id="course-search"
-        ></app-search-matkul>
-      </div>
-
-      <div class="form-group">
-        <label for="coordinator">Koordinator Mata Kuliah:</label>
-        <button
-          class="input-like-button"
-          (click)="openLecturerModal('coordinator')"
-          id="coordinator"
-          [disabled]="!currentSelectedCourse"
+    <div class="course-assignment-container">
+      <div class="green-header-bar">
+        <span
+          *ngIf="isKelompokKeahlianUser && selectedProdi"
+          class="prodi-text-in-header"
         >
-          <span *ngIf="coordinatorName; else pilihKoordinatorTextCoordinator">{{
-            coordinatorName
-          }}</span>
-          <ng-template #pilihKoordinatorTextCoordinator>
-            <span class="placeholder-text">Pilih Dosen</span>
-            <i class="fa fa-plus icon-hover"></i>
-          </ng-template>
-        </button>
+          Program Studi: <strong>{{ selectedProdi.name }}</strong>
+        </span>
       </div>
-    </div>
 
-    <div class="table-container">
-      <table>
-        <thead>
-          <tr>
-            <th>No</th>
-            <th>Kelas</th>
-            <th>Dosen</th>
-            <th>Praktikum</th>
-            <th>Kuota</th>
-            <th>Kredit</th>
-            <th>PIC</th>
-            <th>Semester</th>
-            <th>Online/Onsite</th>
-          </tr>
-        </thead>
-        <tbody *ngIf="!isLoadingTableData && tableData.length > 0">
-          <tr *ngFor="let row of tableData; let i = index">
-            <td>{{ row.no }}</td>
-            <td class="class-cell">
-              <i
-                *ngIf="row.teamTeaching"
-                class="fas fa-users team-teaching-icon"
-                title="Team Teaching"
-              ></i>
-              <span>{{ row.kelas }}</span>
-            </td>
-            <td>
-              <button
-                class="input-like-button has-hover-icon"
-                (click)="openLecturerModal('dosen', i)"
-              >
-                <ng-container *ngIf="row.dosen; else pilihDosenWithHover">{{
-                  row.dosen
-                }}</ng-container>
-                <ng-template #pilihDosenWithHover>
-                  <span class="placeholder-text">Pilih Dosen</span>
-                  <i class="fa fa-plus icon-hover"></i>
-                </ng-template>
-              </button>
-            </td>
-            <td [class.praktikum-yes]="row.praktikum === 'YES'">
-              {{ row.praktikum }}
-            </td>
-            <td>{{ row.kuota }}</td>
-            <td>{{ row.kredit }}</td>
-            <td>{{ row.pic }}</td>
-            <td>{{ row.semester }}</td>
-            <td>{{ row.onlineOnsite }}</td>
-          </tr>
-        </tbody>
-        <tbody *ngIf="isLoadingTableData || tableData.length === 0">
-          <tr>
-            <td [attr.colspan]="9" class="placeholder-cell">
-              <div class="placeholder-content-area">
-                <app-loading-spinner
-                  *ngIf="isLoadingTableData"
-                ></app-loading-spinner>
-                <ng-container *ngIf="!isLoadingTableData">
-                  <img
-                    [src]="noCourseSelectedImageUrl"
-                    alt="Pilih mata kuliah untuk melihat data"
-                    class="placeholder-image"
-                  />
-                  <p *ngIf="!currentSelectedCourse" class="placeholder-message">
-                    Silakan pilih Mata Kuliah & Tahun Ajaran untuk memulai.
-                  </p>
-                  <p
-                    *ngIf="currentSelectedCourse && !coordinatorObject"
-                    class="placeholder-message"
-                  >
-                    Pilih Koordinator Mata Kuliah untuk menampilkan daftar
-                    kelas.
-                  </p>
-                  <p
-                    *ngIf="
-                      currentSelectedCourse &&
-                      coordinatorObject &&
-                      tableData.length === 0
-                    "
-                    class="placeholder-message"
-                  >
-                    Belum ada data mapping kelas untuk mata kuliah ini.
-                  </p>
-                </ng-container>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+      <div class="form-section">
+        <div class="form-group">
+          <label for="course-search">Mata Kuliah: </label>
+          <app-search-matkul
+            (selectionConfirmed)="handleCourseAndYearSelected($event)"
+            (selectionClosed)="updatePlaceholderVisibility()"
+            (searchCleared)="handleSearchCleared()"
+            id="course-search"
+          ></app-search-matkul>
+        </div>
 
-    <div class="footer">
-      <div class="footer-text">
-        <i class="fa fa-users"> </i>
-        <span> : Team Teaching </span>
+        <div class="form-group">
+          <label for="coordinator">Koordinator Mata Kuliah:</label>
+          <button
+            class="input-like-button"
+            (click)="openLecturerModal('coordinator')"
+            id="coordinator"
+            [disabled]="!currentSelectedCourse"
+          >
+            <span
+              *ngIf="coordinatorName; else pilihKoordinatorTextCoordinator"
+              >{{ coordinatorName }}</span
+            >
+            <ng-template #pilihKoordinatorTextCoordinator>
+              <span class="placeholder-text">Pilih Dosen</span>
+              <i class="fa fa-plus icon-hover"></i>
+            </ng-template>
+          </button>
+        </div>
       </div>
-      <div class="footer-actions">
-        <app-action-button
-          *ngIf="isKelompokKeahlianUser"
-          text="Ganti Prodi"
-          backgroundColorVar="var(--grey-alternative)"
-          (click)="onBackToProdiSelection()"
-        ></app-action-button>
-        <app-action-button
-          text="Clear"
-          backgroundColorVar="var(--red)"
-          (click)="clearAll()"
-        ></app-action-button>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Kelas</th>
+              <th>Dosen</th>
+              <th>Praktikum</th>
+              <th>Kuota</th>
+              <th>Kredit</th>
+              <th>PIC</th>
+              <th>Semester</th>
+              <th>Online/Onsite</th>
+            </tr>
+          </thead>
+          <tbody *ngIf="!isLoadingTableData && tableData.length > 0">
+            <tr *ngFor="let row of tableData; let i = index">
+              <td>{{ row.no }}</td>
+              <td class="class-cell">
+                <i
+                  *ngIf="row.teamTeaching"
+                  class="fas fa-users team-teaching-icon"
+                  title="Team Teaching"
+                ></i>
+                <span>{{ row.kelas }}</span>
+              </td>
+              <td>
+                <button
+                  class="input-like-button has-hover-icon"
+                  (click)="openLecturerModal('dosen', i)"
+                >
+                  <ng-container *ngIf="row.dosen; else pilihDosenWithHover">{{
+                    row.dosen
+                  }}</ng-container>
+                  <ng-template #pilihDosenWithHover>
+                    <span class="placeholder-text">Pilih Dosen</span>
+                    <i class="fa fa-plus icon-hover"></i>
+                  </ng-template>
+                </button>
+              </td>
+              <td [class.praktikum-yes]="row.praktikum === 'YES'">
+                {{ row.praktikum }}
+              </td>
+              <td>{{ row.kuota }}</td>
+              <td>{{ row.kredit }}</td>
+              <td>{{ row.pic }}</td>
+              <td>{{ row.semester }}</td>
+              <td>{{ row.onlineOnsite }}</td>
+            </tr>
+          </tbody>
+          <tbody *ngIf="isLoadingTableData || tableData.length === 0">
+            <tr>
+              <td [attr.colspan]="9" class="placeholder-cell">
+                <div class="placeholder-content-area">
+                  <app-loading-spinner
+                    *ngIf="isLoadingTableData"
+                  ></app-loading-spinner>
+                  <ng-container *ngIf="!isLoadingTableData">
+                    <img
+                      [src]="noCourseSelectedImageUrl"
+                      alt="Pilih mata kuliah untuk melihat data"
+                      class="placeholder-image"
+                    />
+                    <p
+                      *ngIf="!currentSelectedCourse"
+                      class="placeholder-message"
+                    >
+                      Silakan pilih Mata Kuliah & Tahun Ajaran untuk memulai.
+                    </p>
+                    <p
+                      *ngIf="currentSelectedCourse && !coordinatorObject"
+                      class="placeholder-message"
+                    >
+                      Pilih Koordinator Mata Kuliah untuk menampilkan daftar
+                      kelas.
+                    </p>
+                    <p
+                      *ngIf="
+                        currentSelectedCourse &&
+                        coordinatorObject &&
+                        tableData.length === 0
+                      "
+                      class="placeholder-message"
+                    >
+                      Belum ada data mapping kelas untuk mata kuliah ini.
+                    </p>
+                  </ng-container>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="footer">
+        <div class="footer-text">
+          <i class="fa fa-users"> </i>
+          <span> : Team Teaching </span>
+        </div>
+        <div class="footer-actions">
+          <app-action-button
+            *ngIf="isKelompokKeahlianUser"
+            text="Ganti Prodi"
+            backgroundColorVar="var(--grey-alternative)"
+            (click)="onBackToProdiSelection()"
+          ></app-action-button>
+          <app-action-button
+            text="Clear"
+            backgroundColorVar="var(--red)"
+            (click)="clearAll()"
+          ></app-action-button>
+        </div>
       </div>
     </div>
   </div>
