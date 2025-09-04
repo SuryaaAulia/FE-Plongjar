@@ -6,7 +6,7 @@ import { ApiService } from '../../../../../core/services/api.service';
 import { HttpParams } from '@angular/common/http';
 import { debounceTime, distinctUntilChanged, finalize, Subject } from 'rxjs';
 import { MatakuliahService } from '../../../../../core/services/matakuliah.service';
-import { NotificationService } from '../../../../../core/services/notification.service'; // Import NotificationService
+import { NotificationService } from '../../../../../core/services/notification.service';
 import { LoadingSpinnerComponent, SearchNotFoundComponent, ActionButtonComponent } from '../../../index';
 
 @Component({
