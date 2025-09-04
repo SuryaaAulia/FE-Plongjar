@@ -494,4 +494,14 @@ export class ApiService {
         const url = this.endpoint.getUrl('plottingan_pengajaran', 'get_hasil_laak_kaur');
         return this.http.get(url!, { params });
     }
+
+    getProgressPlottingKK(prodiId: number): Observable<any> {
+        const url = this.endpoint.getUrl('progress_plotting', 'get_progress_kk', { prodiId });
+        return this.http.get<any>(url!);
+    }
+
+    getProgressPlottingProdi(): Observable<any> {
+        const url = this.endpoint.getUrl('progress_plotting', 'get_progress_prodi');
+        return this.http.get<any>(url!);
+    }
 }
