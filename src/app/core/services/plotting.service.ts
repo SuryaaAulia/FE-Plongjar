@@ -1,10 +1,12 @@
 import { Injectable } from '@angular/core';
-import { Observable, throwError } from 'rxjs';
+import { Observable, throwError, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { Course, Lecturer } from '../models/user.model';
 import { AuthService } from './auth.service';
 import { HttpParams } from '@angular/common/http';
+import { PlottingProgressData } from '../../features/shared-pages/progress-plotting/progress-plotting.component';
+import { CourseDetail } from '../../shared/components/index';
 
 export interface PlottingData {
     course: Course;
@@ -45,6 +47,23 @@ export interface SubmitPlottingRequest {
         semester: string;
         mode: 'online' | 'onsite';
     }[];
+}
+
+interface ProgressApiResponse {
+    success: boolean;
+    data: {
+        jumlah_selesai: number;
+        persentase_selesai: number;
+        jumlah_sedang: number;
+        persentase_sedang: number;
+        jumlah_belum: number;
+        persentase_belum: number;
+        detail_progress: {
+            selesai_diplotting: any[];
+            sedang_diplotting: any[];
+            belum_diplotting: any[];
+        };
+    };
 }
 
 @Injectable({
@@ -159,26 +178,69 @@ export class PlottingService {
         );
     }
 
-    private mapApiCoursesToCourses(apiCourses: any[]): Course[] {
-        return apiCourses.map(apiCourse => ({
-            id: apiCourse.kode_matkul || apiCourse.id.toString(),
-            name: apiCourse.nama_matakuliah || apiCourse.name,
-            code: apiCourse.kode_matkul || apiCourse.code,
-            sks: apiCourse.sks || 0,
-            pic: apiCourse.id_pic,
-            statusMatkul: apiCourse.mandatory_status,
-            metodePerkuliahan: this.mapModePerkuliahan(apiCourse.mode_perkuliahan) || 'Daring',
-            praktikum: apiCourse.praktikum === 1 || apiCourse.praktikum === true ? 'Ya' : 'Tidak'
-        }));
+    getProgressPlotting(prodiId?: number): Observable<PlottingProgressData[]> {
+        const currentRole = this.authService.getCurrentRole()?.role_name;
+        let apiCall: Observable<any>;
+
+        if (currentRole === 'KelompokKeahlian' && prodiId) {
+            apiCall = this.apiService.getProgressPlottingKK(prodiId);
+        } else if (currentRole === 'ProgramStudi') {
+            apiCall = this.apiService.getProgressPlottingProdi();
+        } else {
+            return of([]);
+        }
+
+        return apiCall.pipe(
+            map(response => this.mapApiResponseToProgressData(response)),
+            catchError(err => {
+                console.error('Failed to fetch plotting progress:', err);
+                return of([]);
+            })
+        );
     }
 
-    private mapModePerkuliahan(mode: string): string {
-        const modeMapping: { [key: string]: string } = {
-            'onsite': 'Luring',
-            'online': 'Daring',
-            'hybrid': 'Hybrid'
+
+    private mapApiResponseToProgressData(response: ProgressApiResponse): PlottingProgressData[] {
+        if (!response.success || !response.data) {
+            return [];
+        }
+
+        const data = response.data;
+
+        const SelesaiCard: PlottingProgressData = {
+            statusTitle: 'Selesai di Plotting',
+            courseCount: data.jumlah_selesai || 0,
+            percentage: data.persentase_selesai || 0,
+            statusType: 'completed',
+            courseList: this.mapCourseDetails(data.detail_progress.selesai_diplotting)
         };
-        return modeMapping[mode] || 'Daring';
+
+        const SedangCard: PlottingProgressData = {
+            statusTitle: 'Sedang di Plotting',
+            courseCount: data.jumlah_sedang || 0,
+            percentage: data.persentase_sedang || 0,
+            statusType: 'in-progress',
+            courseList: this.mapCourseDetails(data.detail_progress.sedang_diplotting)
+        };
+
+        const BelumCard: PlottingProgressData = {
+            statusTitle: 'Belum di Plotting',
+            courseCount: data.jumlah_belum || 0,
+            percentage: data.persentase_belum || 0,
+            statusType: 'not-plotted',
+            courseList: this.mapCourseDetails(data.detail_progress.belum_diplotting)
+        };
+
+        return [BelumCard, SedangCard, SelesaiCard];
+    }
+
+    private mapCourseDetails(details: any[]): CourseDetail[] {
+        if (!details) return [];
+        return details.map(item => ({
+            name: item.nama_matakuliah,
+            classCount: item.total_kelas,
+            sks: item.sks || 0
+        }));
     }
 
     unassignDosenFromPlotting(plottinganPengajaranId: number): Observable<any> {
