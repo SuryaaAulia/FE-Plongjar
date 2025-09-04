@@ -1,31 +1,37 @@
 $status-colors: (
     "not-plotted": (primary: #ef4444,
         background: #fef2f2,
+        gradient-start: #fee2e2,
     ),
     "in-progress": (primary: #f59e0b,
         background: #fffbeb,
+        gradient-start: #fef3c7,
     ),
     "completed": (primary: #22c55e,
         background: #f0fdf4,
+        gradient-start: #dcfce7,
     ),
 );
 
 .card-container {
-    font-family: "Inter", sans-serif, system-ui;
     border-radius: 12px;
     padding: 24px;
-    background-color: white;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    background-color: var(--primary-white);
+    box-shadow: 0 0 17.3px rgba(0, 0, 0, 0.3);
     transition: all 0.3s ease;
     color: #4a5568;
-    width: 100%;
-    max-width: 350px;
     display: flex;
     flex-direction: column;
+    border: 1px solid #e2e8f0;
+    min-width: 300px;
+    flex: 1;
 
     @each $status, $colors in $status-colors {
         &.#{$status} {
-            background-color: map-get($colors, background);
+            background: linear-gradient(180deg,
+                    map-get($colors, gradient-start) 0%,
+                    map-get($colors, background) 50%,
+                    rgba(255, 255, 255, 0.2) 100%);
 
             .status-indicator,
             .progress-bar {
@@ -42,16 +48,16 @@ $status-colors: (
     margin-bottom: 2rem;
 }
 
-.status {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
 .status-indicator {
     width: 16px;
     height: 16px;
     border-radius: 50%;
+}
+
+.status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .status-title {
@@ -62,10 +68,14 @@ $status-colors: (
 .course-count {
     font-size: 0.875rem;
     color: #718096;
+    white-space: nowrap;
+    margin-left: 1rem;
 }
 
 .card-body {
-    text-align: center;
+    text-align: left;
+    flex-grow: 1;
+    margin-bottom: 1.5rem;
 }
 
 .percentage {
@@ -94,13 +104,11 @@ $status-colors: (
     font-size: 0.75rem;
     color: #a0aec0;
     text-align: right;
-    margin-bottom: 2rem;
 }
 
 .card-footer {
     border-top: 1px solid #edf2f7;
     padding-top: 1rem;
-    margin-top: auto;
     text-align: center;
 }
 
@@ -127,11 +135,50 @@ $status-colors: (
 }
 
 .expanded-content {
-    margin-top: 1rem;
-    padding: 1rem;
-    background-color: rgba(0, 0, 0, 0.02);
+    margin-top: 1.5rem;
+    background-color: transparent;
     border-radius: 8px;
-    font-size: 0.875rem;
     text-align: left;
-    border: 1px solid #edf2f7;
+    border: none;
+    max-height: 4 50px;
+    overflow-y: auto;
+}
+
+
+.course-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.course-list-item {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 12px 16px;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.course-list-item:last-child {
+    margin-bottom: 0;
+}
+
+.course-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.course-details {
+    font-size: 0.875rem;
+    color: #718096;
+}
+
+.no-data,
+.loading-container {
+    text-align: center;
+    padding: 1rem;
+    color: #718096;
 }

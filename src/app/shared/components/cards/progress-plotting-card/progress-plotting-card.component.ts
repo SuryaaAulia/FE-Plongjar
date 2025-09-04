@@ -1,8 +1,12 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 export type CardStatus = 'not-plotted' | 'in-progress' | 'completed';
-
+export interface CourseDetail {
+  name: string;
+  sks: number;
+  classCount: number;
+}
 @Component({
   selector: 'app-progress-plotting-card',
   standalone: true,
@@ -12,14 +16,14 @@ export type CardStatus = 'not-plotted' | 'in-progress' | 'completed';
 })
 export class ProgressPlottingCardComponent {
   @Input() statusTitle: string = '';
-
   @Input() courseCount: number = 0;
-
   @Input() percentage: number = 0;
-
   @Input() statusType: CardStatus = 'not-plotted';
 
+  @Input() courseList: CourseDetail[] = [];
+
   isExpanded: boolean = false;
+  isLoadingList: boolean = false;
 
   toggleExpand(): void {
     this.isExpanded = !this.isExpanded;

@@ -1,38 +1,46 @@
-<div class="card-container" [ngClass]="statusType">
-  <div class="card-header">
-    <div class="status">
-      <span class="status-indicator"></span>
-      <span class="status-title">{{ statusTitle }}</span>
+  <div class="card-container" [ngClass]="statusType">
+    <div class="card-header">
+      <div class="status">
+        <span class="status-indicator"></span>
+        <span class="status-title">{{ statusTitle }}</span>
+      </div>
+      <div class="course-count">{{ courseCount }} Mata Kuliah</div>
     </div>
-    <div class="course-count">{{ courseCount }} Mata Kuliah</div>
-  </div>
 
-  <div class="card-body">
-    <div class="percentage">{{ percentage }}%</div>
-    <div class="progress-bar-container">
-      <div class="progress-bar" [style.width.%]="percentage"></div>
+    <div class="card-body">
+      <div class="percentage">{{ percentage }}%</div>
+      <div class="progress-bar-container">
+        <div class="progress-bar" [style.width.%]="percentage"></div>
+      </div>
+      <div class="progress-label">Proporsi dari total matkul</div>
     </div>
-    <div class="progress-label">Proporsi dari total matkul</div>
+
+    <div class="card-footer">
+      <button class="expand-button" (click)="toggleExpand()">
+        Lihat Daftar
+        <i
+          class="fa-solid fa-chevron-down expand-icon"
+          [class.rotated]="isExpanded"
+        ></i>
+      </button>
+    </div>
+
+    <div *ngIf="isExpanded" class="expanded-content">
+      <div *ngIf="isLoadingList" class="loading-container">
+        <p>Loading...</p>
+      </div>
+
+      <div *ngIf="!isLoadingList && courseList.length > 0" class="course-list">
+        <div *ngFor="let course of courseList" class="course-list-item">
+          <span class="course-title">{{ course.name }}</span>
+          <span class="course-details"
+            >{{ course.sks }} SKS | {{ course.classCount }} Kelas</span
+          >
+        </div>
+      </div>
+
+      <div *ngIf="!isLoadingList && courseList.length === 0" class="no-data">
+        <p>Tidak ada mata kuliah untuk ditampilkan.</p>
+      </div>
+    </div>
   </div>
-  <div class="card-footer">
-    <button class="expand-button" (click)="toggleExpand()">
-      Lihat Daftar
-      <svg
-        class="expand-icon"
-        [class.rotated]="isExpanded"
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 20 20"
-        fill="currentColor"
-      >
-        <path
-          fill-rule="evenodd"
-          d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-          clip-rule="evenodd"
-        />
-      </svg>
-    </button>
-  </div>
-  <div *ngIf="isExpanded" class="expanded-content">
-    <p>Daftar mata kuliah akan ditampilkan di sini.</p>
-  </div>
-</div>
